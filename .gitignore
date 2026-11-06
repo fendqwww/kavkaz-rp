@@ -1,0 +1,12 @@
+# секреты — никогда не коммитим
+secrets.cfg
+*.secret
+.env
+# серверные бинарники и данные
+server/
+txData/
+mariadb-data/
+cache/
+*.zip
+*.7z
+*.log
