@@ -21,7 +21,8 @@ die()  { printf '\033[1;31mОшибка: %s\033[0m\n' "$1" >&2; exit 1; }
 . /etc/os-release
 [ "${ID:-}" = "ubuntu" ] || die "скрипт рассчитан на Ubuntu 22.04 или 24.04, а у тебя ${PRETTY_NAME:-неизвестная система}"
 
-gen_pass() { tr -dc 'A-HJ-NP-Za-km-z2-9' </dev/urandom | head -c 24; }
+# head закрывает трубу раньше tr -> SIGPIPE (код 141); с pipefail это валило скрипт
+gen_pass() { local p; p=$(LC_ALL=C tr -dc 'A-HJ-NP-Za-km-z2-9' </dev/urandom | head -c 24) || true; printf '%s' "$p"; }
 
 # --- 1. пакеты ------------------------------------------------------------------
 step "Ставлю пакеты (MariaDB, curl, xz, ufw)"
@@ -124,7 +125,7 @@ systemctl restart "$SERVICE"
 
 # --- 8. файрвол ------------------------------------------------------------------------
 step "Настраиваю файрвол"
-SSH_PORT=$(ss -tlnpH 2>/dev/null | awk '/sshd/ {split($4,a,":"); print a[length(a)]; exit}')
+SSH_PORT=$(ss -tlnpH 2>/dev/null | awk '/sshd/ {split($4,a,":"); print a[length(a)]; exit}') || true
 ufw allow "${SSH_PORT:-22}"/tcp >/dev/null
 ufw allow 30120/tcp >/dev/null     # игра
 ufw allow 30120/udp >/dev/null     # игра
