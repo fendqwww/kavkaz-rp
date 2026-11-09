@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>KAVKAZ RP — памятка</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  /* стиль по antr5-skill (C:\kavkaz\SKILL.md): тёмно-синий + голубой #2ab4ff, плоско, без неона и стекла */
+  :root {
+    --bg: #04103a; --panel: #0a1636; --line: rgba(183,200,232,.16);
+    --acc: #2ab4ff; --text: #ffffff; --muted: #b7c8e8;
+    --f-logo: "Montserrat", "Arial Black", sans-serif;
+    --f-ui: "Onest", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+  body { font: 700 16px/1.45 var(--f-ui); color: var(--text); user-select: none; }
+  body.preview { background: #1b2a4a; }
+
+  .shade { position: fixed; inset: 0; background: rgba(2,8,30,.72); display: none; align-items: center; justify-content: center; }
+  .shade.open { display: flex; }
+
+  .card { width: 980px; max-width: calc(100vw - 48px); background: var(--panel); border-top: 4px solid var(--acc);
+    box-shadow: 0 30px 80px rgba(0,0,0,.55); padding: 44px 52px 40px; }
+
+  .brand { display: flex; align-items: baseline; }
+  .logo { position: relative; font: italic 900 46px/1 var(--f-logo); letter-spacing: -.03em; }
+  .logo::after { content: ""; position: absolute; right: -11px; top: -3px; width: 13px; height: 13px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #9fe2ff, var(--acc) 55%, #0b74d6); }
+  .rp { font: italic 900 17px var(--f-logo); color: var(--acc); margin-left: 12px; }
+
+  h1 { margin-top: 26px; font: 800 34px/1.15 var(--f-ui); }
+  .lead { margin-top: 8px; color: var(--muted); font-size: 17px; }
+
+  .steps { margin-top: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .step { padding: 20px 20px 18px; background: var(--bg); border: 1px solid var(--line); }
+  .num { font: italic 900 38px/1 var(--f-logo); color: var(--acc); }
+  .step h3 { margin-top: 10px; font: 800 18px var(--f-ui); text-transform: uppercase; letter-spacing: .08em; }
+  .step p { margin-top: 6px; color: var(--muted); font-size: 15px; font-weight: 600; }
+
+  .keys-title { margin-top: 30px; font: 800 13px var(--f-ui); letter-spacing: .3em; text-transform: uppercase; color: var(--acc); }
+  .keys { margin-top: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 28px; }
+  .key { display: flex; align-items: center; gap: 12px; font-size: 16px; }
+  kbd { flex: none; min-width: 52px; padding: 3px 10px; border-radius: 6px; text-align: center;
+    font: 800 15px var(--f-ui); color: var(--bg); background: #fff; }
+
+  .foot { margin-top: 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .note { color: var(--muted); font-size: 14px; font-weight: 600; }
+  .note b { color: #fff; }
+  button { cursor: pointer; border: 0; padding: 16px 42px; font: 800 16px var(--f-ui); letter-spacing: .16em; text-transform: uppercase;
+    color: var(--bg); background: #fff; }
+  button:hover { background: #dff3ff; }
+  button:focus-visible { outline: 3px solid var(--acc); outline-offset: 3px; }
+</style>
+</head>
+<body>
+<div class="shade" id="shade">
+  <div class="card" role="dialog" aria-labelledby="title">
+    <div class="brand"><span class="logo">KAVKAZ</span><span class="rp">RP</span></div>
+    <h1 id="title">Добро пожаловать в Нагорск</h1>
+    <div class="lead" id="lead">Три шага, с которых начинают все.</div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="num">01</div>
+        <h3>Мэрия</h3>
+        <p>Работа и документы. Метка уже стоит на карте.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3>Работа</h3>
+        <p>Первая зарплата — на машину и жильё. Деньги приходят на карту.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3>Машина</h3>
+        <p>Автосалон и гаражи на карте. Свою машину ставь в гараж.</p>
+      </div>
+    </div>
+
+    <div class="keys-title">Управление</div>
+    <div class="keys">
+      <div class="key"><kbd>TAB</kbd>инвентарь</div>
+      <div class="key"><kbd>ALT</kbd>зажми и наведи: действия с людьми, машинами, дверями</div>
+      <div class="key"><kbd>M</kbd>телефон</div>
+      <div class="key"><kbd>Z</kbd>быстрое меню</div>
+      <div class="key"><kbd>T</kbd>чат, команды через «/»</div>
+      <div class="key"><kbd>F1</kbd>быстрые слоты</div>
+      <div class="key"><kbd>L</kbd>закрыть / открыть машину</div>
+      <div class="key"><kbd>B</kbd>ремень безопасности</div>
+      <div class="key"><kbd>P</kbd>карта</div>
+      <div class="key"><kbd>HOME</kbd>игроки онлайн</div>
+    </div>
+
+    <div class="foot">
+      <div class="note">Открыть памятку снова: <b>/gaid</b></div>
+      <button id="ok">Понятно</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const shade = document.getElementById('shade');
+  const isGame = typeof GetParentResourceName === 'function';
+  const resource = isGame ? GetParentResourceName() : 'kavkaz_start';
+
+  function open(first) {
+    document.getElementById('lead').textContent = first
+      ? 'Три шага, с которых начинают все.'
+      : 'Памятка: с чего начать и какие кнопки.';
+    shade.classList.add('open');
+    document.getElementById('ok').focus();
+  }
+  function close() {
+    shade.classList.remove('open');
+    if (isGame) fetch(`https://${resource}/close`, { method: 'POST', body: '{}' }).catch(() => {});
+  }
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.action === 'open') open(!!e.data.first);
+  });
+  document.getElementById('ok').addEventListener('click', close);
+  window.addEventListener('keydown', e => { if (e.key === 'Escape' || e.key === 'Enter') close(); });
+
+  // предпросмотр в обычном браузере: index.html?preview
+  if (new URLSearchParams(location.search).has('preview')) { document.body.classList.add('preview'); open(true); }
+</script>
+</body>
+</html>
