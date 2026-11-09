@@ -20,6 +20,8 @@ die()  { printf '\033[1;31mОшибка: %s\033[0m\n' "$1" >&2; exit 1; }
 [ "$(id -u)" -eq 0 ] || die "запусти от root (sudo -i)"
 . /etc/os-release
 [ "${ID:-}" = "ubuntu" ] || die "скрипт рассчитан на Ubuntu 22.04 или 24.04, а у тебя ${PRETTY_NAME:-неизвестная система}"
+# FXServer требует x86-64-v2 (POPCNT, SSE4.2). на VPS с CPU «QEMU Virtual CPU» без этих флагов сервер не стартует
+grep -qw popcnt /proc/cpuinfo && grep -qw sse4_2 /proc/cpuinfo || die "процессор VPS не поддерживает POPCNT/SSE4.2 (x86-64-v2) — FXServer на нём не запустится. попроси у хостинга нормальный CPU (host-passthrough) или возьми другой тариф"
 
 # head закрывает трубу раньше tr -> SIGPIPE (код 141); с pipefail это валило скрипт
 gen_pass() { local p; p=$(LC_ALL=C tr -dc 'A-HJ-NP-Za-km-z2-9' </dev/urandom | head -c 24) || true; printf '%s' "$p"; }
