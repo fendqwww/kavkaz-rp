@@ -3,92 +3,88 @@
 <head>
 <meta charset="utf-8">
 <title>KAVKAZ RP</title>
+<link rel="stylesheet" href="fonts/fonts.css">
 <style>
+  /* фирменный стиль KAVKAZ: ночной синий, белый курсивный логотип, голубая точка */
   :root {
-    --night: #0d1726; --ridge: #16263d; --gold: #d9a441; --gold-hi: #f0c060;
-    --text: #eef2f7; --muted: #8fa0b8; --ok: #4ccf8a; --bad: #e0605a; --card: rgba(255,255,255,.05);
+    --bg: #030b26; --panel: #0a1a4a; --line: rgba(140,200,255,.16);
+    --text: #ffffff; --muted: #a9c0e6; --acc: #2ab4ff; --acc-deep: #1478ff;
+    --ok: #3ddc84; --bad: #ff5d6c;
+    --f-logo: "Montserrat", "Arial Black", sans-serif;
+    --f-ui: "Onest", "Segoe UI", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
   body {
-    font: 15px/1.5 "Segoe UI", system-ui, sans-serif; color: var(--text); overflow: hidden;
-    background: radial-gradient(1200px 500px at 70% -10%, #2a3f63 0%, transparent 60%), var(--night);
-    user-select: none;
+    font: 600 15px/1.45 var(--f-ui); color: var(--text); overflow: hidden; user-select: none;
+    background:
+      radial-gradient(700px 420px at 78% 18%, rgba(20,120,255,.35), transparent 70%),
+      radial-gradient(600px 380px at 10% 110%, rgba(42,180,255,.18), transparent 70%),
+      var(--bg);
   }
-  .mountains { position: fixed; inset: auto 0 0 0; height: 260px; pointer-events: none; }
-  .wrap { position: relative; height: 100%; display: grid; grid-template-columns: 1fr 340px; gap: 32px; padding: 40px 44px; }
-  .brand { font-size: 13px; letter-spacing: .3em; color: var(--gold); text-transform: uppercase; font-weight: 600; }
-  h1 { font-size: 54px; line-height: 1; margin: 10px 0 8px; font-weight: 800; letter-spacing: -.01em; }
-  .sub { color: var(--muted); max-width: 46ch; }
-  .status { display: flex; align-items: center; gap: 10px; margin: 28px 0 22px; font-weight: 600; }
-  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
-  .dot.ok { background: var(--ok); box-shadow: 0 0 12px var(--ok); }
+  .wrap { height: 100%; display: flex; flex-direction: column; padding: 44px 52px 28px; }
+  .logo { position: relative; display: inline-block; font: italic 900 92px/1 var(--f-logo); letter-spacing: -.035em;
+    text-shadow: 0 0 28px rgba(140,200,255,.55), 0 0 2px #fff; }
+  .logo::after { content: ""; position: absolute; right: -16px; top: -6px; width: 26px; height: 26px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #9fe2ff, var(--acc) 55%, #0b74d6); box-shadow: 0 0 18px rgba(42,180,255,.9); }
+  .rp { font: italic 900 30px var(--f-logo); color: var(--acc); margin-left: 10px; }
+  .tag { margin-top: 14px; font-size: 13px; letter-spacing: .32em; text-transform: uppercase; color: var(--muted); }
+
+  .main { margin-top: auto; display: flex; flex-direction: column; gap: 18px; max-width: 520px; }
+  .status { display: inline-flex; align-items: center; gap: 10px; align-self: flex-start; padding: 8px 14px;
+    border-radius: 999px; background: rgba(10,26,74,.7); border: 1px solid var(--line); font-size: 14px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
+  .dot.ok { background: var(--ok); box-shadow: 0 0 10px var(--ok); }
   .dot.bad { background: var(--bad); }
-  .play {
-    border: 0; cursor: pointer; padding: 18px 64px; font: 800 22px "Segoe UI", sans-serif; letter-spacing: .08em;
-    color: #1b1408; background: linear-gradient(180deg, var(--gold-hi), var(--gold)); border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(217,164,65,.35); transition: transform .1s, filter .1s;
-  }
-  .play:hover { filter: brightness(1.07); }
+  .play { align-self: flex-start; border: 0; cursor: pointer; padding: 20px 76px; border-radius: 14px;
+    font: 800 22px var(--f-ui); letter-spacing: .12em; color: #fff;
+    background: linear-gradient(180deg, var(--acc), var(--acc-deep)); box-shadow: 0 12px 36px rgba(20,120,255,.45);
+    transition: filter .12s, transform .12s; }
+  .play:hover { filter: brightness(1.08); }
   .play:active { transform: translateY(1px); }
-  .play:disabled { cursor: default; filter: grayscale(.8) brightness(.6); box-shadow: none; }
-  .hint { margin-top: 14px; color: var(--muted); font-size: 13px; min-height: 20px; }
-  .warn { margin-top: 18px; padding: 12px 16px; border-radius: 10px; background: rgba(224,96,90,.12); border: 1px solid rgba(224,96,90,.35); display: none; }
-  .warn button { margin-left: 10px; }
-  .side { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
-  .side h2 { font-size: 13px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
-  .news { overflow: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; max-height: 330px; }
-  .item { background: var(--card); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; padding: 12px 14px; }
-  .item .d { font-size: 12px; color: var(--gold); }
-  .item .t { font-weight: 700; margin: 2px 0 4px; }
-  .item .x { color: var(--muted); font-size: 13px; }
-  .links { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn { cursor: pointer; border: 1px solid rgba(255,255,255,.15); background: transparent; color: var(--text); padding: 8px 14px; border-radius: 9px; font: 600 13px "Segoe UI", sans-serif; }
-  .btn:hover { border-color: var(--gold); color: var(--gold-hi); }
-  .settings { margin-top: auto; display: none; gap: 8px; flex-direction: column; }
+  .play:focus-visible, .btn:focus-visible, input:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; }
+  .play:disabled { cursor: default; filter: grayscale(.7) brightness(.55); box-shadow: none; }
+  .hint { color: var(--muted); font-size: 13px; min-height: 19px; }
+  .warn { display: none; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 12px;
+    background: rgba(255,93,108,.1); border: 1px solid rgba(255,93,108,.35); font-size: 14px; }
+
+  .bottom { margin-top: 28px; display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
+  .btn { cursor: pointer; border: 1px solid var(--line); background: rgba(10,26,74,.6); color: var(--text);
+    padding: 9px 16px; border-radius: 10px; font: 600 13px var(--f-ui); }
+  .btn:hover { border-color: var(--acc); color: #bfe9ff; }
+  .settings { display: none; align-items: center; gap: 8px; }
   .settings.open { display: flex; }
-  .settings input { width: 100%; padding: 9px 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.25); color: var(--text); font: 14px "Segoe UI", sans-serif; }
-  .ver { position: fixed; left: 44px; bottom: 14px; font-size: 12px; color: var(--muted); }
+  .settings input { width: 240px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line);
+    background: rgba(3,11,38,.8); color: var(--text); font: 600 13px var(--f-ui); }
+  .ver { margin-left: auto; font-size: 12px; color: var(--muted); }
 </style>
 </head>
 <body>
-<svg class="mountains" viewBox="0 0 980 260" preserveAspectRatio="none" aria-hidden="true">
-  <path d="M0 260 L0 170 L90 110 L160 150 L250 60 L330 130 L410 90 L500 160 L590 70 L680 140 L760 100 L850 150 L930 95 L980 120 L980 260 Z" fill="#132238"/>
-  <path d="M0 260 L0 210 L120 165 L210 200 L320 150 L430 205 L540 160 L650 210 L760 170 L870 205 L980 175 L980 260 Z" fill="#0f1c2f"/>
-  <path d="M243 68 L250 60 L257 68 L250 72 Z M583 78 L590 70 L597 78 L590 82 Z" fill="#d9a441" opacity=".7"/>
-</svg>
-
 <div class="wrap">
-  <main>
-    <div class="brand">республика нагорье</div>
-    <h1 id="name">KAVKAZ RP</h1>
-    <p class="sub">Горы, свадьбы, строгая Румиса Холоковна и «Хазард 7007» на проспекте. Нажми «Играть» — FiveM сам подключит тебя к серверу.</p>
+  <header>
+    <div><span class="logo">KAVKAZ</span><span class="rp">RP</span></div>
+    <div class="tag">дорога домой начинается здесь</div>
+  </header>
 
+  <section class="main">
     <div class="status"><span class="dot" id="dot"></span><span id="statusText">Проверяю сервер…</span></div>
-
     <button class="play" id="play" disabled>ИГРАТЬ</button>
     <div class="hint" id="hint"></div>
-
     <div class="warn" id="fivemWarn">
-      FiveM не найден. Без него зайти не получится.
+      <span>FiveM не найден. Без него зайти не получится.</span>
       <button class="btn" id="getFivem">Скачать FiveM</button>
     </div>
-  </main>
+  </section>
 
-  <aside class="side">
-    <h2>Новости</h2>
-    <div class="news" id="news"></div>
-    <div class="links" id="links">
-      <button class="btn" id="settingsBtn">Настройки</button>
-    </div>
+  <footer class="bottom" id="links">
+    <button class="btn" id="settingsBtn">Настройки</button>
     <div class="settings" id="settings">
-      <label for="addr" style="font-size:13px;color:var(--muted)">Адрес сервера (оставь пустым — возьмётся автоматически)</label>
-      <input id="addr" placeholder="например 185.1.2.3">
+      <input id="addr" placeholder="адрес сервера, например 185.1.2.3" aria-label="Адрес сервера">
       <button class="btn" id="saveAddr">Сохранить</button>
     </div>
-  </aside>
+    <span class="ver">лаунчер v0.1</span>
+  </footer>
 </div>
-<div class="ver">лаунчер v0.1</div>
 
 <script>
   const invoke = window.__TAURI__.core.invoke;
@@ -103,47 +99,25 @@
     $('links').insertBefore(b, $('settingsBtn'));
   }
 
-  function renderNews(list) {
-    const box = $('news'); box.innerHTML = '';
-    (list || []).forEach(n => {
-      const el = document.createElement('div'); el.className = 'item';
-      const d = document.createElement('div'); d.className = 'd'; d.textContent = n.date || '';
-      const t = document.createElement('div'); t.className = 't'; t.textContent = n.title || '';
-      const x = document.createElement('div'); x.className = 'x'; x.textContent = n.text || '';
-      el.append(d, t, x); box.append(el);
-    });
-    if (!box.children.length) box.textContent = 'Пока новостей нет.';
-  }
-
   async function refreshStatus() {
     if (!cfg || !cfg.address) {
-      $('dot').className = 'dot bad';
-      $('statusText').textContent = 'Адрес сервера ещё не задан';
+      $('dot').className = 'dot';
+      $('statusText').textContent = 'Сервер ещё не подключён';
       $('play').disabled = true;
       return;
     }
     const s = await invoke('get_status', { address: cfg.address });
-    if (s.online) {
-      $('dot').className = 'dot ok';
-      $('statusText').textContent = `Сервер работает · онлайн ${s.players}${s.max_players ? ' / ' + s.max_players : ''}`;
-    } else {
-      $('dot').className = 'dot bad';
-      $('statusText').textContent = 'Сервер сейчас недоступен';
-    }
+    $('dot').className = s.online ? 'dot ok' : 'dot bad';
+    $('statusText').textContent = s.online ? 'Сервер работает' : 'Сервер сейчас недоступен';
     $('play').disabled = !s.online;
   }
 
   async function init() {
     cfg = await invoke('get_config');
-    $('name').textContent = cfg.server_name;
-    renderNews(cfg.news);
     addLink('Telegram', cfg.telegram);
     addLink('Сайт', cfg.site);
     $('addr').value = cfg.address_is_custom ? cfg.address : '';
-
-    const hasFivem = await invoke('fivem_installed');
-    $('fivemWarn').style.display = hasFivem ? 'none' : 'block';
-
+    $('fivemWarn').style.display = (await invoke('fivem_installed')) ? 'none' : 'flex';
     await refreshStatus();
     setInterval(refreshStatus, 15000);
   }

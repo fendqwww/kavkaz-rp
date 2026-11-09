@@ -1,5 +1,5 @@
 // KAVKAZ RP — лаунчер v0.1.
-// Берёт адрес сервера и новости из config.json в репозитории, показывает онлайн,
+// Берёт адрес сервера из config.json в репозитории, показывает, работает ли сервер,
 // проверяет, установлен ли FiveM, и по кнопке «Играть» открывает fivem://connect/<адрес>.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
@@ -38,11 +38,10 @@ struct Config {
     address_is_custom: bool,
 }
 
+/// только «работает / не работает» — онлайн и слоты специально не показываем
 #[derive(Serialize)]
 struct Status {
     online: bool,
-    players: u64,
-    max_players: u64,
 }
 
 fn http() -> reqwest::Client {
@@ -92,7 +91,7 @@ async fn get_config() -> Config {
 
 #[tauri::command]
 async fn get_status(address: String) -> Status {
-    let offline = Status { online: false, players: 0, max_players: 0 };
+    let offline = Status { online: false };
     if !valid_address(&with_port(&address)) {
         return offline;
     }
@@ -101,12 +100,7 @@ async fn get_status(address: String) -> Status {
     if !resp.status().is_success() {
         return offline;
     }
-    let v: serde_json::Value = resp.json().await.unwrap_or_default();
-    let max = v["sv_maxclients"]
-        .as_u64()
-        .or_else(|| v["sv_maxclients"].as_str().and_then(|s| s.parse().ok()))
-        .unwrap_or(0);
-    Status { online: true, players: v["clients"].as_u64().unwrap_or(0), max_players: max }
+    Status { online: true }
 }
 
 #[tauri::command]
