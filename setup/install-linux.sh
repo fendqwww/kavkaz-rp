@@ -165,5 +165,6 @@ cat <<EOF
    Пароль базы:  cat $SECRETS     (строка mariadb_kavkaz_password)
 4) Вход в игру:  F8 -> connect $IP
 
-Бэкап на свой ПК (в PowerShell на ПК):  scp root@$IP:$ROOT/backups/* .\nУправление:  systemctl restart $SERVICE | systemctl stop $SERVICE | journalctl -u $SERVICE -f
+Бэкап на свой ПК (в PowerShell на ПК):  scp root@$IP:$ROOT/backups/* .
+Управление:  systemctl restart $SERVICE | systemctl stop $SERVICE | journalctl -u $SERVICE -f
 EOF
