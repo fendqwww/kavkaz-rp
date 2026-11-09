@@ -10,3 +10,6 @@ cache/
 *.zip
 *.7z
 *.log
+# лаунчер: результаты сборки
+launcher/src-tauri/target/
+launcher/src-tauri/gen/

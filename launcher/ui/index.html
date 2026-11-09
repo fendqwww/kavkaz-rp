@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>KAVKAZ RP</title>
+<style>
+  :root {
+    --night: #0d1726; --ridge: #16263d; --gold: #d9a441; --gold-hi: #f0c060;
+    --text: #eef2f7; --muted: #8fa0b8; --ok: #4ccf8a; --bad: #e0605a; --card: rgba(255,255,255,.05);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font: 15px/1.5 "Segoe UI", system-ui, sans-serif; color: var(--text); overflow: hidden;
+    background: radial-gradient(1200px 500px at 70% -10%, #2a3f63 0%, transparent 60%), var(--night);
+    user-select: none;
+  }
+  .mountains { position: fixed; inset: auto 0 0 0; height: 260px; pointer-events: none; }
+  .wrap { position: relative; height: 100%; display: grid; grid-template-columns: 1fr 340px; gap: 32px; padding: 40px 44px; }
+  .brand { font-size: 13px; letter-spacing: .3em; color: var(--gold); text-transform: uppercase; font-weight: 600; }
+  h1 { font-size: 54px; line-height: 1; margin: 10px 0 8px; font-weight: 800; letter-spacing: -.01em; }
+  .sub { color: var(--muted); max-width: 46ch; }
+  .status { display: flex; align-items: center; gap: 10px; margin: 28px 0 22px; font-weight: 600; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
+  .dot.ok { background: var(--ok); box-shadow: 0 0 12px var(--ok); }
+  .dot.bad { background: var(--bad); }
+  .play {
+    border: 0; cursor: pointer; padding: 18px 64px; font: 800 22px "Segoe UI", sans-serif; letter-spacing: .08em;
+    color: #1b1408; background: linear-gradient(180deg, var(--gold-hi), var(--gold)); border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(217,164,65,.35); transition: transform .1s, filter .1s;
+  }
+  .play:hover { filter: brightness(1.07); }
+  .play:active { transform: translateY(1px); }
+  .play:disabled { cursor: default; filter: grayscale(.8) brightness(.6); box-shadow: none; }
+  .hint { margin-top: 14px; color: var(--muted); font-size: 13px; min-height: 20px; }
+  .warn { margin-top: 18px; padding: 12px 16px; border-radius: 10px; background: rgba(224,96,90,.12); border: 1px solid rgba(224,96,90,.35); display: none; }
+  .warn button { margin-left: 10px; }
+  .side { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+  .side h2 { font-size: 13px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+  .news { overflow: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; max-height: 330px; }
+  .item { background: var(--card); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; padding: 12px 14px; }
+  .item .d { font-size: 12px; color: var(--gold); }
+  .item .t { font-weight: 700; margin: 2px 0 4px; }
+  .item .x { color: var(--muted); font-size: 13px; }
+  .links { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn { cursor: pointer; border: 1px solid rgba(255,255,255,.15); background: transparent; color: var(--text); padding: 8px 14px; border-radius: 9px; font: 600 13px "Segoe UI", sans-serif; }
+  .btn:hover { border-color: var(--gold); color: var(--gold-hi); }
+  .settings { margin-top: auto; display: none; gap: 8px; flex-direction: column; }
+  .settings.open { display: flex; }
+  .settings input { width: 100%; padding: 9px 12px; border-radius: 9px; border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.25); color: var(--text); font: 14px "Segoe UI", sans-serif; }
+  .ver { position: fixed; left: 44px; bottom: 14px; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<svg class="mountains" viewBox="0 0 980 260" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M0 260 L0 170 L90 110 L160 150 L250 60 L330 130 L410 90 L500 160 L590 70 L680 140 L760 100 L850 150 L930 95 L980 120 L980 260 Z" fill="#132238"/>
+  <path d="M0 260 L0 210 L120 165 L210 200 L320 150 L430 205 L540 160 L650 210 L760 170 L870 205 L980 175 L980 260 Z" fill="#0f1c2f"/>
+  <path d="M243 68 L250 60 L257 68 L250 72 Z M583 78 L590 70 L597 78 L590 82 Z" fill="#d9a441" opacity=".7"/>
+</svg>
+
+<div class="wrap">
+  <main>
+    <div class="brand">республика нагорье</div>
+    <h1 id="name">KAVKAZ RP</h1>
+    <p class="sub">Горы, свадьбы, строгая Румиса Холоковна и «Хазард 7007» на проспекте. Нажми «Играть» — FiveM сам подключит тебя к серверу.</p>
+
+    <div class="status"><span class="dot" id="dot"></span><span id="statusText">Проверяю сервер…</span></div>
+
+    <button class="play" id="play" disabled>ИГРАТЬ</button>
+    <div class="hint" id="hint"></div>
+
+    <div class="warn" id="fivemWarn">
+      FiveM не найден. Без него зайти не получится.
+      <button class="btn" id="getFivem">Скачать FiveM</button>
+    </div>
+  </main>
+
+  <aside class="side">
+    <h2>Новости</h2>
+    <div class="news" id="news"></div>
+    <div class="links" id="links">
+      <button class="btn" id="settingsBtn">Настройки</button>
+    </div>
+    <div class="settings" id="settings">
+      <label for="addr" style="font-size:13px;color:var(--muted)">Адрес сервера (оставь пустым — возьмётся автоматически)</label>
+      <input id="addr" placeholder="например 185.1.2.3">
+      <button class="btn" id="saveAddr">Сохранить</button>
+    </div>
+  </aside>
+</div>
+<div class="ver">лаунчер v0.1</div>
+
+<script>
+  const invoke = window.__TAURI__.core.invoke;
+  const $ = (id) => document.getElementById(id);
+  let cfg = null;
+
+  function addLink(text, url) {
+    if (!url) return;
+    const b = document.createElement('button');
+    b.className = 'btn'; b.textContent = text;
+    b.onclick = () => invoke('open_link', { url });
+    $('links').insertBefore(b, $('settingsBtn'));
+  }
+
+  function renderNews(list) {
+    const box = $('news'); box.innerHTML = '';
+    (list || []).forEach(n => {
+      const el = document.createElement('div'); el.className = 'item';
+      const d = document.createElement('div'); d.className = 'd'; d.textContent = n.date || '';
+      const t = document.createElement('div'); t.className = 't'; t.textContent = n.title || '';
+      const x = document.createElement('div'); x.className = 'x'; x.textContent = n.text || '';
+      el.append(d, t, x); box.append(el);
+    });
+    if (!box.children.length) box.textContent = 'Пока новостей нет.';
+  }
+
+  async function refreshStatus() {
+    if (!cfg || !cfg.address) {
+      $('dot').className = 'dot bad';
+      $('statusText').textContent = 'Адрес сервера ещё не задан';
+      $('play').disabled = true;
+      return;
+    }
+    const s = await invoke('get_status', { address: cfg.address });
+    if (s.online) {
+      $('dot').className = 'dot ok';
+      $('statusText').textContent = `Сервер работает · онлайн ${s.players}${s.max_players ? ' / ' + s.max_players : ''}`;
+    } else {
+      $('dot').className = 'dot bad';
+      $('statusText').textContent = 'Сервер сейчас недоступен';
+    }
+    $('play').disabled = !s.online;
+  }
+
+  async function init() {
+    cfg = await invoke('get_config');
+    $('name').textContent = cfg.server_name;
+    renderNews(cfg.news);
+    addLink('Telegram', cfg.telegram);
+    addLink('Сайт', cfg.site);
+    $('addr').value = cfg.address_is_custom ? cfg.address : '';
+
+    const hasFivem = await invoke('fivem_installed');
+    $('fivemWarn').style.display = hasFivem ? 'none' : 'block';
+
+    await refreshStatus();
+    setInterval(refreshStatus, 15000);
+  }
+
+  $('play').onclick = async () => {
+    try {
+      await invoke('play', { address: cfg.address });
+      $('hint').textContent = 'Запускаю FiveM… Первый вход может занять несколько минут.';
+    } catch (e) { $('hint').textContent = String(e); }
+  };
+  $('getFivem').onclick = () => invoke('open_link', { url: 'https://fivem.net/' });
+  $('settingsBtn').onclick = () => $('settings').classList.toggle('open');
+  $('saveAddr').onclick = async () => {
+    try {
+      await invoke('set_address', { address: $('addr').value });
+      $('hint').textContent = 'Сохранено.';
+      cfg = await invoke('get_config');
+      await refreshStatus();
+    } catch (e) { $('hint').textContent = String(e); }
+  };
+
+  init();
+</script>
+</body>
+</html>
