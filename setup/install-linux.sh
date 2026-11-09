@@ -132,6 +132,21 @@ ufw allow 40120/tcp >/dev/null     # txAdmin
 ufw --force enable >/dev/null
 echo "Открыты порты: SSH ${SSH_PORT:-22}, игра 30120, txAdmin 40120"
 
+# --- 8.5 ежедневный бэкап базы ---------------------------------------------------------
+step "Настраиваю ежедневный бэкап базы (04:00, хранится 14 копий)"
+cat > /usr/local/bin/kavkaz-backup <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+DIR=/opt/kavkaz/backups
+mkdir -p "$DIR"
+STAMP=$(date +%Y-%m-%d_%H-%M)
+mariadb-dump --single-transaction --routines --databases qbox 2>/dev/null | gzip > "$DIR/qbox_$STAMP.sql.gz"
+ls -1t "$DIR"/qbox_*.sql.gz 2>/dev/null | tail -n +15 | xargs -r rm -f
+EOF
+chmod 755 /usr/local/bin/kavkaz-backup
+echo '0 4 * * * root /usr/local/bin/kavkaz-backup' > /etc/cron.d/kavkaz-backup
+echo "Бэкапы: $ROOT/backups (ручной запуск: kavkaz-backup)"
+
 # --- 9. итог ---------------------------------------------------------------------------
 IP=$(curl -fsS -4 https://api.ipify.org 2>/dev/null || hostname -I | awk '{print $1}')
 sleep 8
@@ -150,5 +165,5 @@ cat <<EOF
    Пароль базы:  cat $SECRETS     (строка mariadb_kavkaz_password)
 4) Вход в игру:  F8 -> connect $IP
 
-Управление:  systemctl restart $SERVICE | systemctl stop $SERVICE | journalctl -u $SERVICE -f
+Бэкап на свой ПК (в PowerShell на ПК):  scp root@$IP:$ROOT/backups/* .\nУправление:  systemctl restart $SERVICE | systemctl stop $SERVICE | journalctl -u $SERVICE -f
 EOF
