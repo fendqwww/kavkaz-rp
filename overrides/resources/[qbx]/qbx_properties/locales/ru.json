@@ -1,0 +1,72 @@
+{
+    "notify": {
+        "no_access": "Нет доступа.",
+        "someone_at_door": "Кто-то звонит в дверь!",
+        "keyholder": " получил ключи от жилья.",
+        "added_as_keyholder": "Тебе дали ключи от жилья.",
+        "removed_as_keyholder": " больше не имеет ключей от жилья."
+    },
+    "alert": {
+        "give_keys": "Дать ключи этому человеку?",
+        "apartment_selection": "Выбор квартиры",
+        "are_you_sure": "Заселиться сюда: %s? Позже квартиру можно будет сменить только у риелтора.",
+        "want_remove_keys": "Забрать ключи у этого человека?",
+        "want_let_person_in": "Впустить этого человека?",
+        "property_name": "Название",
+        "property_name_description": "Короткое понятное название жилья",
+        "price": "Цена",
+        "price_description": "Цена покупки или сумма аренды",
+        "rent_interval": "Период аренды",
+        "rent_interval_description": "Через сколько часов списывать аренду (если заполнено — жильё сдаётся в аренду, а не продаётся)",
+        "add_garage": "Добавить гараж"
+    },
+    "menu": {
+        "add_keyholder": "Дать ключи",
+        "people_inside": "Кто внутри",
+        "keyholders": "У кого есть ключи",
+        "doorbell_ringers": "Кто звонит в дверь",
+        "manage_keys": "Ключи",
+        "doorbell": "Звонок",
+        "manage_property": "Управление жильём",
+        "enter": "Войти",
+        "ring_doorbell": "Позвонить в дверь",
+        "properties": "Недвижимость",
+        "retrieve_properties": "Моё жильё",
+        "show_owned_properties": "Показать только моё жильё",
+        "interior_preview": "Посмотреть интерьер",
+        "start_decorating": "Расставить мебель",
+        "decorating_categories": "Категории"
+    },
+    "instructButtons": {
+        "up": "Вверх",
+        "down": "Вниз",
+        "submit": "Выбрать"
+    },
+    "keyMappings": {
+        "gizmo_translation": "Мебель: режим перемещения",
+        "gizmo_rotation": "Мебель: режим поворота",
+        "gizmo_select": "Мебель: выбрать подсвеченное",
+        "gizmo_local": "Мебель: оси относительно предмета"
+    },
+    "drawtext": {
+        "stash": "[E] Шкаф для вещей",
+        "exit": "[E] Выйти | [G] Управление",
+        "clothing": "[E] Одежда | [G] Образы",
+        "logout": "[E] Лечь спать (выйти из персонажа)",
+        "view_property": "[E] Посмотреть жильё"
+    },
+    "logs": {
+        "create_property": "Attempting to create a property.",
+        "property_created": "Property %s created successfully.",
+        "enter_property": "Player %s entered property %s.",
+        "exit_property": "Player %s exited property id %s.",
+        "apartment_selected": "Player %s selected apartment %s %s.",
+        "added_keyholder": "Added %s as a keyholder to the property %s.",
+        "removed_keyholder": "Removed %s as a keyholder to the property %s.",
+        "rent_property": "Player %s rented property %s.",
+        "buy_property": "Player %s bought property %s.",
+        "stop_renting": "Player %s stopped renting property %s.",
+        "add_decoration": "Player %s added decoration %s to property %s.",
+        "remove_decoration": "Player %s removed decoration %s from property %s."
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "error": {
+        "not_enough_money": "Не хватает денег...",
+        "invalid_type": "Такого документа нет...",
+        "invalid_job": "Такой работы нет..."
+    },
+    "success": {
+        "item_recieved": "Ты получил: ",
+        "new_job": "Поздравляем с новой работой!"
+    },
+    "info": {
+        "cityhall": "Мэрия",
+        "open_cityhall": "[E] Мэрия",
+        "target_open_cityhall": "Мэрия",
+        "identity": "Документы",
+        "employment": "Работа",
+        "obtain_license_identity": "Получить документы",
+        "select_job": "Выбрать работу",
+        "price": "Цена: %s ₽"
+    }
+}
