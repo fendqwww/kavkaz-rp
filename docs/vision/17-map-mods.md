@@ -91,9 +91,12 @@
 | **PD Beach (Rex Studio)** | ✅ | [cfx.re](https://forum.cfx.re/t/pd-beach-mlo-free-by-rex-studio/5278375) | пост полиции на набережной |
 | **Davis Sheriff's Station** | ❔ | [cfx.re](https://forum.cfx.re/t/davis-sheriff-s-station-mlo-lspd-theme/2522718) | отдел в спальном районе |
 | **Paleto Bay PD + City Hall** | ✅ | [fivemx](https://fivemx.com/free-mods/fivem/paleto-bay-police-department-and-city-hall-mlo-map) | полиция и администрация в сёлах |
+| **Police Station (mab)**: интерьер участка, без фреймворка | ✅ | [fivemscriptcreator](https://www.fivemscriptcreator.org/scripts/police-station-mab) | районный отдел полиции |
+| **Police Department [YMAP]**: 4 КБ | ✅ | [gta5-mods](https://www.gta5-mods.com/maps/police-department-map-addon-ymap) | декор у отдела (расстановка) |
+| **[Retexture] FIB Building**: замена логотипов FIB | ✅ | [gta5-mods](https://www.gta5-mods.com/maps/retexture-fib-building-aiad-replaced-fib-add-on-sp-fivem) | **образец, как сделать ФСБ** из башни FIB |
 | **Russian Border**: КПП с флагами, 6 КБ | ✅ | [gta5-mods](https://www.gta5-mods.com/maps/russian-border-ymap) | пост ДПС на въезде в горы |
 
-**ФСБ** — офис в небоскрёбе из GTA Online (раздел 1).
+**ФСБ** — башня FIB в центре с холлом из игры и логотипами ФСБ, подробно в [18-buildings-plan.md](18-buildings-plan.md).
 
 ### Больница
 | что | | ссылка | куда |
