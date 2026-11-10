@@ -15,6 +15,8 @@ RegisterNUICallback('close', function(_, cb)
     guideOpen = false
     SetNuiFocus(false, false)
     cb('ok')
+    -- памятку закрыли: дальше можно показывать выбор сюжетной линии (kavkaz_quests)
+    TriggerEvent('kavkaz_start:client:guideClosed')
 end)
 
 -- ждём, пока игрок реально в игре: экран не затемнён, редактор внешности и другие окна закрыты.

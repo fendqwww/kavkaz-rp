@@ -64,15 +64,11 @@ local function practice(src, st)
 end
 
 Q.handlers.zarema = function(src, st, choice)
-    -- финал «Порога»
-    if st.porog == 6 then
-        st.porog = 7
-        st.title = 'Свой человек'
-        Q.reward(src, Config.Porog.finalReward, 'квест: Порог')
-        Q.trust(src, st, 10)
-        Q.objective(src, nil)
-        Q.notify(src, ('линия «Порог» пройдена: %s, титул «Свой человек»'):format(Q.money(Config.Porog.finalReward)), 'success')
-        return Q.node('zarema', 'Румиса звонила, говорит — хороший парень, но без прав. Это мы исправим. Сначала теория, потом вождение.',
+    -- финал любой сюжетной линии
+    if Q.lineReady(st) then
+        local who = ({ home = 'Румиса звонила', work = 'Адам звонил', study = 'Иса звонил' })[st.line]
+        Q.lineFinale(src, st)
+        return Q.node('zarema', who .. ', говорит — хороший человек, но без прав. Это мы исправим. Сначала теория, потом вождение.',
             { { id = 'theory', label = 'Сдать теорию' }, { id = 'bye', label = 'Позже' } })
     end
 

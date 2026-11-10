@@ -17,6 +17,7 @@ server_scripts {
     'server/porog.lua',
     'server/jobs.lua',
     'server/school.lua',
+    'server/lines.lua',
 }
 
 client_script 'client/main.lua'

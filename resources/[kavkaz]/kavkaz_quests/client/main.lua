@@ -94,9 +94,17 @@ local function clearObjective()
     lib.hideTextUI()
 end
 
-local function playWash()
-    TaskStartScenarioInPlace(cache.ped, 'PROP_HUMAN_BUM_BIN', 0, true)
-    lib.progressBar({ duration = 4000, label = 'Моешь руки…', canCancel = false, disable = { move = true, car = true, combat = true } })
+-- действия на месте цели
+local ANIMS = {
+    wash = { scenario = 'PROP_HUMAN_BUM_BIN', label = 'Моешь руки…' },
+    search = { scenario = 'PROP_HUMAN_BUM_BIN', label = 'Ищешь…' },
+    sample = { scenario = 'WORLD_HUMAN_GARDENER_PLANT', label = 'Берёшь пробу…' },
+}
+local function playAnim(name)
+    local a = ANIMS[name]
+    if not a then return end
+    TaskStartScenarioInPlace(cache.ped, a.scenario, 0, true)
+    lib.progressBar({ duration = 4000, label = a.label, canCancel = false, disable = { move = true, car = true, combat = true } })
     ClearPedTasks(cache.ped)
 end
 
@@ -133,13 +141,31 @@ RegisterNetEvent('kavkaz_quests:client:objective', function(data)
             end
             if dist <= me.radius and not sent and (not me.drive or cache.vehicle) then
                 sent = true
-                if me.anim == 'wash' then playWash() end
+                if me.anim and not cache.vehicle then playAnim(me.anim) end
                 TriggerServerEvent('kavkaz_quests:server:reach', me.id)
                 SetTimeout(3000, function() sent = false end)
             end
             Wait(dist < 60.0 and 0 or 500)
         end
     end)
+end)
+
+-- сервер сам открывает окно (выбор сюжетной линии)
+RegisterNetEvent('kavkaz_quests:client:dialog', function(node)
+    if IsNuiFocused() then
+        -- другое окно открыто: подождать, пока закроют
+        CreateThread(function()
+            while IsNuiFocused() do Wait(500) end
+            show(node)
+        end)
+        return
+    end
+    show(node)
+end)
+
+-- памятка новичка закрыта (kavkaz_start) -> предложить выбор линии
+AddEventHandler('kavkaz_start:client:guideClosed', function()
+    TriggerServerEvent('kavkaz_quests:server:begin')
 end)
 
 -- после входа: восстановить текущую цель сюжета

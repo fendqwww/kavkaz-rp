@@ -9,6 +9,13 @@ Config.Npcs = {
     islam   = { name = 'Ислам', model = 'a_m_y_soucent_01', coords = vec4(193.0, -929.0, 30.69, 200.0),           scenario = 'WORLD_HUMAN_STAND_MOBILE', blip = { sprite = 280, color = 3, label = 'Ислам: помощь новичкам' } },
     isa     = { name = 'Иса Медович', model = 's_m_m_scientist_01', coords = vec4(-1637.0, 182.0, 61.76, 300.0),   scenario = 'WORLD_HUMAN_CLIPBOARD', blip = { sprite = 499, color = 2, label = 'Лаборатория Исы Медовича' } },
     zarema  = { name = 'Зарема Поворотовна', model = 'a_f_y_business_04', coords = vec4(-549.5, -199.5, 38.22, 210.0), scenario = 'WORLD_HUMAN_CLIPBOARD', blip = { sprite = 545, color = 3, label = 'Автошкола' } },
+    zaur    = { name = 'Заур (прокат скутеров)', model = 'a_m_y_business_02', coords = vec4(213.5, -926.0, 30.69, 230.0), scenario = 'WORLD_HUMAN_STAND_MOBILE', blip = { sprite = 348, color = 3, label = 'Прокат скутеров у Заура' } },
+    -- линия «На заработки»
+    bislan  = { name = 'Бислан «Крякалка»', model = 'a_m_y_stwhi_01', coords = vec4(731.0, -1088.0, 22.17, 90.0), scenario = 'WORLD_HUMAN_WELDING', blip = { sprite = 446, color = 47, label = 'Гараж Бислана' } },
+    guard   = { name = 'Сторож Висхан', model = 'a_m_m_salton_02', coords = vec4(-456.0, -1715.0, 18.64, 200.0), scenario = 'WORLD_HUMAN_SMOKING' },
+    adam    = { name = 'Капитан Адам «Тауметр»', model = 's_m_y_cop_01', coords = vec4(434.0, -981.0, 30.71, 90.0), scenario = 'WORLD_HUMAN_COP_IDLES', blip = { sprite = 60, color = 38, label = 'Капитан Адам' } },
+    -- линия «На учёбу»
+    madina  = { name = 'Доктор Мадина', model = 's_f_y_scrubs_01', coords = vec4(298.7, -584.6, 43.26, 70.0), scenario = 'WORLD_HUMAN_CLIPBOARD' },
     -- базар (Старый город)
     v_greens = { name = 'Тётя Хеда (зелень и овощи)', model = 'a_f_m_soucent_01', coords = vec4(-708.0, -900.0, 19.2, 180.0), scenario = 'WORLD_HUMAN_STAND_IMPATIENT' },
     v_dairy  = { name = 'Аминат (творог, сыр)',         model = 'a_f_y_soucent_02', coords = vec4(-702.0, -900.0, 19.2, 180.0), scenario = 'WORLD_HUMAN_STAND_IMPATIENT' },
@@ -17,6 +24,11 @@ Config.Npcs = {
 
 -- места
 Config.Places = {
+    scooter = vec4(218.0, -919.0, 30.0, 150.0), -- где Заур ставит скутер
+    scrap = vec3(-470.0, -1720.0, 18.7),       -- запчасти на свалке
+    testdrive = vec3(-1640.0, -985.0, 13.0),   -- тест-драйв: пирс Дель-Перро
+    water = { vec3(-1520.0, -1180.0, 1.9), vec3(-1110.0, -1040.0, 2.0), vec3(1100.0, -640.0, 56.8) }, -- пробы воды
+    herbs = { vec3(-425.0, 1123.0, 325.9), vec3(-390.0, 1200.0, 325.6), vec3(-470.0, 1150.0, 326.0) }, -- травы на холмах
     sink = vec3(-715.0, -915.0, 19.2),        -- рукомойник у чайханы
     lamyurt = vec3(-113.0, 6460.0, 31.5),     -- заказ в Лам-Юрт (у банка Палето)
     car = vec4(-723.0, -905.0, 19.0, 90.0),   -- где стоит машина Румисы
@@ -25,14 +37,44 @@ Config.Places = {
 -- машины (модели GTA, пока нет своих: «Семёрка» — когда поставим мод)
 Config.Cars = {
     rumisa = 'emperor', -- старая машина Румисы
+    scooter = 'faggio', -- прокатный скутер
+    client = 'blista',  -- машина клиента Бислана
     school = 'asea',    -- учебная машина автошколы
 }
 
 -- линия «Порог»
+-- старт: приехал на родину с этой суммой (один раз, новому персонажу). на что её хватает — Config.Budget
+Config.StartMoney = { cash = 50000, bank = 0 }
+
+-- примерный бюджет первых двух дней (показывается в выборе линии и у Ислама)
+Config.Budget = {
+    { 'аренда скутера, 2 дня', 3000 },
+    { 'еда и вода, 2 дня', 3000 },
+    { 'мотель, 2 ночи', 3000 },
+    { 'автошкола (вождение)', 5000 },
+    { 'одежда', 5000 },
+    { 'бензин, мелочи', 1000 },
+}
+
+-- прокат скутеров
+Config.Rent = { price = 1500, hours = 24 }
+
+-- три сюжетные линии на старте. все заканчиваются в автошколе
+Config.Lines = {
+    home  = { label = 'Домой, к своим', text = 'вернулся из Москвы к родне. Наставник — Румиса Халвовна: чайхана, базар, село.', final = 40000, title = 'Свой человек' },
+    work  = { label = 'На заработки', text = 'руки помнят моторы. Наставник — Бислан «Крякалка»: гараж, свалка, ДПС.', final = 40000, title = 'Рабочий человек' },
+    study = { label = 'На учёбу', text = 'поступил в университет. Наставник — Иса Медович: лаборатория, больница, горы.', final = 40000, title = 'Юный химик' },
+}
+
+-- линия «На заработки»
+Config.Work = { scrapCost = 2000, scrapReward = 4000, testMinutes = 8, testReward = 3000, adamReward = 2000 }
+-- линия «На учёбу»
+Config.Study = { waterReward = 4000, madinaReward = 3000, herbsReward = 5000 }
+
 Config.Porog = {
     washReward = 5000,
     deliveryMinutes = 10,
-    finalReward = 50000,
+    finalReward = 40000,
     -- что купить на базаре (id товара -> продавец, цена). неправильные товары Румиса не примет
     list = {
         greens  = { label = 'зелень', vendor = 'v_greens', price = 300 },

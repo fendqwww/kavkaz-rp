@@ -120,13 +120,14 @@ end)
 ---------------------------------------------------------------------------
 
 local function nearNpc(src, npcId)
+    if npcId == 'start' then return true end -- окно выбора линии, проверка внутри обработчика
     local npc = Config.Npcs[npcId]
     if not npc then return false end
     return #(GetEntityCoords(GetPlayerPed(src)) - npc.coords.xyz) <= 5.0
 end
 
 function Q.node(npcId, text, options)
-    return { npc = npcId, name = Config.Npcs[npcId].name, text = text, options = options or { { id = 'bye', label = 'До свидания' } } }
+    return { npc = npcId, name = Config.Npcs[npcId] and Config.Npcs[npcId].name or 'Республика Нагорье', text = text, options = options or { { id = 'bye', label = 'До свидания' } } }
 end
 
 lib.callback.register('kavkaz_quests:talk', function(src, npcId, choice)
@@ -150,9 +151,23 @@ RegisterNetEvent('kavkaz_quests:server:resume', function()
     local src = source
     local st = Q.get(src)
     if not st or Q.objectives[src] then return end
-    local where = ({ [0] = 'rumisa', [1] = st.washed and 'rumisa' or nil, [2] = 'v_greens', [3] = 'isa', [4] = 'rumisa', [5] = 'rumisa', [6] = 'zarema' })[st.porog]
-    if st.porog == 1 and not st.washed then
-        return Q.setWash(src)
+    if not st.line or st.lineDone then return end
+    if not st.afterRent then
+        local npc = Config.Npcs.zaur
+        return Q.objective(src, { id = 'goto_zaur', text = 'Арендуй скутер у Заура', coords = npc.coords.xyz, radius = 4.0, onReach = function() end })
+    end
+    local where
+    if st.line == 'home' then
+        where = ({ [0] = 'rumisa', [1] = st.washed and 'rumisa' or nil, [2] = 'v_greens', [3] = 'isa', [4] = 'rumisa', [5] = 'rumisa', [6] = 'zarema' })[st.porog]
+        if st.porog == 1 and not st.washed then return Q.setWash(src) end
+    elseif st.line == 'work' then
+        -- шаги со свалкой и тест-драйвом начинаются заново у того, кто их дал
+        if st.ls == 2 then st.scrapPaid = nil Q.save(src, st) end
+        where = ({ [1] = 'bislan', [2] = 'guard', [3] = 'bislan', [4] = 'bislan', [5] = 'adam', [6] = 'zarema' })[st.ls]
+    elseif st.line == 'study' then
+        if st.ls == 2 then st.ls = 1 Q.save(src, st) end
+        if st.ls == 5 then st.ls = 4 Q.save(src, st) end
+        where = ({ [1] = 'isa', [3] = 'isa', [4] = 'madina', [6] = 'isa', [7] = 'zarema' })[st.ls]
     end
     if where then
         local npc = Config.Npcs[where]

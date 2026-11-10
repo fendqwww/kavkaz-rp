@@ -48,6 +48,19 @@ end
 
 Q.handlers.rumisa = function(src, st, choice)
     local name = Q.charName(src)
+    -- игроки других линий: у Румисы только работа и ежедневка
+    if st.line and st.line ~= 'home' then
+        if choice == 'job_start' and Q.delivery then return rumisaMenu(src, st, Q.delivery.start(src)) end
+        if choice == 'job_stop' and Q.delivery then return rumisaMenu(src, st, Q.delivery.stop(src)) end
+        if choice == 'isa_lunch' and st.isaDay ~= Q.today() then
+            st.lunch = true
+            goTo(src, 'isa', 'Отнеси обед Исе Медовичу')
+            return Q.node('rumisa', 'Отнеси Исе обед. И смотри, чтобы съел!', { { id = 'bye', label = 'Отнесу' } })
+        end
+        if choice == 'trust' then return rumisaMenu(src, st, ('Посмотрим на тебя… (доверие: %d)'):format(st.trust)) end
+        return rumisaMenu(src, st, ('Ты %s? Слышала. Голодный — садись. Работа нужна — тоже есть.'):format(name))
+    end
+    st.line = st.line or 'home'
 
     -- шаг 0: знакомство
     if st.porog == 0 then
@@ -211,6 +224,9 @@ Q.handlers.v_meat = vendor('v_meat')
 ---------------------------------------------------------------------------
 
 Q.handlers.isa = function(src, st, choice)
+    if st.line == 'study' and (st.ls or 0) >= 1 and st.ls < 99 and not st.lunch then
+        return Q.studyIsa(src, st, choice)
+    end
     if not st.lunch then
         return Q.node('isa', 'Осторожно, не трогай колбу! Это… просто чай. Зелёный. Очень зелёный. Заходи, когда будет время — покажу опыты.')
     end
@@ -252,6 +268,19 @@ end
 ---------------------------------------------------------------------------
 
 Q.handlers.islam = function(src, st, choice)
+    -- линия ещё не выбрана — Ислам предлагает начать
+    if not st.line and (st.porog or 0) == 0 then
+        if choice == 'begin' then
+            if not st.startMoney then
+                st.startMoney = true
+                exports.qbx_core:SetMoney(src, 'cash', Config.StartMoney.cash, 'старт: приехал на родину')
+                exports.qbx_core:SetMoney(src, 'bank', Config.StartMoney.bank, 'старт: приехал на родину')
+            end
+            return Q.startNode(src)
+        end
+        return Q.node('islam', ('Салам, %s! Только приехал? Расскажи, зачем вернулся — подскажу, с чего начать.'):format(Q.charName(src)),
+            { { id = 'begin', label = 'Выбрать, зачем я приехал' }, { id = 'bye', label = 'Потом' } })
+    end
     local opts = {}
     for _, t in ipairs(Config.Islam) do opts[#opts + 1] = { id = t.id, label = t.label } end
     opts[#opts + 1] = { id = 'bye', label = 'Спасибо, брат' }
