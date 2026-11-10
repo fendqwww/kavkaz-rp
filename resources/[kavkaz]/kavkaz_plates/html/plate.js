@@ -9,7 +9,7 @@
   // символы — обычный шрифт (файл в html/fonts), но каждый ставится в ячейку фиксированного размера:
   // все буквы одной высоты и ширины, все цифры одной высоты и ширины — как на штампованном знаке.
   // cap — высота заглавной буквы в долях кегля (из метрик шрифта), по ней считаем кегль под нужную высоту в мм.
-  const FONT = { family: 'Plate Font', fallback: '"Roboto Condensed", "Arial Narrow", Arial', weight: 600, cap: 0.711 };
+  const FONT = { family: 'Plate Font', fallback: "'Arial Narrow', Arial, sans-serif", weight: 500, cap: 0.711, widen: 1 };
 
   function cell(it, x, base, color, cyr) {
     const ch = cyr ? (LAT2CYR[it.ch] || it.ch) : it.ch;
@@ -17,9 +17,11 @@
       const t = it.h * 0.14;
       return `<rect x="${(x + it.w * 0.15).toFixed(1)}" y="${(base - it.h * 0.5 - t / 2).toFixed(1)}" width="${(it.w * 0.7).toFixed(1)}" height="${t.toFixed(1)}" fill="${color}"/>`;
     }
+    // символ в своей натуральной ширине, по центру ячейки — без растяжки (растяжка делает линии слишком толстыми)
     const size = it.h / FONT.cap;
-    return `<text x="${x.toFixed(1)}" y="${base.toFixed(1)}" font-family="${FONT.family}, ${FONT.fallback}" font-weight="${FONT.weight}" font-size="${size.toFixed(1)}"`
-      + ` textLength="${it.w.toFixed(1)}" lengthAdjust="spacingAndGlyphs" fill="${color}">${ch}</text>`;
+    // widen — расширение по горизонтали (1 = как в шрифте; больше — линии толстеют, поэтому не трогаем)
+    return `<text transform="translate(${(x + it.w / 2).toFixed(1)} ${base.toFixed(1)}) scale(${FONT.widen} 1)" text-anchor="middle"`
+      + ` font-family="${FONT.family}, ${FONT.fallback}" font-weight="${FONT.weight}" font-size="${size.toFixed(1)}" fill="${color}">${ch}</text>`;
   }
 
   // ряд символов: каждый элемент { ch, w, h }, все стоят на одной базовой линии
@@ -33,8 +35,8 @@
   }
   const rowWidth = (items, gap) => items.reduce((a, it, i) => a + it.w + (i < items.length - 1 ? (it.gap ?? gap) : 0), 0);
   const isDigit = (c) => c >= '0' && c <= '9';
-  const D = (ch) => ({ ch, w: 45, h: 80 });           // цифра (76 мм по ГОСТ, почти вся высота поля)
-  const Lt = (ch) => ({ ch, w: 45, h: 60 });          // буква (58 мм), ширина как у цифры
+  const D = (ch) => ({ ch, w: 50, h: 80 });           // цифра (76 мм по ГОСТ, почти вся высота поля)
+  const Lt = (ch) => ({ ch, w: 48, h: 60 });          // буква (58 мм), ширина как у цифры
   const sp = (w) => ({ ch: ' ', w, h: 0, gap: 0 });
 
   // ---------- флаги ----------
@@ -106,9 +108,9 @@
     if (region) {
       // поле региона: крупные цифры сверху, внизу RUS вразрядку и флаг в чёрной рамке
       const cx = REG.x + REG.w / 2;
-      const rd = region.split('').map((c) => ({ ch: c, w: region.length === 3 ? 31 : 40, h: 52 }));
-      const rw = rowWidth(rd, 5);
-      out += row(rd, cx - rw / 2, REG.y + 60, 0, 5, fg);
+      const rd = region.split('').map((c) => ({ ch: c, w: region.length === 3 ? 33 : 37, h: region.length === 3 ? 50 : 54 }));
+      const rw = rowWidth(rd, 1);
+      out += row(rd, cx - rw / 2, REG.y + 61, 0, 1, fg);
       if (st.rus) {
         out += `<text x="${REG.x + 44}" y="${REG.y + 89}" text-anchor="middle" font-family="${FONT.family}, ${FONT.fallback}" font-weight="${FONT.weight}" font-size="21" letter-spacing="5" fill="${fg}">RUS</text>`;
         out += FLAGS.ru(REG.x + 82, REG.y + 72, 40, 21);
