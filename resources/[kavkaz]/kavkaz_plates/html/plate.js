@@ -93,13 +93,13 @@
   }
   const rowWidth = (items, gap) => items.reduce((a, it, i) => a + it.w + (i < items.length - 1 ? (it.gap ?? gap) : 0), 0);
   const isDigit = (c) => c >= '0' && c <= '9';
-  const D = (ch) => ({ ch, w: 43, h: 76 });           // цифра 76 мм
-  const Lt = (ch) => ({ ch, w: 41, h: 58 });          // буква 58 мм
+  const D = (ch) => ({ ch, w: 45, h: 80 });           // цифра (76 мм по ГОСТ, почти вся высота поля)
+  const Lt = (ch) => ({ ch, w: 45, h: 60 });          // буква (58 мм), ширина как у цифры
   const sp = (w) => ({ ch: ' ', w, h: 0, gap: 0 });
 
   // ---------- флаги ----------
   const FLAGS = {
-    ru: (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h / 3}" fill="#fff"/><rect x="${x}" y="${y + h / 3}" width="${w}" height="${h / 3}" fill="#0039a6"/><rect x="${x}" y="${y + 2 * h / 3}" width="${w}" height="${h / 3}" fill="#d52b1e"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#111" stroke-width="1"/>`,
+    ru: (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h / 3}" fill="#fff"/><rect x="${x}" y="${y + h / 3}" width="${w}" height="${h / 3}" fill="#0039a6"/><rect x="${x}" y="${y + 2 * h / 3}" width="${w}" height="${h / 3}" fill="#d52b1e"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="#111" stroke-width="2"/>`,
     kz: (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#00afca"/><circle cx="${x + w * 0.55}" cy="${y + h * 0.42}" r="${h * 0.2}" fill="#fec50c"/><path d="M${x + w * 0.35} ${y + h * 0.72} Q${x + w * 0.55} ${y + h * 0.55} ${x + w * 0.75} ${y + h * 0.72}" stroke="#fec50c" stroke-width="${h * 0.08}" fill="none"/><rect x="${x + w * 0.05}" y="${y}" width="${w * 0.08}" height="${h}" fill="#fec50c" opacity=".85"/>`,
     by: (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h * 2 / 3}" fill="#c8313e"/><rect x="${x}" y="${y + h * 2 / 3}" width="${w}" height="${h / 3}" fill="#4aa657"/><rect x="${x}" y="${y}" width="${w * 0.16}" height="${h}" fill="#fff"/><path d="M${x + w * 0.08} ${y + h * 0.1} l${w * 0.05} ${h * 0.15} l-${w * 0.05} ${h * 0.15} l-${w * 0.05} -${h * 0.15}z M${x + w * 0.08} ${y + h * 0.55} l${w * 0.05} ${h * 0.15} l-${w * 0.05} ${h * 0.15} l-${w * 0.05} -${h * 0.15}z" fill="#c8313e"/>`,
     am: (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h / 3}" fill="#d90012"/><rect x="${x}" y="${y + h / 3}" width="${w}" height="${h / 3}" fill="#0033a0"/><rect x="${x}" y="${y + 2 * h / 3}" width="${w}" height="${h / 3}" fill="#f2a800"/>`,
@@ -116,13 +116,13 @@
   const STYLES = {
     ru:       { bg: '#fff', fg: '#111', re: /^([ABEKMHOPCTYX])(\d{3})([ABEKMHOPCTYX]{2})(\d{2,3})$/, main: (m) => [Lt(m[1]), sp(6), D(m[2][0]), D(m[2][1]), D(m[2][2]), sp(6), Lt(m[3][0]), Lt(m[3][1])], region: (m) => m[4], rus: true },
     ru_taxi:  { bg: '#f5c400', fg: '#111', re: /^([ABEKMHOPCTYX]{2})(\d{3})(\d{2,3})$/, main: (m) => [Lt(m[1][0]), Lt(m[1][1]), sp(10), D(m[2][0]), D(m[2][1]), D(m[2][2])], region: (m) => m[3], rus: true },
-    ru_police:{ bg: '#1f4aa8', fg: '#fff', re: /^([ABEKMHOPCTYX])(\d{4})(\d{2,3})$/, main: (m) => [Lt(m[1]), sp(10), ...m[2].split('').map(D)], region: (m) => m[3], rus: true },
-    ru_army:  { bg: '#121212', fg: '#fff', re: /^(\d{4})([ABEKMHOPCTYX]{2})(\d{2,3})$/, main: (m) => [...m[1].split('').map(D), sp(10), Lt(m[2][0]), Lt(m[2][1])], region: (m) => m[3], rus: true },
+    ru_police:{ bg: '#1f4aa8', fg: '#fff', edge: '#f2f4f8', re: /^([ABEKMHOPCTYX])(\d{4})(\d{2,3})$/, main: (m) => [Lt(m[1]), sp(10), ...m[2].split('').map(D)], region: (m) => m[3], rus: true },
+    ru_army:  { bg: '#121212', fg: '#fff', edge: '#e8e8e8', re: /^(\d{4})([ABEKMHOPCTYX]{2})(\d{2,3})$/, main: (m) => [...m[1].split('').map(D), sp(10), Lt(m[2][0]), Lt(m[2][1])], region: (m) => m[3], rus: true },
     kz:       { bg: '#fff', fg: '#111', re: /^(\d{3})([ABEKMHOPCTYX]{3})(\d{2})$/, main: (m) => [...m[1].split('').map(D), sp(10), ...m[2].split('').map(Lt)], region: (m) => m[3], left: { flag: 'kz', code: 'KZ' } },
-    by:       { bg: '#fff', fg: '#111', re: /^(\d{4})([ABEKMHOPCTYX]{2})(\d)$/, main: (m) => [...m[1].split('').map(D), sp(10), Lt(m[2][0]), Lt(m[2][1]), { ch: '-', w: 24, h: 58 }, D(m[3])], left: { flag: 'by', code: 'BY' } },
+    by:       { bg: '#fff', fg: '#111', re: /^(\d{4})([ABEKMHOPCTYX]{2})(\d)$/, main: (m) => [...m[1].split('').map(D), sp(10), Lt(m[2][0]), Lt(m[2][1]), { ch: '-', w: 22, h: 60 }, D(m[3])], left: { flag: 'by', code: 'BY' } },
     am:       { bg: '#fff', fg: '#111', re: /^(\d{2})([ABEKMHOPCTYX]{2})(\d{3})$/, main: (m) => [D(m[1][0]), D(m[1][1]), sp(10), Lt(m[2][0]), Lt(m[2][1]), sp(10), ...m[3].split('').map(D)], left: { flag: 'am', code: 'AM', band: true } },
-    ge:       { bg: '#fff', fg: '#111', re: /^([ABEKMHOPCTYX]{2})(\d{3})([ABEKMHOPCTYX]{2})$/, main: (m) => [Lt(m[1][0]), Lt(m[1][1]), { ch: '-', w: 24, h: 58 }, ...m[2].split('').map(D), { ch: '-', w: 24, h: 58 }, Lt(m[3][0]), Lt(m[3][1])], left: { flag: 'ge', code: 'GE', band: true } },
-    az:       { bg: '#fff', fg: '#111', re: /^(\d{2})([ABEKMHOPCTYX]{2})(\d{3})$/, main: (m) => [D(m[1][0]), D(m[1][1]), { ch: '-', w: 24, h: 58 }, Lt(m[2][0]), Lt(m[2][1]), { ch: '-', w: 24, h: 58 }, ...m[3].split('').map(D)], left: { flag: 'az', code: 'AZ' } },
+    ge:       { bg: '#fff', fg: '#111', re: /^([ABEKMHOPCTYX]{2})(\d{3})([ABEKMHOPCTYX]{2})$/, main: (m) => [Lt(m[1][0]), Lt(m[1][1]), { ch: '-', w: 22, h: 60 }, ...m[2].split('').map(D), { ch: '-', w: 22, h: 60 }, Lt(m[3][0]), Lt(m[3][1])], left: { flag: 'ge', code: 'GE', band: true } },
+    az:       { bg: '#fff', fg: '#111', re: /^(\d{2})([ABEKMHOPCTYX]{2})(\d{3})$/, main: (m) => [D(m[1][0]), D(m[1][1]), { ch: '-', w: 22, h: 60 }, Lt(m[2][0]), Lt(m[2][1]), { ch: '-', w: 22, h: 60 }, ...m[3].split('').map(D)], left: { flag: 'az', code: 'AZ' } },
   };
 
   function fit(items, maxW, gap) {
@@ -133,47 +133,53 @@
     return items.map((it) => ({ ...it, w: it.w * k }));
   }
 
+  // геометрия (viewBox 520×112): толстая окантовка, два отдельных поля со скруглёнными углами — как на настоящем знаке
+  const MAIN = { x: 7, y: 7, w: 364, h: 98 }, REG = { x: 377, y: 7, w: 136, h: 98 }, FULL = { x: 7, y: 7, w: 506, h: 98 };
+  const field = (f, fill) => `<rect x="${f.x}" y="${f.y}" width="${f.w}" height="${f.h}" rx="7" fill="${fill}"/>`;
+  const edgeRect = (color) => `<rect x="0" y="0" width="520" height="112" rx="11" fill="${color}"/>`;
+
   function transit(plate) {
-    return `<rect x="1.5" y="1.5" width="517" height="109" rx="8" fill="#fffdf3" stroke="#111" stroke-width="3"/>
-      <text x="260" y="34" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="20" fill="#c0262d" letter-spacing="6">ТРАНЗИТ</text>
-      <text x="260" y="92" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="52" fill="#111" letter-spacing="4">${plate}</text>`;
+    return edgeRect('#111') + field(FULL, '#fffdf3')
+      + `<text x="260" y="32" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="18" fill="#c0262d" letter-spacing="6">ТРАНЗИТ</text>
+      <text x="260" y="90" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="50" fill="#111" letter-spacing="4">${plate}</text>`;
   }
 
   function body(styleId, plate) {
     const st = STYLES[styleId] || STYLES.ru;
     const m = st.re.exec(plate || '');
     if (!m) return transit(plate || '');
-    const gap = 7, sw = 11.5, fg = st.fg, base = 96;
-    let out = `<rect x="1.5" y="1.5" width="517" height="109" rx="8" fill="${st.bg}" stroke="#111" stroke-width="3"/>`;
-    out += `<rect x="6" y="6" width="508" height="100" rx="5" fill="none" stroke="${fg}" stroke-width="2"/>`;
-    let x0 = 8, x1 = 512;
-    if (st.left) {
-      // полоса слева: флаг и код страны (как на номерах СНГ и Европы)
-      const bw = 62;
-      if (st.left.band) out += `<path d="M6 11 a5 5 0 0 1 5 -5 h${bw - 5} v100 h-${bw - 5} a5 5 0 0 1 -5 -5z" fill="#1d4fb8"/>`;
-      out += FLAGS[st.left.flag](16, 18, 42, 28);
-      out += `<text x="${6 + bw / 2}" y="92" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="24" fill="${st.left.band ? '#fff' : fg}">${st.left.code}</text>`;
-      x0 = 6 + bw + 4;
-    }
+    const gap = 5, sw = 10.5, fg = st.fg;
     const region = st.region && st.region(m);
-    if (region) {
-      // поле региона справа, отделено вертикальной линией
-      const rx = 400;
-      out += `<line x1="${rx}" y1="6" x2="${rx}" y2="106" stroke="${fg}" stroke-width="2.5"/>`;
-      const rd = region.split('').map((c) => ({ ch: c, w: region.length === 3 ? 28 : 36, h: 54 }));
-      const rw = rowWidth(rd, 5);
-      out += row(rd, rx + (114 - rw) / 2, 64, 9.5, 5, fg);
-      if (st.rus) {
-        out += `<text x="${rx + 46}" y="96" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="22" fill="${fg}">RUS</text>`;
-        out += FLAGS.ru(rx + 74, 79, 28, 18);
-      } else if (styleId === 'kz') {
-        out += `<text x="${rx + 57}" y="96" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="16" fill="${fg}">регион</text>`;
-      }
-      x1 = rx - 4;
+    const main = region ? MAIN : FULL;
+    let out = edgeRect(st.edge || '#111') + field(main, st.bg) + (region ? field(REG, st.bg) : '');
+
+    let x0 = main.x + 8, x1 = main.x + main.w - 8;
+    if (st.left) {
+      // флаг и код страны слева (номера СНГ и Европы)
+      const bw = 60;
+      if (st.left.band) out += `<path d="M${main.x} ${main.y + 7} a7 7 0 0 1 7 -7 h${bw - 7} v${main.h} h-${bw - 7} a7 7 0 0 1 -7 -7z" fill="#1d4fb8"/>`;
+      out += FLAGS[st.left.flag](main.x + 9, main.y + 12, 42, 28);
+      out += `<text x="${main.x + bw / 2}" y="${main.y + 86}" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="24" fill="${st.left.band ? '#fff' : fg}">${st.left.code}</text>`;
+      x0 = main.x + bw + 6;
     }
-    const items = fit(st.main(m), x1 - x0 - 36, gap);
+
+    if (region) {
+      // поле региона: крупные цифры сверху, внизу RUS вразрядку и флаг в чёрной рамке
+      const cx = REG.x + REG.w / 2;
+      const rd = region.split('').map((c) => ({ ch: c, w: region.length === 3 ? 31 : 40, h: 52 }));
+      const rw = rowWidth(rd, 5);
+      out += row(rd, cx - rw / 2, REG.y + 60, 9.5, 5, fg);
+      if (st.rus) {
+        out += `<text x="${REG.x + 44}" y="${REG.y + 89}" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="21" letter-spacing="5" fill="${fg}">RUS</text>`;
+        out += FLAGS.ru(REG.x + 82, REG.y + 72, 40, 21);
+      } else if (styleId === 'kz') {
+        out += `<text x="${cx}" y="${REG.y + 89}" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="17" letter-spacing="2" fill="${fg}">KZ</text>`;
+      }
+    }
+
+    const items = fit(st.main(m), x1 - x0, gap);
     const w = rowWidth(items, gap);
-    out += row(items, x0 + (x1 - x0 - w) / 2, base, sw, gap, fg);
+    out += row(items, x0 + (x1 - x0 - w) / 2, main.y + main.h - 8, sw, gap, fg);
     return out;
   }
 
