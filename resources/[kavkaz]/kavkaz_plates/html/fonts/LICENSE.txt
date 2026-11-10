@@ -1,3 +1,4 @@
+Plate Font = Roboto Condensed SemiBold (подмножество символов номеров), SIL Open Font License 1.1, github.com/googlefonts/roboto-classic
 Golos Text — SIL Open Font License 1.1, github.com/googlefonts/golos-text
 
 Copyright 2019 The Golos Text Project Authors (https://github.com/googlefonts/golos-text)

@@ -92,6 +92,28 @@
   select:focus, input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(31, 138, 224, .15); }
   .preview-plate { display: flex; justify-content: center; padding: 6px 0 10px; } .preview-plate .plate-svg { width: 320px; }
 
+  /* мастер получения номера */
+  .steps { display: flex; gap: 6px; padding: 12px 20px 0; }
+  .steps span { flex: 1; padding-bottom: 8px; border-bottom: 3px solid var(--line); font-size: 13px; color: var(--muted); }
+  .steps span.on { border-color: var(--sky); color: var(--text); font-weight: 600; }
+  .steps span.done { border-color: #9ccbf0; color: var(--muted); }
+  .doc { display: grid; grid-template-columns: 84px 1fr; gap: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fbfcfe; }
+  .doc .photo { width: 84px; height: 104px; border-radius: 4px; background: #dfe7ef; display: grid; place-items: center; color: #8aa0b5; font-size: 34px; }
+  .doc dl { display: grid; grid-template-columns: 130px 1fr; gap: 4px 10px; font-size: 14px; }
+  .doc dt { color: var(--muted); } .doc dd { font-weight: 500; }
+  .doc-status { margin-top: 10px; font-size: 14px; } .doc-status.ok { color: var(--ok); } .doc-status.bad { color: var(--bad); }
+  .issue { padding: 26px 20px 10px; text-align: center; }
+  .issue .plate-svg { width: 380px; }
+  .issue p { margin-top: 14px; color: var(--muted); font-size: 14px; }
+  .issue h4 { margin-top: 10px; font-size: 18px; font-weight: 600; }
+  .frames { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .ftile { padding: 10px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
+  .ftile:hover { border-color: var(--line2); background: var(--bg); }
+  .ftile.on { border-color: var(--sky); background: var(--sky-l); }
+  .ftile .plate-svg { width: 100%; display: block; }
+  .ftile .fl { margin-top: 6px; display: flex; justify-content: space-between; font-size: 13px; }
+  .ftile .fl b { font-weight: 600; white-space: nowrap; }
+  .dlg.wide { width: 720px; }
   .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); padding: 10px 16px; border-radius: 6px; background: #17222e; color: #fff;
     font-size: 14.5px; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
   .toast.err { background: var(--bad); }
@@ -129,7 +151,9 @@ let S = null, tab = 'cars', busy = false;
 const rub = (v) => Math.floor(v).toLocaleString('ru-RU').replace(/\s/g, ' ') + ' ₽';
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const res = () => (window.GetParentResourceName ? GetParentResourceName() : 'kavkaz_plates');
-const plate = (p, style, frameText) => Plate.svg({ plate: p, style: style || (/^TR\d{6}$/.test(p) ? 'transit' : 'ru'), frame: frameText ? { text: frameText } : null });
+// frame — объект { text, color, textColor } или просто текст
+const plate = (p, style, frame) => Plate.svg({ plate: p, style: style || (/^TR\d{6}$/.test(p) ? 'transit' : 'ru'),
+  frame: frame ? (typeof frame === 'string' ? { text: frame } : frame) : null });
 const STATE = { 0: ['на улице', 'mute'], 1: ['в гараже', 'mute'], 2: ['на штрафстоянке', 'bad'] };
 const styleLabel = (id) => (S.styles.find((s) => s.id === id) || {}).label || '';
 
@@ -143,7 +167,7 @@ function render() {
     if (!S.vehicles.length) { m.innerHTML = '<h2>Мои машины</h2><div class="empty">Личных машин нет. Купите машину в автосалоне и приезжайте за номером.</div>'; return; }
     m.innerHTML = '<h2>Мои машины</h2>' + S.vehicles.map((v) => {
       const st = STATE[v.state] || ['', 'mute'];
-      return `<div class="item">${plate(v.plate, v.style, v.frameText)}
+      return `<div class="item">${plate(v.plate, v.style, v.frameObj || v.frameText)}
         <div><div class="name">${esc(v.label)}</div><div class="meta">
           <span class="st ${v.registered ? 'ok' : 'warn'}">${v.registered ? 'на учёте' : 'транзит, не на учёте'}</span>
           <span class="st ${st[1]}">${st[0]}</span></div></div>
@@ -156,7 +180,7 @@ function render() {
     const byId = Object.fromEntries(S.vehicles.map((v) => [v.id, v]));
     m.innerHTML = '<h2>Мои номера</h2>' + (S.plates.length ? S.plates.map((p) => {
       const car = p.vehicle_id && byId[p.vehicle_id];
-      return `<div class="item">${plate(p.plate, p.style, p.frameText)}
+      return `<div class="item">${plate(p.plate, p.style, p.frameObj || p.frameText)}
         <div><div class="name">${car ? esc(car.label) : 'Не установлен'}</div><div class="meta">
           ${p.style && p.style !== 'ru' ? `<span class="st mute">${esc(styleLabel(p.style) || p.style)}</span>` : ''}
           ${p.tierLabel ? `<span class="st tier">${esc(p.tierLabel)}</span>` : ''}
@@ -186,7 +210,7 @@ function render() {
 }
 
 // ---------- диалоги ----------
-function modal(html, onClick) { $('#dlg').innerHTML = html; $('#modal').classList.remove('hidden'); $('#dlg').onclick = onClick; }
+function modal(html, onClick) { $('#dlg').classList.remove('wide'); $('#dlg').innerHTML = html; $('#modal').classList.remove('hidden'); $('#dlg').onclick = onClick; }
 function closeModal() { $('#modal').classList.add('hidden'); }
 function pickable(sel, cb) {
   const all = $$(sel, $('#dlg'));
@@ -194,36 +218,83 @@ function pickable(sel, cb) {
 }
 const enableOk = () => { $('[data-m=ok]', $('#dlg')).disabled = false; };
 
-// оформить номер: на машину vehicleId или на хранение (vehicleId = undefined)
+// ---------- получение номера в МРЭО: документы -> что оформляем -> выдача ----------
+function stepsBar(n) {
+  return '<div class="steps">' + ['Документы', 'Номер', 'Выдача'].map((t, i) => `<span class="${i + 1 === n ? 'on' : i + 1 < n ? 'done' : ''}">${i + 1}. ${t}</span>`).join('') + '</div>';
+}
+
 function registerDialog(vehicleId) {
+  const d = S.passport || {}, car = S.vehicles.find((v) => v.id === vehicleId);
+  modal(`<h3>${car ? 'Регистрация: ' + esc(car.label) : 'Номер на хранение'}</h3>${stepsBar(1)}<div class="in">
+      <div class="doc"><div class="photo"><svg width="46" height="56" viewBox="0 0 46 56"><circle cx="23" cy="17" r="11" fill="#9fb2c4"/><path d="M2 56c0-14 9-22 21-22s21 8 21 22z" fill="#9fb2c4"/></svg></div><dl>
+        <dt>Документ</dt><dd>Паспорт гражданина</dd>
+        <dt>Фамилия, имя</dt><dd>${esc(d.lastname || '—')} ${esc(d.firstname || '')}</dd>
+        <dt>Дата рождения</dt><dd>${esc(d.birthdate || '—')}</dd>
+        <dt>Номер</dt><dd>${esc(d.number || '—')}</dd></dl></div>
+      <p class="doc-status ${d.ok ? 'ok' : 'bad'}">${d.ok ? '✓ Паспорт проверен' : '✕ ' + esc(d.reason || 'нет паспорта')}</p>
+    </div><div class="ft"><button class="btn" data-m="x">Отмена</button><button class="btn primary" data-m="ok" ${d.ok ? '' : 'disabled'}>Предъявить паспорт</button></div>`,
+  (e) => { const b = e.target.closest('[data-m]'); if (!b) return; if (b.dataset.m === 'x') return closeModal(); if (b.dataset.m === 'ok') plateStep(vehicleId); });
+}
+
+function plateStep(vehicleId) {
   const car = S.vehicles.find((v) => v.id === vehicleId);
   const pocket = vehicleId ? S.plates.filter((p) => !p.vehicle_id) : [];
   const jobStyles = S.styles.filter((s) => s.sale === 'job'), foreign = S.styles.filter((s) => s.sale === 'foreign');
   const P = S.prices;
-  const regions = S.regions.map((r) => `<option value="${r.code}" ${r.code === S.region ? 'selected' : ''}>${esc(r.label)}</option>`).join('');
-  modal(`<h3>${car ? 'Номер для ' + esc(car.label) : 'Номер на хранение'}</h3><div class="in">
-      <div class="opt on" data-k="random"><span class="r"></span><span>Случайный номер<small>регион на выбор</small></span><span class="p">${rub(P.window)}</span></div>
+  const regions = `<option value="random">Случайный регион</option>` + S.regions.map((r) => `<option value="${r.code}" ${r.code === S.region ? 'selected' : ''}>${esc(r.label)}</option>`).join('');
+  modal(`<h3>${car ? 'Регистрация: ' + esc(car.label) : 'Номер на хранение'}</h3>${stepsBar(2)}<div class="in">
+      <div class="opt on" data-k="random"><span class="r"></span><span>Выдать номер<small>номер генерируется случайно из свободных</small></span><span class="p">${rub(P.window)}</span></div>
       <div class="opt" data-k="choose"><span class="r"></span><span>Выбрать из пяти вариантов</span><span class="p">${rub(P.choose)}</span></div>
       ${foreign.length ? `<div class="opt" data-k="foreign"><span class="r"></span><span>Иностранный номер<small>${esc(foreign.map((s) => s.label).join(', '))}</small></span><span class="p">${rub(P.foreign)}</span></div>` : ''}
       ${jobStyles.map((s) => `<div class="opt" data-k="job" data-s="${s.id}"><span class="r"></span><span>${esc(s.label)}<small>служебный, для вашей работы</small></span><span class="p">${rub(P.window)}</span></div>`).join('')}
       ${pocket.length ? `<div class="opt" data-k="pocket"><span class="r"></span><span>Свой номер с хранения<small>${pocket.length} шт.</small></span><span class="p">${rub(P.swap)}</span></div>` : ''}
       <label class="f" id="fRegion">Регион<select id="region">${regions}</select></label>
       <label class="f hidden" id="fCountry">Страна<select id="country">${foreign.map((s) => `<option value="${s.id}">${esc(s.label)}</option>`).join('')}</select></label>
-    </div><div class="ft"><button class="btn" data-m="x">Отмена</button><button class="btn primary" data-m="ok">Продолжить</button></div>`,
+    </div><div class="ft"><button class="btn" data-m="back">Назад</button><div class="grow"></div><button class="btn" data-m="x">Отмена</button><button class="btn primary" data-m="ok">Оплатить и получить</button></div>`,
   (e) => {
     const b = e.target.closest('[data-m]'); if (!b) return;
     if (b.dataset.m === 'x') return closeModal();
+    if (b.dataset.m === 'back') return registerDialog(vehicleId);
     const o = $('.opt.on', $('#dlg')), k = o.dataset.k, region = $('#region').value;
-    if (k === 'random') act('buyRandom', { vehicleId, region, style: 'ru' });
-    if (k === 'foreign') act('buyRandom', { vehicleId, style: $('#country').value });
-    if (k === 'job') act('buyRandom', { vehicleId, region, style: o.dataset.s });
+    if (k === 'random') issue('buyRandom', { vehicleId, region, style: 'ru' }, 'ru');
+    if (k === 'foreign') issue('buyRandom', { vehicleId, style: $('#country').value }, $('#country').value);
+    if (k === 'job') issue('buyRandom', { vehicleId, region, style: o.dataset.s }, o.dataset.s);
     if (k === 'choose') chooseDialog(vehicleId, region);
     if (k === 'pocket') pocketDialog(vehicleId, pocket);
   });
   pickable('.opt', (o) => {
     $('#fRegion').classList.toggle('hidden', !['random', 'choose', 'job'].includes(o.dataset.k));
     $('#fCountry').classList.toggle('hidden', o.dataset.k !== 'foreign');
+    $('[data-m=ok]', $('#dlg')).textContent = ['choose', 'pocket'].includes(o.dataset.k) ? 'Далее' : 'Оплатить и получить';
   });
+}
+
+// случайный номер для «прокрутки» генератора (только вид, настоящий номер выдаёт сервер)
+const RAND_L = 'ABEKMHOPCTYX', rl = () => RAND_L[Math.floor(Math.random() * RAND_L.length)], rd = (n) => String(Math.floor(Math.random() * 10 ** n)).padStart(n, '0');
+const FAKE = {
+  ru: () => rl() + rd(3) + rl() + rl() + ['95', '05', '06', '07', '15', '26'][Math.floor(Math.random() * 6)],
+  ru_taxi: () => rl() + rl() + rd(3) + '95', ru_police: () => rl() + rd(4) + '95', ru_army: () => rd(4) + rl() + rl() + rd(2),
+  kz: () => rd(3) + rl() + rl() + rl() + '02', by: () => rd(4) + rl() + rl() + '7', am: () => rd(2) + rl() + rl() + rd(3),
+  ge: () => rl() + rl() + rd(3) + rl() + rl(), az: () => rd(2) + rl() + rl() + rd(3),
+};
+
+async function issue(name, args, style) {
+  modal(`<h3>Выдача номера</h3>${stepsBar(3)}<div class="issue"><div id="roll"></div><h4 id="iTitle">Подбираем свободный номер…</h4><p id="iSub">номер генерируется случайно</p></div>
+    <div class="ft"><button class="btn primary" data-m="done" disabled>Готово</button></div>`,
+  (e) => { const b = e.target.closest('[data-m]'); if (b && b.dataset.m === 'done') closeModal(); });
+  const gen = FAKE[style] || FAKE.ru;
+  const timer = setInterval(() => { $('#roll').innerHTML = plate(gen(), style); }, 70);
+  const started = Date.now();
+  const r = await act(name, args, true);
+  await new Promise((ok) => setTimeout(ok, Math.max(0, 1800 - (Date.now() - started))));
+  clearInterval(timer);
+  if (!r || r.error) { $('#iTitle').textContent = 'Номер не выдан'; $('#iSub').textContent = r ? r.error : ''; $('#roll').innerHTML = ''; }
+  else {
+    $('#roll').innerHTML = plate(r.issued.plate, r.issued.style);
+    $('#iTitle').textContent = 'Номер ' + Plate.pretty(r.issued.style, r.issued.plate) + ' выдан';
+    $('#iSub').textContent = r.issued.vehicleId ? 'Номер установлен на машину. Свидетельство о регистрации — в базе МРЭО.' : 'Номер на хранении: установить можно во вкладке «Мои номера».';
+  }
+  $('[data-m=done]', $('#dlg')).disabled = false;
 }
 
 async function chooseDialog(vehicleId, region) {
@@ -237,14 +308,14 @@ async function chooseDialog(vehicleId, region) {
     const b = e.target.closest('[data-m]'); if (!b) return;
     if (b.dataset.m === 'x') closeModal();
     if (b.dataset.m === 'again') chooseDialog(vehicleId, region);
-    if (b.dataset.m === 'ok' && idx) act('pickChoice', { index: idx, vehicleId });
+    if (b.dataset.m === 'ok' && idx) issue('pickChoice', { index: idx, vehicleId }, 'ru');
   });
   pickable('.opt', (o) => { idx = Number(o.dataset.i); enableOk(); });
 }
 
 function pocketDialog(vehicleId, pocket) {
   let chosen = null;
-  modal(`<h3>Номер с хранения</h3><div class="in">${pocket.map((p) => `<div class="opt wide" data-p="${p.plate}"><span class="r"></span>${plate(p.plate, p.style, p.frameText)}<span></span></div>`).join('')}</div>
+  modal(`<h3>Номер с хранения</h3><div class="in">${pocket.map((p) => `<div class="opt wide" data-p="${p.plate}"><span class="r"></span>${plate(p.plate, p.style, p.frameObj || p.frameText)}<span></span></div>`).join('')}</div>
     <div class="ft"><button class="btn" data-m="x">Отмена</button><button class="btn primary" data-m="ok" disabled>Установить за ${rub(S.prices.swap)}</button></div>`,
   (e) => { const b = e.target.closest('[data-m]'); if (!b) return; if (b.dataset.m === 'x') closeModal(); if (b.dataset.m === 'ok' && chosen) act('attach', { plate: chosen, vehicleId }); });
   pickable('.opt', (o) => { chosen = o.dataset.p; enableOk(); });
@@ -252,7 +323,7 @@ function pocketDialog(vehicleId, pocket) {
 
 function attachDialog(p) {
   let chosen = null;
-  modal(`<h3>Установить номер</h3><div class="in"><div class="preview-plate">${plate(p.plate, p.style, p.frameText)}</div>
+  modal(`<h3>Установить номер</h3><div class="in"><div class="preview-plate">${plate(p.plate, p.style, p.frameObj || p.frameText)}</div>
     ${S.vehicles.map((v) => `<div class="opt" data-v="${v.id}"><span class="r"></span><span>${esc(v.label)}<small>сейчас: ${esc(v.pretty)}</small></span><span></span></div>`).join('')}</div>
     <div class="ft"><button class="btn" data-m="x">Отмена</button><button class="btn primary" data-m="ok" disabled>Установить за ${rub(S.prices.swap)}</button></div>`,
   (e) => { const b = e.target.closest('[data-m]'); if (!b) return; if (b.dataset.m === 'x') closeModal(); if (b.dataset.m === 'ok' && chosen) act('attach', { plate: p.plate, vehicleId: chosen }); });
@@ -261,17 +332,18 @@ function attachDialog(p) {
 
 function frameDialog(p) {
   let chosen = null;
-  const draw = (text) => { $('.preview-plate', $('#dlg')).innerHTML = plate(p.plate, p.style, text); };
-  modal(`<h3>Рамка номера</h3><div class="in"><div class="preview-plate"></div>
-    ${S.frames.map((f) => `<div class="opt" data-f="${f.id}"><span class="r"></span><span>${esc(f.label)}${f.text ? `<small>«${esc(f.text)}»</small>` : ''}</span><span class="p">${f.price ? rub(f.price) : 'бесплатно'}</span></div>`).join('')}</div>
+  const frameObj = (f) => (f && f.text ? { text: f.text, color: f.color, textColor: f.textColor } : null);
+  modal(`<h3>Рамка номера</h3><div class="in"><div class="frames">
+    ${S.frames.map((f) => `<div class="ftile" data-f="${f.id}">${plate(p.plate, p.style, frameObj(f))}<div class="fl"><span>${esc(f.label)}</span><b>${f.price ? rub(f.price) : 'бесплатно'}</b></div></div>`).join('')}
+    </div></div>
     <div class="ft"><button class="btn" data-m="x">Отмена</button><button class="btn primary" data-m="ok" disabled>Установить</button></div>`,
   (e) => { const b = e.target.closest('[data-m]'); if (!b) return; if (b.dataset.m === 'x') closeModal(); if (b.dataset.m === 'ok' && chosen) act('setFrame', { plate: p.plate, frame: chosen }); });
-  draw(p.frameText);
-  pickable('.opt', (o) => { chosen = o.dataset.f; draw((S.frames.find((f) => f.id === chosen) || {}).text); enableOk(); });
+  $('#dlg').classList.add('wide');
+  pickable('.ftile', (o) => { chosen = o.dataset.f; enableOk(); });
 }
 
 function sellDialog(p) {
-  modal(`<h3>Продажа номера</h3><div class="in"><div class="preview-plate">${plate(p.plate, p.style, p.frameText)}</div>
+  modal(`<h3>Продажа номера</h3><div class="in"><div class="preview-plate">${plate(p.plate, p.style, p.frameObj || p.frameText)}</div>
     <label class="f">ID покупателя (он должен стоять у окна МРЭО)<input id="sT" type="number" min="1"></label>
     <label class="f">Цена, ₽<input id="sP" type="number" min="0" step="1000" value="100000"></label>
     <p class="rules" id="sN"></p></div>
@@ -322,7 +394,8 @@ window.addEventListener('message', (e) => {
 // ---------- предпросмотр: html/index.html?preview ----------
 function mock(body) {
   if (body.name === 'choices') return { list: ['K319BM95', 'M052TP95', 'E744XC95', 'B610AO95', 'T238KH95'].map((p) => ({ plate: p })) };
-  return { ok: 'Готово (предпросмотр)', data: S };
+  const st = (body.args && body.args.style) || 'ru';
+  return { ok: 'Готово (предпросмотр)', data: S, issued: { plate: st === 'ru' ? 'X586KM95' : FAKE[st](), style: st, vehicleId: body.args && body.args.vehicleId } };
 }
 if (preview) {
   document.body.classList.add('preview');
@@ -331,8 +404,14 @@ if (preview) {
     prices: { window: 7000, choose: 25000, dps: 3000, dpsShare: 1000, swap: 2000, commission: 0.05, foreign: 50000 },
     styles: [{ id: 'ru', label: 'Россия', sale: 'window' }, { id: 'ru_taxi', label: 'Такси (жёлтый)', sale: 'job' }, { id: 'kz', label: 'Казахстан', sale: 'foreign' },
       { id: 'by', label: 'Беларусь', sale: 'foreign' }, { id: 'am', label: 'Армения', sale: 'foreign' }, { id: 'ge', label: 'Грузия', sale: 'foreign' }, { id: 'az', label: 'Азербайджан', sale: 'foreign' }],
-    frames: [{ id: 'none', label: 'Без рамки', price: 0 }, { id: 'dealer', label: 'Нагорье Моторс (дилер)', text: 'НАГОРЬЕ МОТОРС', price: 1500 },
-      { id: 'lovzar', label: 'Ловзар (свадебная)', text: 'ЛОВЗАР', price: 3000 }, { id: 'fso', label: 'ФСО (только сотрудникам)', text: 'ФСО РОССИИ', price: 0 }],
+    passport: { ok: true, firstname: 'Ахмед', lastname: 'Умаров', birthdate: '14.03.1998', number: 'KZR48213' },
+    frames: [{ id: 'none', label: 'Без рамки', price: 0 }, { id: 'black', label: 'Чёрная без надписи', text: ' ', price: 500 },
+      { id: 'chrome', label: 'Хром «Нагорск»', text: 'НАГОРСК', color: '#c7ccd2', textColor: '#1d232a', price: 2500 },
+      { id: 'market', label: 'Авторынок Ахмеда-Падишаха', text: 'АВТОРЫНОК · АХМЕД-ПАДИШАХ', textColor: '#d9b44a', price: 2000 },
+      { id: 'bislan', label: 'Гараж Бислана', text: 'ГАРАЖ БИСЛАНА', textColor: '#ff5a4e', price: 2000 },
+      { id: 'lovzar', label: 'Ловзар (свадебная, белая)', text: 'ЛОВЗАР', color: '#f3f1ec', textColor: '#a9822c', price: 3000 },
+      { id: 'gold', label: 'Золотая', text: 'НАГОРЬЕ', color: '#1a1712', textColor: '#d4af37', price: 10000 },
+      { id: 'fso', label: 'ФСО (только сотрудникам)', text: 'ФСО РОССИИ', price: 0 }],
     vehicles: [
       { id: 1, label: 'Mercedes-Benz G63', plate: 'K013PA95', pretty: 'К 013 РА 95', style: 'ru', frameText: 'ФСО РОССИИ', registered: true, state: 1 },
       { id: 2, label: 'Toyota Camry 70', plate: 'TR482113', pretty: 'TR482113', registered: false, state: 0 },

@@ -191,6 +191,45 @@ end
 -- данные для окна МРЭО
 ---------------------------------------------------------------------------
 
+-- паспорт из инвентаря: свой (citizenid совпадает) — ок; чужой — нельзя
+local function findPassport(src, cid)
+    for _, name in ipairs(Config.Documents) do
+        local ok, slots = pcall(function() return exports.ox_inventory:Search(src, 'slots', name) end)
+        for _, item in ipairs(ok and slots or {}) do
+            local md = item.metadata or {}
+            if not md.citizenid or md.citizenid == cid then
+                return { ok = true, item = name, firstname = md.firstname, lastname = md.lastname, birthdate = md.birthdate, number = md.citizenid or cid }
+            end
+        end
+        if ok and slots and #slots > 0 then return { ok = false, reason = 'это чужой паспорт' } end
+    end
+    return { ok = false, reason = 'паспорта нет в инвентаре — получите его в мэрии' }
+end
+
+local function needPassport(src, cid)
+    local doc = findPassport(src, cid)
+    if not doc.ok then return 'без паспорта номер не выдаём: ' .. doc.reason end
+    return nil
+end
+
+local function frameOf(p)
+    if p.frame_text then return { text = p.frame_text } end
+    local fr = p.frame and FRAME[p.frame]
+    return fr and fr.text and { text = fr.text, color = fr.color, textColor = fr.textColor } or nil
+end
+
+-- случайный регион по весам Config.RandomRegions
+local function randomRegion()
+    local total = 0
+    for _, w in pairs(Config.RandomRegions) do total = total + w end
+    local roll = math.random() * total
+    for code, w in pairs(Config.RandomRegions) do
+        roll = roll - w
+        if roll <= 0 then return code end
+    end
+    return Config.DefaultRegion
+end
+
 local function buildData(src)
     local cid = cidOf(src)
     if not cid then return nil end
@@ -202,7 +241,8 @@ local function buildData(src)
         if p.vehicle_id then registered[p.vehicle_id] = p end
         p.pretty = Plates.pretty(p.plate, p.style)
         p.tierLabel = p.tier and Config.Tiers[p.tier] and Config.Tiers[p.tier].label
-        p.frameText = p.frame_text or (p.frame and FRAME[p.frame] and FRAME[p.frame].text) or nil
+        p.frameObj = frameOf(p)
+        p.frameText = p.frameObj and p.frameObj.text or nil
     end
     local list = {}
     for _, v in ipairs(vehicles) do
@@ -211,7 +251,7 @@ local function buildData(src)
         list[#list + 1] = {
             id = v.id, model = v.vehicle, label = modelLabel(v.vehicle), plate = v.plate,
             pretty = Plates.pretty(v.plate, reg and reg.style), registered = reg ~= nil,
-            style = reg and reg.style or nil, frameText = reg and reg.frameText or nil,
+            style = reg and reg.style or nil, frameText = reg and reg.frameText or nil, frameObj = reg and reg.frameObj or nil,
             state = v.state, -- 0 выгнана, 1 в гараже, 2 штрафстоянка
         }
     end
@@ -225,10 +265,16 @@ local function buildData(src)
         end
     end
     for _, fr in ipairs(Config.Frames) do
-        if hasJob(src, fr.jobs) then frames[#frames + 1] = { id = fr.id, label = fr.label, text = fr.text, price = fr.price } end
+        if hasJob(src, fr.jobs) then
+            frames[#frames + 1] = { id = fr.id, label = fr.label, text = fr.text, color = fr.color, textColor = fr.textColor, price = fr.price }
+        end
     end
+    local p = exports.qbx_core:GetPlayer(src)
+    local ci = p and p.PlayerData.charinfo or {}
+    local doc = findPassport(src, cid)
+    doc.firstname, doc.lastname, doc.birthdate = doc.firstname or ci.firstname, doc.lastname or ci.lastname, doc.birthdate or ci.birthdate
     return { vehicles = list, plates = plates, prices = Config.Prices, regions = Config.Regions, region = Config.DefaultRegion,
-        styles = styles, frames = frames }
+        styles = styles, frames = frames, passport = doc }
 end
 
 lib.callback.register('kavkaz_plates:getData', function(src)
@@ -242,13 +288,13 @@ local function officeAction(name, fn)
         if not nearOffice(src) then return { error = 'подойди к окну МРЭО' } end
         local cid = cidOf(src)
         if not cid then return { error = 'персонаж не загружен' } end
-        local ok, err, msg = pcall(fn, src, cid, ...)
+        local ok, err, msg, issued = pcall(fn, src, cid, ...)
         if not ok then
             lib.print.error(err)
             return { error = 'ошибка сервера, попробуй ещё раз' }
         end
         if err then return { error = err } end
-        return { ok = msg or 'готово', data = buildData(src) }
+        return { ok = msg or 'готово', data = buildData(src), issued = issued }
     end)
 end
 
@@ -269,6 +315,9 @@ officeAction('buyRandom', function(src, cid, vehicleId, region, style)
     if not st then return 'неизвестный вид номера' end
     if st.sale == 'job' and not hasJob(src, st.jobs) then return 'такие номера выдают только сотрудникам' end
     local price = st.sale == 'foreign' and Config.Prices.foreign or Config.Prices.window
+    local noDoc = needPassport(src, cid)
+    if noDoc then return noDoc end
+    if region == 'random' then region = randomRegion() end
     local row, err
     if vehicleId then
         row, err = reachableOrError(cid, vehicleId)
@@ -279,7 +328,8 @@ officeAction('buyRandom', function(src, cid, vehicleId, region, style)
     if not pay(src, price, 'МРЭО: номер') then return 'не хватает денег: нужно ' .. money(price) end
     create(cid, plate, 'window', style)
     if row then attach(cid, plate, row) end
-    return nil, nil, ('номер %s оформлен'):format(Plates.pretty(plate, style))
+    history(plate, nil, cid, 'issue', price)
+    return nil, nil, ('номер %s оформлен'):format(Plates.pretty(plate, style)), { plate = plate, style = style, vehicleId = row and row.id }
 end)
 
 -- рамка номера: из списка Config.Frames (служебные — только своим)
@@ -296,7 +346,7 @@ end)
 -- 5 вариантов на выбор (оплата при выборе)
 lib.callback.register('kavkaz_plates:getChoices', function(src, region)
     if not nearOffice(src) then return nil end
-    region = validRegion(region)
+    region = region == 'random' and randomRegion() or validRegion(region)
     local list, seen = {}, {}
     for _ = 1, 30 do
         local plate = freeRandom(region)
@@ -321,11 +371,13 @@ officeAction('pickChoice', function(src, cid, index, vehicleId)
         if not row then return err end
     end
     if plateTaken(pick.plate) then return 'этот номер только что забрали, запроси новые' end
+    local noDoc = needPassport(src, cid)
+    if noDoc then return noDoc end
     if not pay(src, Config.Prices.choose, 'МРЭО: номер на выбор') then return 'не хватает денег: нужно ' .. money(Config.Prices.choose) end
     choices[src] = nil
     create(cid, pick.plate, 'choose')
     if row then attach(cid, pick.plate, row) end
-    return nil, nil, ('номер %s оформлен'):format(pick.pretty)
+    return nil, nil, ('номер %s оформлен'):format(pick.pretty), { plate = pick.plate, style = 'ru', vehicleId = row and row.id }
 end)
 
 -- перевесить свой номер (из кармана или с другой машины) — 2 000 ₽

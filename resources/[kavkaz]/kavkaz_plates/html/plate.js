@@ -1,95 +1,35 @@
 // KAVKAZ RP — отрисовка госномеров в SVG.
 // пропорции по ГОСТ Р 50577-2018, тип 1: 520×112 мм, цифры 76 мм, буквы 58 мм, справа поле региона «95 / RUS + флаг».
-// символы нарисованы линиями равной толщины (как трафаретный шрифт номеров) — никаких сторонних шрифтов с непонятной лицензией.
+// символы — шрифт с открытой лицензией (html/fonts), каждый в ячейке фиксированного размера.
 // использование: Plate.svg({ style: 'ru', plate: 'K013PA95', frame: { text: 'ФСО РОССИИ' } })
 (function () {
   const LAT2CYR = { A: 'А', B: 'В', E: 'Е', K: 'К', M: 'М', H: 'Н', O: 'О', P: 'Р', C: 'С', T: 'Т', Y: 'У', X: 'Х' };
 
   // ---------- символы ----------
-  // (x, y) — левый верхний угол ячейки, w×h — размер ячейки, sw — толщина линии
-  function glyph(ch, x, y, w, h, sw) {
-    const s = sw / 2, L = x + s, R = x + w - s, T = y + s, B = y + h - s;
-    const W = R - L, H = B - T, cx = (L + R) / 2, r = W / 2;
-    const f = (n) => Math.round(n * 10) / 10;
-    const P = (...a) => a.map((v) => (typeof v === 'number' ? f(v) : v)).join(' ');
-    const ellipse = (ecx, ecy, rx, ry) => P('M', ecx - rx, ecy, 'A', rx, ry, 0, 1, 1, ecx + rx, ecy, 'A', rx, ry, 0, 1, 1, ecx - rx, ecy, 'Z');
-    const c30 = Math.cos(Math.PI / 6), s30 = 0.5;
-    switch (ch) {
-      case '0': case 'O':
-        return P('M', L, T + r, 'A', r, r, 0, 0, 1, R, T + r, 'V', B - r, 'A', r, r, 0, 0, 1, L, B - r, 'Z');
-      case '1':
-        return P('M', L + W * 0.12, T + H * 0.2, 'L', cx + W * 0.18, T, 'V', B);
-      case '2':
-        return P('M', L, T + r, 'A', r, r, 0, 0, 1, R, T + r, 'C', R, T + r + H * 0.12, R - W * 0.15, T + H * 0.5, L, B, 'H', R);
-      case '3': {
-        const ry = H * 0.31, ecy = B - ry;
-        return P('M', L + W * 0.05, T, 'H', R, 'L', cx, ecy - ry, 'A', r, ry, 0, 1, 1, cx - r * c30, ecy + ry * s30);
-      }
-      case '4':
-        return P('M', R - W * 0.22, B, 'V', T, 'L', L, T + H * 0.68, 'H', R);
-      case '5': {
-        const ry = H * 0.31, ecy = B - ry;
-        return P('M', R, T, 'H', L + W * 0.04, 'V', ecy - ry, 'H', cx, 'A', r, ry, 0, 1, 1, cx - r * c30, ecy + ry * s30);
-      }
-      case '6': {
-        const ry = H * 0.31, ecy = B - ry;
-        return ellipse(cx, ecy, r, ry) + P('M', L, ecy, 'V', T + r, 'A', r, r, 0, 0, 1, cx + r * c30, T + r - r * s30);
-      }
-      case '9': {
-        const ry = H * 0.31, ecy = T + ry;
-        return ellipse(cx, ecy, r, ry) + P('M', R, ecy, 'V', B - r, 'A', r, r, 0, 0, 1, cx - r * c30, B - r + r * s30);
-      }
-      case '7':
-        return P('M', L, T, 'H', R, 'L', L + W * 0.3, B);
-      case '8': {
-        const ryT = H * 0.22, ryB = H * 0.28;
-        return ellipse(cx, T + ryT, r * 0.86, ryT) + ellipse(cx, B - ryB, r, ryB);
-      }
-      case 'A':
-        return P('M', L, B, 'L', cx, T, 'L', R, B, 'M', L + W * 0.2, T + H * 0.66, 'H', R - W * 0.2);
-      case 'B': {
-        const mid = T + H * 0.47, rt = (mid - T) / 2, rb = (B - mid) / 2;
-        const xt = R - rt - W * 0.08, xb = R - rb;
-        return P('M', L, B, 'V', T, 'H', xt, 'A', rt, rt, 0, 0, 1, xt, mid, 'H', L, 'M', L, mid, 'H', xb, 'A', rb, rb, 0, 0, 1, xb, B, 'H', L);
-      }
-      case 'E':
-        return P('M', R, T, 'H', L, 'V', B, 'H', R, 'M', L, T + H * 0.48, 'H', R - W * 0.12);
-      case 'K':
-        return P('M', L, T, 'V', B, 'M', R, T, 'L', L, T + H * 0.62, 'M', L + W * 0.32, T + H * 0.44, 'L', R, B);
-      case 'M':
-        return P('M', L, B, 'V', T, 'L', cx, T + H * 0.62, 'L', R, T, 'V', B);
-      case 'H':
-        return P('M', L, T, 'V', B, 'M', R, T, 'V', B, 'M', L, T + H * 0.48, 'H', R);
-      case 'P': {
-        const rp = H * 0.27, xp = R - rp;
-        return P('M', L, B, 'V', T, 'H', xp, 'A', rp, rp, 0, 0, 1, xp, T + 2 * rp, 'H', L);
-      }
-      case 'C': {
-        const a = Math.PI / 7;
-        return P('M', cx + r * Math.cos(a), T + r - r * Math.sin(a), 'A', r, r, 0, 0, 0, L, T + r, 'V', B - r,
-          'A', r, r, 0, 0, 0, cx + r * Math.cos(a), B - r + r * Math.sin(a));
-      }
-      case 'T':
-        return P('M', L, T, 'H', R, 'M', cx, T, 'V', B);
-      case 'Y':
-        return P('M', L, T, 'L', cx, T + H * 0.62, 'M', R, T, 'L', L + W * 0.16, B);
-      case 'X':
-        return P('M', L, T, 'L', R, B, 'M', R, T, 'L', L, B);
-      case '-':
-        return P('M', L, T + H * 0.5, 'H', R);
-      default:
-        return '';
+  // символы — обычный шрифт (файл в html/fonts), но каждый ставится в ячейку фиксированного размера:
+  // все буквы одной высоты и ширины, все цифры одной высоты и ширины — как на штампованном знаке.
+  // cap — высота заглавной буквы в долях кегля (из метрик шрифта), по ней считаем кегль под нужную высоту в мм.
+  const FONT = { family: 'Plate Font', fallback: '"Roboto Condensed", "Arial Narrow", Arial', weight: 600, cap: 0.711 };
+
+  function cell(it, x, base, color, cyr) {
+    const ch = cyr ? (LAT2CYR[it.ch] || it.ch) : it.ch;
+    if (ch === '-') {
+      const t = it.h * 0.14;
+      return `<rect x="${(x + it.w * 0.15).toFixed(1)}" y="${(base - it.h * 0.5 - t / 2).toFixed(1)}" width="${(it.w * 0.7).toFixed(1)}" height="${t.toFixed(1)}" fill="${color}"/>`;
     }
+    const size = it.h / FONT.cap;
+    return `<text x="${x.toFixed(1)}" y="${base.toFixed(1)}" font-family="${FONT.family}, ${FONT.fallback}" font-weight="${FONT.weight}" font-size="${size.toFixed(1)}"`
+      + ` textLength="${it.w.toFixed(1)}" lengthAdjust="spacingAndGlyphs" fill="${color}">${ch}</text>`;
   }
 
   // ряд символов: каждый элемент { ch, w, h }, все стоят на одной базовой линии
-  function row(items, x0, base, sw, gap, color) {
-    let x = x0, d = '';
+  function row(items, x0, base, _sw, gap, color, cyr) {
+    let x = x0, out = '';
     for (const it of items) {
-      if (it.ch !== ' ') d += glyph(it.ch, x, base - it.h, it.w, it.h, it.sw || sw) + ' ';
+      if (it.ch !== ' ') out += cell(it, x, base, color, cyr);
       x += it.w + (it.gap ?? gap);
     }
-    return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linejoin="miter" stroke-miterlimit="2.2"/>`;
+    return out;
   }
   const rowWidth = (items, gap) => items.reduce((a, it, i) => a + it.w + (i < items.length - 1 ? (it.gap ?? gap) : 0), 0);
   const isDigit = (c) => c >= '0' && c <= '9';
@@ -140,8 +80,8 @@
 
   function transit(plate) {
     return edgeRect('#111') + field(FULL, '#fffdf3')
-      + `<text x="260" y="32" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="18" fill="#c0262d" letter-spacing="6">ТРАНЗИТ</text>
-      <text x="260" y="90" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="50" fill="#111" letter-spacing="4">${plate}</text>`;
+      + `<text x="260" y="32" text-anchor="middle" font-family="${FONT.family}, ${FONT.fallback}" font-weight="${FONT.weight}" font-size="18" fill="#c0262d" letter-spacing="6">ТРАНЗИТ</text>
+      <text x="260" y="90" text-anchor="middle" font-family="${FONT.family}, ${FONT.fallback}" font-weight="${FONT.weight}" font-size="50" fill="#111" letter-spacing="4">${plate}</text>`;
   }
 
   function body(styleId, plate) {
@@ -159,7 +99,7 @@
       const bw = 60;
       if (st.left.band) out += `<path d="M${main.x} ${main.y + 7} a7 7 0 0 1 7 -7 h${bw - 7} v${main.h} h-${bw - 7} a7 7 0 0 1 -7 -7z" fill="#1d4fb8"/>`;
       out += FLAGS[st.left.flag](main.x + 9, main.y + 12, 42, 28);
-      out += `<text x="${main.x + bw / 2}" y="${main.y + 86}" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="24" fill="${st.left.band ? '#fff' : fg}">${st.left.code}</text>`;
+      out += `<text x="${main.x + bw / 2}" y="${main.y + 86}" text-anchor="middle" font-family="${FONT.family}, ${FONT.fallback}" font-weight="${FONT.weight}" font-size="24" fill="${st.left.band ? '#fff' : fg}">${st.left.code}</text>`;
       x0 = main.x + bw + 6;
     }
 
@@ -168,18 +108,18 @@
       const cx = REG.x + REG.w / 2;
       const rd = region.split('').map((c) => ({ ch: c, w: region.length === 3 ? 31 : 40, h: 52 }));
       const rw = rowWidth(rd, 5);
-      out += row(rd, cx - rw / 2, REG.y + 60, 9.5, 5, fg);
+      out += row(rd, cx - rw / 2, REG.y + 60, 0, 5, fg);
       if (st.rus) {
-        out += `<text x="${REG.x + 44}" y="${REG.y + 89}" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="21" letter-spacing="5" fill="${fg}">RUS</text>`;
+        out += `<text x="${REG.x + 44}" y="${REG.y + 89}" text-anchor="middle" font-family="${FONT.family}, ${FONT.fallback}" font-weight="${FONT.weight}" font-size="21" letter-spacing="5" fill="${fg}">RUS</text>`;
         out += FLAGS.ru(REG.x + 82, REG.y + 72, 40, 21);
       } else if (styleId === 'kz') {
-        out += `<text x="${cx}" y="${REG.y + 89}" text-anchor="middle" font-family="Golos Text, Arial" font-weight="700" font-size="17" letter-spacing="2" fill="${fg}">KZ</text>`;
+        out += `<text x="${cx}" y="${REG.y + 89}" text-anchor="middle" font-family="${FONT.family}, ${FONT.fallback}" font-weight="${FONT.weight}" font-size="17" letter-spacing="2" fill="${fg}">KZ</text>`;
       }
     }
 
     const items = fit(st.main(m), x1 - x0, gap);
     const w = rowWidth(items, gap);
-    out += row(items, x0 + (x1 - x0 - w) / 2, main.y + main.h - 8, sw, gap, fg);
+    out += row(items, x0 + (x1 - x0 - w) / 2, main.y + main.h - 8, sw, gap, fg, styleId.startsWith('ru'));
     return out;
   }
 
@@ -208,5 +148,5 @@
     return cyr(m.slice(1).join(' '));
   }
 
-  window.Plate = { svg, pretty, styles: Object.keys(STYLES) };
+  window.Plate = { svg, pretty, styles: Object.keys(STYLES), font: FONT };
 })();
