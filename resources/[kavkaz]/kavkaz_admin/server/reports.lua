@@ -95,16 +95,25 @@ end)
 
 lib.callback.register('kavkaz_admin:getPlayers', function(src)
     if not Admin.can(src, 'tpto', true) then return nil end
+    -- только короткие строки и числа: список уходит клиенту одним пакетом, лишнее не тащим (вылет «Timed out» при F10)
     local list = {}
     for _, id in ipairs(GetPlayers()) do
         local pid = tonumber(id)
-        local player = exports.qbx_core:GetPlayer(pid)
-        local char = player and ('%s %s'):format(player.PlayerData.charinfo.firstname, player.PlayerData.charinfo.lastname)
-        list[#list + 1] = {
-            id = pid, name = GetPlayerName(pid), char = char, ping = GetPlayerPing(pid),
-            admin = Admin.duty[pid] and Admin.duty[pid].level or 0,
-            job = player and player.PlayerData.job.label,
-        }
+        local ok, entry = pcall(function()
+            local player = exports.qbx_core:GetPlayer(pid)
+            local pd = player and player.PlayerData
+            local ci = pd and pd.charinfo
+            return {
+                id = pid,
+                name = (GetPlayerName(pid) or '?'):sub(1, 32),
+                char = ci and ('%s %s'):format(ci.firstname or '', ci.lastname or ''):sub(1, 48) or nil,
+                ping = GetPlayerPing(pid) or 0,
+                admin = Admin.duty[pid] and Admin.duty[pid].level or 0,
+                job = pd and pd.job and pd.job.label or nil,
+            }
+        end)
+        if ok and entry then list[#list + 1] = entry end
+        if #list >= 256 then break end
     end
     table.sort(list, function(a, b) return a.id < b.id end)
     return list

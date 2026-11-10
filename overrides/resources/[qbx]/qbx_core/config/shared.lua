@@ -1,6 +1,6 @@
 return {
     serverName = 'KAVKAZ RP', -- KAVKAZ: было 'Server'
-    defaultSpawn = vec4(-540.58, -212.02, 37.65, 208.88),
+    defaultSpawn = vec4(462.22, -641.15, 28.45, 175.0), -- KAVKAZ: автовокзал Нагорска (Dashound), было мэрия -540.58, -212.02
     notifyPosition = 'top-right', -- 'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
     ---@type { name: string, amount: integer, metadata: fun(source: number): table }[]
     starterItems = { -- Character starting items
