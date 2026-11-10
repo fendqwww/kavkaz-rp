@@ -63,6 +63,77 @@
 | **Coffee House** | бесплатно | [fivemx](https://fivemx.com/?p=216531) | основа под чайхану «У Румисы» (перекрасить, добавить ковры и самовары) |
 | **Big Benny's Garage** / **Mega Garage** | $8 / $5 | [fivemx: гаражи](https://fivemx.com/garage-huge/) | гаражи и склады промзоны «Ла-Меса» |
 
+### Силовой квартал: ГУ МВД, ДПС, ФСБ
+| что | цена | ссылка | куда | заметки |
+|---|---|---|---|---|
+| **La Mesa Police Department**: приёмная, кабинеты, диспетчерская | бесплатно | [cfx.re](https://forum.cfx.re/t/release-mlo-la-mesa-police-department/4874033) | отдел полиции у промзоны «Ла-Меса» | код закрыт, но для нас это не важно |
+| **Davis Sheriff's Station + LSPD Theme** | ? | [cfx.re](https://forum.cfx.re/t/davis-sheriff-s-station-mlo-lspd-theme/2522718) | районный отдел МВД в спальном районе | в комментариях хвалят, цену проверить |
+| **PD Beach (Rex Studio)**: маленький участок на Веспуччи | бесплатно | [cfx.re](https://forum.cfx.re/t/pd-beach-mlo-free-by-rex-studio/5278375) | пост полиции на набережной | |
+| **Paleto Bay PD + City Hall** | бесплатно | [fivemx](https://fivemx.com/free-mods/fivem/paleto-bay-police-department-and-city-hall-mlo-map) | отдел полиции и администрация в сёлах | перепродавец, искать оригинал |
+| **Highway Patrol MLO** | ? | [fivemx](https://fivemx.com/highway-patrol-mlo/) | база ДПС на трассе | |
+
+**ГУ МВД в центре:** сначала берём ванильный **Mission Row**, у него уже есть интерьер, и меняем вывески на «ГУ МВД по Республике Нагорье».
+**ФСБ:** отдельного мода нет. Предлагаю офисный небоскрёб из GTA Online (через `bob74_ipl`, раздел ниже) с охраной на входе.
+
+### Больница
+| что | цена | ссылка | заметки |
+|---|---|---|---|
+| **Gabz Pillbox V2**: замена стандартной Pillbox | ~$15 | [fivemx](https://fivemx.com/shop/gabz-pillbox-v2) | стандарт для RP, работает с Qbox. брать только у Gabz |
+| **Los Santos Medical Center**: многоэтажная, 25+ комнат | платно | [Tebex kivomaps](https://kivomaps.tebex.io/package/hospital) | «Республиканская клиническая больница» |
+| **Sandy Shores Hospital** | ? | [fivemx](https://fivemx.com/sandy-shores-hospital/) | сельская больница в предгорьях |
+
+Бесплатно и сразу: стандартная **Pillbox** уже стоит в Qbox (`qbx_ambulancejob`), меняем только вывески.
+
+### Набережная и Старый город: кальянные, чайхана, кафе
+| что | цена | ссылка | куда |
+|---|---|---|---|
+| **Hookah Lounge** | бесплатно | [cfx.re](https://forum.cfx.re/t/hookah-lounge-free-mlo/4765067) | кальянная на набережной |
+| **Sandy Shores Hookah & Bar** | бесплатно | [cfx.re](https://forum.cfx.re/t/free-mlo-sandy-shores-hookah-bar/5290400) | кальянная у трассы в сёлах |
+| **HEX Hookah Lounge** | ? | [cfx.re](https://forum.cfx.re/t/release-mlo-hex-hookah-lounge/5206258) | дорогая кальянная в Нагорск-Сити |
+| **Coffee House** | бесплатно | [fivemx](https://fivemx.com/?p=216531) | основа под чайхану «У Румисы» |
+
+### Серпантин, дрифт, покатушки
+| что | цена | ссылка | куда | заметки |
+|---|---|---|---|---|
+| **Drag Strip / Drifting Spot, Sandy Shores** | бесплатно | [gta5-mods](https://www.gta5-mods.com/maps/new-drag-strip-drifting-spot-sandy-shores-smilemore) | дрифт-площадка у СТО Бислана | YMAP под FiveM, автор просит не перепродавать |
+| **Drift Track 1.0** | бесплатно | [gta5mod.net](https://gta5mod.net/gta-5-mods/maps/drift-track-1-0/) | вторая площадка, дрифт-ивенты | YMAP, кладётся в `stream` |
+| **Mountain bike route 1**: горная дорога | бесплатно | [gta5-mods](https://www.gta5-mods.com/maps/mountain-bike-route) | дорога к Лам-Юрту, мото и вело | |
+| **Project Touge**: горный серпантин на ассетах GTA | бесплатно | [gta5-mods](https://www.gta5-mods.com/maps/project-touge) | **наш серпантин на Чилиад-Лам** | инструкция в основном для одиночки, проверить FiveM |
+| **японские тоге (Hayato, Akagi, Hakone…)** | ? | [GodsLobbies](https://www.gta5-mods.com/users/GodsLobbies/files) | дуэли и кортежи в горах | помечены Add-On / FiveM, цену смотреть на странице |
+| **Redwood Touge** | платно | [cfx.re](https://forum.cfx.re/t/paid-redwood-touge/5187167) | | |
+
+Стандартная дорога на **Чилиад** уже серпантин. Начинаем с неё, моды добавляем, если её мало.
+
+### Рублёвка и Нагорск-Сити: особняки и квартиры
+| что | цена | ссылка | заметки |
+|---|---|---|---|
+| **Luxury Mansion** | бесплатно | [fivemx](https://fivemx.com/free-mods/fivem/luxury-mansion) | скачивание через рекламную страницу |
+| **Rockyview Mansion** | бесплатно | [fivemx](https://fivemx.com/free-mods/fivem/rockyview-mansion) | указано: работает с QBOX |
+| **Mansion Under the Bridge** | бесплатно | [fivemx](https://fivemx.com/free-mods/fivem/mansion-under-the-bridge) | |
+| **Vinewood Estate V3**: особняк на холме | платно | [vertexmods](https://vertexmods.com/shop/vinewood-estate-v3) | дом «самого богатого» на Рублёвке |
+| **Modern Luxurious Villa** | $31 | [Tebex one-solutions](https://one-solutions.tebex.io/package/7249531) | |
+
+### Бесплатно из самой GTA: интерьеры GTA Online (`bob74_ipl`)
+`bob74_ipl` открывает интерьеры GTA Online: квартиры, офисы в небоскрёбах, ночные клубы, бункеры, склады, яхту.
+Обычно он уже стоит в сборке Qbox (проверьте папку `resources`). Это бесплатно, легально и без лагов — лучший старт.
+
+| интерьер | куда по плану |
+|---|---|
+| офисы в небоскрёбах (Maze Bank, Arcadius) | **Правительство, ФСБ, Главный банк**, бизнес-центры Нагорск-Сити |
+| дорогие квартиры (Eclipse Towers, Richards Majestic) | элитные квартиры в Нагорск-Сити |
+| ночной клуб | **зал «Ловзар»** или клуб в Нагорск-Сити |
+| склады и гаражи | промзона «Ла-Меса», гараж Бислана |
+| бункер | криминальные квесты |
+| байкерский клуб | семьи и банды в сёлах |
+
+### Что уже есть на стандартной карте (переименовать и использовать)
+- **канатная дорога** на Чилиад (Pala Springs Aerial Tramway) — наша **канатка** на Чилиад-Лам;
+- **автовокзал Dashound** — стартовая точка новичка;
+- **аэропорт LSIA** — «Аэропорт Нагорск»;
+- **мэрия Рокфорд-Хиллз** — Правительство Республики (там же сейчас МРЭО);
+- **колесо обозрения** на пирсе — набережная Нагорска;
+- **заправки, магазины 24/7, Ammu-Nation** — меняем только вывески.
+
 ### Российская атмосфера
 | что | цена | ссылка | заметки |
 |---|---|---|---|
@@ -87,6 +158,10 @@
 5. **Patoche Car Dealer**: автосалон. Бесплатно.
 6. **Russian Border**: заготовка поста ДПС. Бесплатно, 6 КБ.
 7. **Mosque (RTX)**, $29: если решим покупать. Другой готовой мечети под FiveM нет.
+8. **`bob74_ipl`** (обычно уже стоит): офисы под Правительство и ФСБ, квартиры, ночной клуб. Бесплатно.
+9. **Hookah Lounge**: кальянная на набережной. Бесплатно.
+10. **Drag Strip / Drifting Spot**: дрифт-площадка. Бесплатно.
+11. **La Mesa Police Department**: второй отдел МВД. Бесплатно.
 
 ## Чек-лист перед установкой любого мода
 - [ ] скачиваем **у автора** (форум cfx.re, его Tebex или Gumroad), а не у перепродавцов. fivemx и vertexmods часто перезаливают чужое;
