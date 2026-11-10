@@ -66,10 +66,14 @@ def parse(data, out, depth=0):
         else:
             _, name, size, off, sysf, gfxf = e
             if size == 0xFFFFFF:
+                # большой файл (16 МБ+): в первых 16 байтах лежит размер, а не заголовок RSC7
                 h = data[off:off + 16]
                 size = h[7] | (h[14] << 8) | (h[5] << 16) | (h[2] << 24)
+            # заголовок RSC7 собираем из записи архива (версия — старшие 4 бита флагов), данные — после 16 байт
+            version = (((sysf >> 28) & 0xF) << 4) | ((gfxf >> 28) & 0xF)
+            header = b'RSC7' + struct.pack('<III', version, sysf, gfxf)
             with open(target, 'wb') as f:
-                f.write(data[off:off + size])
+                f.write(header + data[off + 16:off + size])
 
     os.makedirs(out, exist_ok=True)
     walk(0, out)
