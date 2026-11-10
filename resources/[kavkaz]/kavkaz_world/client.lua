@@ -12,6 +12,7 @@ local txd
 local loaded = {}
 local retex = {}
 for _, n in ipairs(Config.RetexImages or {}) do retex[n] = true end
+for _, n in ipairs(Config.SignImages or {}) do retex[n] = true end -- знаки ГОСТ (setup/retex/road_signs.py)
 local function ensureImage(name)
     if loaded[name] then return true end
     -- 'local/имя' — вывеска, собранная из текстуры игры (images/local, не в git); retex — наша; иначе images/

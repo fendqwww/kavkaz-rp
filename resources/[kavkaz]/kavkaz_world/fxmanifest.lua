@@ -10,6 +10,7 @@ shared_scripts {
     '@ox_lib/init.lua',
     'config.lua',
     'retex_list.lua',
+    'signs_list.lua',
 }
 
 client_script 'client.lua'
