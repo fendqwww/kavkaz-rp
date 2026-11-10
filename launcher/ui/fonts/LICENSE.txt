@@ -1,2 +1,2 @@
-Шрифты Montserrat и Onest распространяются по лицензии SIL Open Font License 1.1
+Шрифт Manrope распространяется по лицензии SIL Open Font License 1.1
 (https://openfontlicense.org). Файлы взяты с Google Fonts.
