@@ -27,10 +27,18 @@ RegisterNetEvent('kavkaz_air:client:installed', function(net)
     if myVeh ~= 0 and VehToNet(myVeh) == net then hasAir, level = true, 0 end
 end)
 
-local function sound(veh, up)
-    -- штатные звуки гидравлики лоурайдеров GTA (если банк не загрузился — просто без звука)
-    RequestScriptAudioBank('DLC_LOW2/LOWRIDER_HYDRAULICS', false)
-    PlaySoundFromEntity(-1, up and 'Hydraulics_Up' or 'Hydraulics_Down', veh, 'Lowrider_Super_Mod_Garage_Sounds', false, 0)
+-- звук пневмы (html/index.html): громкость и панорама по расстоянию до камеры, как у СГУ
+local function sound(veh, up, travel)
+    local cam = GetFinalRenderedCamCoord()
+    local pos = GetEntityCoords(veh)
+    local dist = #(pos - cam)
+    if dist > 45.0 then return end
+    local vol = (1.0 - dist / 45.0) ^ 2
+    local rot = math.rad(GetFinalRenderedCamRot(2).z)
+    local dir = pos - cam
+    local len = math.max(0.001, math.sqrt(dir.x * dir.x + dir.y * dir.y))
+    local pan = (dir.x * math.cos(rot) + dir.y * math.sin(rot)) / len
+    SendNUIMessage({ action = 'air', kind = up and 'up' or 'down', dur = travel / Config.Speed, vol = vol, pan = math.max(-0.8, math.min(0.8, pan)) })
 end
 
 local function change(step)
@@ -52,7 +60,8 @@ AddStateBagChangeHandler('kv_air', nil, function(bagName, _, value)
     local veh = GetEntityFromStateBagName(bagName)
     if veh == 0 then return end
     local h = Config.Levels[tonumber(value) or 0] or 0.0
-    if targets[veh] and math.abs(targets[veh] - h) > 0.001 then sound(veh, h < targets[veh]) end
+    local was = targets[veh] or current[veh] or 0.0
+    if math.abs(was - h) > 0.001 then sound(veh, h < was, math.abs(was - h)) end
     targets[veh] = h
 end)
 
