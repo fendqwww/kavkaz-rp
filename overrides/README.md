@@ -15,7 +15,7 @@ powershell -ExecutionPolicy Bypass -File setup\apply-overrides.ps1
 
 | файл | что меняет |
 |---|---|
-| `kavkaz.cfg` | русский язык, синий цвет окон ox_lib, наш экран загрузки, `ensure` наших ресурсов |
+| `kavkaz.cfg` | русский язык, синий цвет окон ox_lib, наш экран загрузки, право основателя `kavkaz.founder` для `group.admin`, `ensure` наших ресурсов |
 | `[qbx]/qbx_core/locales/ru.json` | дополнен перевод: выбор и создание персонажа («Паспорт жителя Нагорья»), очередь, команды |
 | `[qbx]/qbx_core/config/client.lua` | надпись на карте паузы `KAVKAZ RP`, возраст 18+ (`dateMax 2008-12-31`), выключен Discord-статус «Qbox Ducky» |
 | `[qbx]/qbx_core/config/shared.lua` | название сервера `KAVKAZ RP`, стартовый набор + 2 воды и 2 бутерброда |

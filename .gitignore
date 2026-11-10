@@ -3,7 +3,7 @@ secrets.cfg
 *.secret
 .env
 # серверные бинарники и данные
-server/
+/server/
 txData/
 mariadb-data/
 cache/
