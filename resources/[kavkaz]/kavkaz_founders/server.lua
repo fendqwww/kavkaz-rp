@@ -46,6 +46,11 @@ local function isFounder(src)
 end
 
 lib.callback.register('kavkaz_founders:isFounder', function(src) return isFounder(src) end)
+lib.callback.register('kavkaz_founders:garageSpawn', function(src)
+    if not isFounder(src) then return nil end
+    local s = garageSpawn()
+    return { s.x, s.y, s.z }
+end)
 
 -- клиент основателя нашёл дорогу у дома — запомнить место выезда машин
 RegisterNetEvent('kavkaz_founders:server:garageSpawn', function(x, y, z, h)
@@ -55,6 +60,7 @@ RegisterNetEvent('kavkaz_founders:server:garageSpawn', function(x, y, z, h)
     if #(pos - Config.Garage.access.xyz) > 120.0 then return end
     SetResourceKvp('garage_spawn', ('%.2f,%.2f,%.2f,%.1f'):format(pos.x, pos.y, pos.z, tonumber(h) or 0.0))
     registerGarage()
+    TriggerClientEvent('kavkaz_founders:client:spawnReset', -1)
     print(('[kavkaz_founders] место выезда гаража: %.1f, %.1f, %.1f'):format(pos.x, pos.y, pos.z))
 end)
 

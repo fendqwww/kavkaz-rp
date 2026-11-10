@@ -32,6 +32,38 @@ local function findGarageRoad()
     end
 end
 
+-- место выезда из гаража держим свободным: бесхозные машины GTA (припаркованные NPC) убираем.
+-- машины игроков (из гаражей, с номером в базе) и машины с людьми не трогаем
+local spawnPoint
+CreateThread(function()
+    while true do
+        local wait = 3000
+        if founder then
+            if not spawnPoint then
+                local s = lib.callback.await('kavkaz_founders:garageSpawn', false)
+                if s then spawnPoint = vec3(s[1], s[2], s[3]) end
+            end
+            if spawnPoint and #(GetEntityCoords(PlayerPedId()) - spawnPoint) < 60.0 then
+                wait = 1500
+                for _, veh in ipairs(GetGamePool('CVehicle')) do
+                    if #(GetEntityCoords(veh) - spawnPoint) < 7.0
+                        and not Entity(veh).state.vehicleid
+                        and IsVehicleSeatFree(veh, -1)
+                        and GetVehicleNumberOfPassengers(veh) == 0
+                        and not IsEntityAMissionEntity(veh) then
+                        NetworkRequestControlOfEntity(veh)
+                        SetEntityAsMissionEntity(veh, true, true)
+                        DeleteVehicle(veh)
+                    end
+                end
+            end
+        end
+        Wait(wait)
+    end
+end)
+
+RegisterNetEvent('kavkaz_founders:client:spawnReset', function() spawnPoint = nil end)
+
 -- метки домов
 CreateThread(function()
     for _, f in ipairs(Config.Founders) do
