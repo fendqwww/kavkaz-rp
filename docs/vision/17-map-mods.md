@@ -1,175 +1,180 @@
-# 17. Моды для маппинга: что можно взять
+# 17. Моды для маппинга: только бесплатное
 
-Подборка готовых зданий, интерьеров и карт под Нагорье. Это **разведка**, а не установка: перед тем как что-то ставить,
-каждый мод проверяем по чек-листу внизу. Найдено поиском в ноябре 2026, цены и ссылки могут меняться.
+Подборка **бесплатных** зданий, интерьеров и карт под Нагорье. Платное не берём.
+Это разведка (поиск в ноябре 2026): перед установкой каждый мод проверяем по чек-листу внизу.
 
-## Сначала коротко: что это за файлы
+Обозначения: ✅ бесплатно по описанию автора · ❔ на одном сайте бесплатно, на другом платно — брать только если у автора бесплатно.
+
+## Что это за файлы
 | формат | что это | зачем нам |
 |---|---|---|
-| **YMAP** | расстановка объектов на карте: какие модели и где стоят | дворы, заборы, рынок, остановки, пост ДПС, декор |
-| **MLO** | интерьер, в который можно зайти (комнаты, двери, освещение) | мечеть, чайхана, СТО, зал «Ловзар», МРЭО, ферма |
-| **ресурс FiveM** | папка с `fxmanifest.lua` и `stream/` | так ставится любой мод на сервер: `ensure имя` |
-| **моды для одиночки** (Menyoo, Map Editor, `.xml`) | расстановка для сюжетного режима | на FiveM напрямую не работают, но в CodeWalker их можно пересобрать в YMAP |
+| **YMAP** | расстановка объектов на карте | дворы, заборы, рынок, остановки, пост ДПС, декор |
+| **MLO** | интерьер, в который можно зайти | чайхана, СТО, зал «Ловзар», больница, отделы МВД |
+| **ресурс FiveM** | папка с `fxmanifest.lua` и `stream/` | так ставится любой мод: `ensure имя` |
+| **моды для одиночки** (Menyoo, `.xml`) | расстановка для сюжетки | на FiveM напрямую не идут, переносим через CodeWalker |
+| **3D-модель** (Sketchfab, CGTrader) | просто модель | своё здание через Blender + Sollumz (долго, но бесплатно) |
 
-Ставим моды, у которых в описании есть **FiveM**, **YMAP** или **MLO**. Моды только для Menyoo тоже годятся, но потребуют
-переноса в CodeWalker.
+---
 
-## Подборка по зонам плана
+## 1. Бесплатно из самой GTA — начинаем отсюда
+Ничего не скачиваем, всё уже в игре: легально, без лагов, без проблем с лицензиями.
 
-### Горы и сёла: Лам-Юрт, Седа-Юрт, Чилиад-Лам
-| что | цена | ссылка | куда | заметки |
-|---|---|---|---|---|
-| **Hunt Cabin With Trees**: деревянная изба с деревьями | бесплатно | [cfx.re](https://forum.cfx.re/t/release-free-map-hunt-cabin-with-trees/4823524) | пасека деда Абдуллы, домик в лесу у Лам-Юрта | лучший бесплатный вариант, сразу под FiveM |
-| **Hunter House**: деревянный лесной дом | спорно | [Tebex Shopfusion](https://shopfusion.tebex.io/package/7359632) · [cfx.re](https://forum.cfx.re/t/hunter-house/5394953) | дом в горах, охотничий домик | на одном сайте платный, на другом «бесплатный» — брать только у автора |
-| **Camp Josiah**: домики у Чилиада | ? | [marketplace.cfx.re](https://marketplace.cfx.re/packages/7138820-camp-josiah) | турбаза у озера Седа-Ам, кемпинг | уже стоит у Чилиада, удобно под наши горы |
-| **Fishing House**: домик рыбака | ? | [Tebex Oazys](https://oazys-rp.tebex.io/package/7571845) | рыбалка на Седа-Аме | цена не указана |
-| **Village 2.0**: «деревня» | бесплатно | [gta5-mods](https://www.gta5-mods.com/maps/village) | основа для Седа-Юрта | старый мод (2017) под Menyoo, переносить в CodeWalker |
-
-### Фермы: «Звезда Гор», сыроварня, конюшни (Седа-Юрт)
-| что | цена | ссылка | заметки |
-|---|---|---|---|
-| **Farmer House & Barn**: дом фермера (6 комнат) и амбар | бесплатно | [cfx.re](https://forum.cfx.re/t/farmer-house-barn-mlo-pack-farm-interior/5399481) | в посте свалено много лишнего, берём только ферму |
-| **O'Neil Ranch V2**: ранчо с амбарами и конюшнями | $10 | [payhip](https://payhip.com/b/l4ie3) | вся ферма «Звезда Гор» одним модом |
-| **Braddock Farm** | ~$15 | [fivemx](https://fivemx.com/braddock-farm-mlo) | перепродавец, искать оригинал автора |
-| бесплатная «коробка» амбара | бесплатно | [Tebex destro1d](https://destro1d.tebex.io/package/6537817) | под скрипт работы на ферме |
-
-### Свадебный зал «Ловзар»
-Кавказская свадьба — это большой банкетный зал на сотню гостей: длинные столы, сцена, танцпол для лезгинки, вход для кортежа.
-Маленькие «wedding place» не подходят.
-
-| что | цена | ссылка | заметки |
-|---|---|---|---|
-| **Ballroom in the Observatory**: сцена, VIP-зона, 3 бара, танцпол, туалеты, рассчитан на 100+ гостей | бесплатно | [cfx.re](https://forum.cfx.re/t/mlo-ballroom-in-the-observatory/5409581) | **лучший по размеру.** стоит под картой (вход телепортом на 0, 0, -120), в комментариях спорят, MLO это или «коробка». для зала с телепортом от входа — нормально |
-| **Bliss Wedding Garden**: танцпол, DJ, бар, площадка для церемонии | платно | [cfx.re](https://forum.cfx.re/t/bliss-wedding-garden-fivem-map/5272378) | под открытым небом: летняя свадьба, фото, лезгинка во дворе |
-| **Tequi-La-La** (Fiv3Devs): сцена, бар, балкон | платно | [fiv3devs](https://www.fiv3devs.com/maps/) | клуб в Вайнвуде, можно сделать залом торжеств |
-| **ночной клуб из GTA Online** через `bob74_ipl` | бесплатно | (уже в рецепте Qbox) | огромный зал с танцполом, свой декор — столы, ковры, цветы — расставляем в CodeWalker |
-
-**Предложение:** «Ловзар» = Ballroom (бесплатно, большой) или ночной клуб GTA Online с нашими столами. Вход — здание в городе, внутрь телепорт.
-
-### Мечеть (Лам-Юрт и центр Нагорска)
-| что | цена | ссылка | заметки |
-|---|---|---|---|
-| **Mosque (RTX)**: полная мечеть, снаружи и внутри | $29 | [rtx.tebex.io](https://rtx.tebex.io/package/5118742) | единственный найденный готовый вариант под FiveM, код закрыт (escrow) |
-| **Cami (Mosque)** | бесплатно | [gtainside](https://www.gtainside.com/gta5/maps/180438-cami-mosque/) | для одиночки (Menyoo), инструкция на турецком, переносить в CodeWalker |
-
-### Город: Нагорск, СТО Бислана, авторынок Ахмеда-Падишаха, «Ловзар», чайхана
-| что | цена | ссылка | куда |
-|---|---|---|---|
-| **Wedding Place**: церемония, зал, фотозона | бесплатно | [fivemx](https://fivemx.com/pl/wedding-place/) | ~~«Ловзар»~~ слишком маленький (домик). максимум — выездная регистрация |
-| **Redline Mechanic Shop** | бесплатно | [gumroad](https://fivemecho.gumroad.com/l/redline) | СТО Бислана |
-| **EvoMotors**: мастерская, шоурум, гараж (Палето) | бесплатно | [vertexmods](https://vertexmods.com/fr/free-mods/fivem/mlo-evomotors-mechanic-showroom-garage) | «Борз Тюнинг» или СТО в сёлах |
-| **Patoche Car Dealer**: автосалон | бесплатно | [fivemx](https://fivemx.com/free-patoche-car-dealer-mlo/) | «Нагорье Моторс» |
-| **Kortz Car Dealership & Auction Hall**: автосалон и аукционный зал | ? | [fivemx](https://fivemx.com/kortz-car-dealership-auction-hall/) | авторынок и **аукцион номеров** |
-| **Coffee House** | бесплатно | [fivemx](https://fivemx.com/?p=216531) | основа под чайхану «У Румисы» (перекрасить, добавить ковры и самовары) |
-| **Big Benny's Garage** / **Mega Garage** | $8 / $5 | [fivemx: гаражи](https://fivemx.com/garage-huge/) | гаражи и склады промзоны «Ла-Меса» |
-
-### Силовой квартал: ГУ МВД, ДПС, ФСБ
-| что | цена | ссылка | куда | заметки |
-|---|---|---|---|---|
-| **La Mesa Police Department**: приёмная, кабинеты, диспетчерская | бесплатно | [cfx.re](https://forum.cfx.re/t/release-mlo-la-mesa-police-department/4874033) | отдел полиции у промзоны «Ла-Меса» | код закрыт, но для нас это не важно |
-| **Davis Sheriff's Station + LSPD Theme** | ? | [cfx.re](https://forum.cfx.re/t/davis-sheriff-s-station-mlo-lspd-theme/2522718) | районный отдел МВД в спальном районе | в комментариях хвалят, цену проверить |
-| **PD Beach (Rex Studio)**: маленький участок на Веспуччи | бесплатно | [cfx.re](https://forum.cfx.re/t/pd-beach-mlo-free-by-rex-studio/5278375) | пост полиции на набережной | |
-| **Paleto Bay PD + City Hall** | бесплатно | [fivemx](https://fivemx.com/free-mods/fivem/paleto-bay-police-department-and-city-hall-mlo-map) | отдел полиции и администрация в сёлах | перепродавец, искать оригинал |
-| **Highway Patrol MLO** | ? | [fivemx](https://fivemx.com/highway-patrol-mlo/) | база ДПС на трассе | |
-
-**ГУ МВД в центре:** сначала берём ванильный **Mission Row**, у него уже есть интерьер, и меняем вывески на «ГУ МВД по Республике Нагорье».
-**ФСБ:** отдельного мода нет. Предлагаю офисный небоскрёб из GTA Online (через `bob74_ipl`, раздел ниже) с охраной на входе.
-
-### Больница
-| что | цена | ссылка | заметки |
-|---|---|---|---|
-| **Gabz Pillbox V2**: замена стандартной Pillbox | ~$15 | [fivemx](https://fivemx.com/shop/gabz-pillbox-v2) | стандарт для RP, работает с Qbox. брать только у Gabz |
-| **Los Santos Medical Center**: многоэтажная, 25+ комнат | платно | [Tebex kivomaps](https://kivomaps.tebex.io/package/hospital) | «Республиканская клиническая больница» |
-| **Sandy Shores Hospital** | ? | [fivemx](https://fivemx.com/sandy-shores-hospital/) | сельская больница в предгорьях |
-
-Бесплатно и сразу: стандартная **Pillbox** уже стоит в Qbox (`qbx_ambulancejob`), меняем только вывески.
-
-### Набережная и Старый город: кальянные, чайхана, кафе
-| что | цена | ссылка | куда |
-|---|---|---|---|
-| **Hookah Lounge** | бесплатно | [cfx.re](https://forum.cfx.re/t/hookah-lounge-free-mlo/4765067) | кальянная на набережной |
-| **Sandy Shores Hookah & Bar** | бесплатно | [cfx.re](https://forum.cfx.re/t/free-mlo-sandy-shores-hookah-bar/5290400) | кальянная у трассы в сёлах |
-| **HEX Hookah Lounge** | ? | [cfx.re](https://forum.cfx.re/t/release-mlo-hex-hookah-lounge/5206258) | дорогая кальянная в Нагорск-Сити |
-| **Coffee House** | бесплатно | [fivemx](https://fivemx.com/?p=216531) | основа под чайхану «У Румисы» |
-
-### Серпантин, дрифт, покатушки
-| что | цена | ссылка | куда | заметки |
-|---|---|---|---|---|
-| **Drag Strip / Drifting Spot, Sandy Shores** | бесплатно | [gta5-mods](https://www.gta5-mods.com/maps/new-drag-strip-drifting-spot-sandy-shores-smilemore) | дрифт-площадка у СТО Бислана | YMAP под FiveM, автор просит не перепродавать |
-| **Drift Track 1.0** | бесплатно | [gta5mod.net](https://gta5mod.net/gta-5-mods/maps/drift-track-1-0/) | вторая площадка, дрифт-ивенты | YMAP, кладётся в `stream` |
-| **Mountain bike route 1**: горная дорога | бесплатно | [gta5-mods](https://www.gta5-mods.com/maps/mountain-bike-route) | дорога к Лам-Юрту, мото и вело | |
-| **Project Touge**: горный серпантин на ассетах GTA | бесплатно | [gta5-mods](https://www.gta5-mods.com/maps/project-touge) | **наш серпантин на Чилиад-Лам** | инструкция в основном для одиночки, проверить FiveM |
-| **японские тоге (Hayato, Akagi, Hakone…)** | ? | [GodsLobbies](https://www.gta5-mods.com/users/GodsLobbies/files) | дуэли и кортежи в горах | помечены Add-On / FiveM, цену смотреть на странице |
-| **Redwood Touge** | платно | [cfx.re](https://forum.cfx.re/t/paid-redwood-touge/5187167) | | |
-
-Стандартная дорога на **Чилиад** уже серпантин. Начинаем с неё, моды добавляем, если её мало.
-
-### Рублёвка и Нагорск-Сити: особняки и квартиры
-| что | цена | ссылка | заметки |
-|---|---|---|---|
-| **Luxury Mansion** | бесплатно | [fivemx](https://fivemx.com/free-mods/fivem/luxury-mansion) | скачивание через рекламную страницу |
-| **Rockyview Mansion** | бесплатно | [fivemx](https://fivemx.com/free-mods/fivem/rockyview-mansion) | указано: работает с QBOX |
-| **Mansion Under the Bridge** | бесплатно | [fivemx](https://fivemx.com/free-mods/fivem/mansion-under-the-bridge) | |
-| **Vinewood Estate V3**: особняк на холме | платно | [vertexmods](https://vertexmods.com/shop/vinewood-estate-v3) | дом «самого богатого» на Рублёвке |
-| **Modern Luxurious Villa** | $31 | [Tebex one-solutions](https://one-solutions.tebex.io/package/7249531) | |
-
-### Бесплатно из самой GTA: интерьеры GTA Online (`bob74_ipl`)
-`bob74_ipl` открывает интерьеры GTA Online: квартиры, офисы в небоскрёбах, ночные клубы, бункеры, склады, яхту.
-Обычно он уже стоит в сборке Qbox (проверьте папку `resources`). Это бесплатно, легально и без лагов — лучший старт.
+### Интерьеры GTA Online (ресурс `bob74_ipl`)
+Обычно уже стоит в сборке Qbox (проверьте папку `resources`). Если нет — бесплатный ресурс bob74_ipl.
 
 | интерьер | куда по плану |
 |---|---|
-| офисы в небоскрёбах (Maze Bank, Arcadius) | **Правительство, ФСБ, Главный банк**, бизнес-центры Нагорск-Сити |
-| дорогие квартиры (Eclipse Towers, Richards Majestic) | элитные квартиры в Нагорск-Сити |
-| ночной клуб | **зал «Ловзар»** или клуб в Нагорск-Сити |
-| склады и гаражи | промзона «Ла-Меса», гараж Бислана |
-| бункер | криминальные квесты |
+| офисы в небоскрёбах (Maze Bank, Arcadius, Lombank) | **Правительство, ФСБ, Главный банк**, бизнес-центры Нагорск-Сити |
+| дорогие квартиры (Eclipse Towers, Richards Majestic, Del Perro) | элитные квартиры в Нагорск-Сити |
+| ночной клуб | **зал «Ловзар»** (большой зал + танцпол, столы ставим сами) или клуб в Нагорск-Сити |
+| склады, гаражи, автомастерская | промзона «Ла-Меса», гараж Бислана |
 | байкерский клуб | семьи и банды в сёлах |
+| бункер | криминальные квесты |
 
-### Что уже есть на стандартной карте (переименовать и использовать)
-- **канатная дорога** на Чилиад (Pala Springs Aerial Tramway) — наша **канатка** на Чилиад-Лам;
-- **автовокзал Dashound** — стартовая точка новичка;
-- **аэропорт LSIA** — «Аэропорт Нагорск»;
-- **мэрия Рокфорд-Хиллз** — Правительство Республики (там же сейчас МРЭО);
-- **колесо обозрения** на пирсе — набережная Нагорска;
-- **заправки, магазины 24/7, Ammu-Nation** — меняем только вывески.
+### Что уже стоит на карте — только переименовать и сменить вывески
+| место GTA | у нас |
+|---|---|
+| автовокзал Dashound | стартовая точка новичка |
+| аэропорт LSIA | «Аэропорт Нагорск» |
+| мэрия Рокфорд-Хиллз | Правительство Республики (там же сейчас МРЭО) |
+| полиция Mission Row | **ГУ МВД по Республике Нагорье** |
+| больница Pillbox (уже в Qbox) | Республиканская клиническая больница |
+| канатная дорога на Чилиад | **канатка на Чилиад-Лам** |
+| дорога на Чилиад | **горный серпантин** |
+| колесо обозрения на пирсе | набережная Нагорска |
+| озеро Аламо | озеро Седа-Ам |
+| Грейпсид | Седа-Юрт (поля, фермы) |
+| заправки, 24/7, Ammu-Nation | меняем вывески |
+
+---
+
+## 2. Бесплатные моды по зонам
+
+### Горы и сёла: Лам-Юрт, Седа-Юрт, Чилиад-Лам
+| что | | ссылка | куда |
+|---|---|---|---|
+| **Hunt Cabin With Trees**: изба с деревьями | ✅ | [cfx.re](https://forum.cfx.re/t/release-free-map-hunt-cabin-with-trees/4823524) | пасека деда Абдуллы, домик в лесу |
+| **Hunter House**: деревянный дом в лесу | ❔ | [cfx.re](https://forum.cfx.re/t/hunter-house/5394953) | охотничий домик в горах |
+| **Village 2.0**: «деревня» | ✅ | [gta5-mods](https://www.gta5-mods.com/maps/village) | основа для Седа-Юрта (старый, под Menyoo, переносить) |
+| **Illegal medical building (Smokey)**: здание в горах у Сэнди-Шорс | ✅ | [cfx.re](https://forum.cfx.re/t/release-mlo-illegal-medical-building/1093654) | горный пост МЧС / подпольный врач |
+
+### Фермы: «Звезда Гор», сыроварня, конюшни
+| что | | ссылка | заметки |
+|---|---|---|---|
+| **Farmer House & Barn**: дом фермера и амбар | ✅ | [cfx.re](https://forum.cfx.re/t/farmer-house-barn-mlo-pack-farm-interior/5399481) | в посте много лишнего, берём только ферму |
+| коробка амбара под скрипт фермы | ✅ | [Tebex destro1d](https://destro1d.tebex.io/package/6537817) | для работы фермера |
+| **The Taco Farmer**: зал с окном выдачи | ✅ | [cfx.re](https://forum.cfx.re/t/free-the-taco-farmer-mlo/5300708) | придорожная шашлычная у трассы. автор пишет про спор о правах — прочитать тред |
+
+### Свадебный зал «Ловзар»
+Нужен большой зал на сотню гостей: столы, сцена, танцпол для лезгинки.
+
+| что | | ссылка | заметки |
+|---|---|---|---|
+| **Ballroom in the Observatory**: сцена, VIP, 3 бара, танцпол, 100+ гостей | ✅ | [cfx.re](https://forum.cfx.re/t/mlo-ballroom-in-the-observatory/5409581) | **лучший вариант**. стоит под картой, вход телепортом |
+| ночной клуб GTA Online (`bob74_ipl`) | ✅ | раздел 1 | запасной вариант, декор ставим сами |
+| **7Sky Rooftop Restaurant**: ресторан на крыше, кухня, LOD | ✅ | [cfx.re](https://forum.cfx.re/t/free-mlo-7sky-restaurant/5360345) | банкет поменьше, ресторан в Нагорск-Сити |
+| Wedding Place | ✅ | [fivemx](https://fivemx.com/wedding-place/) | маленький — только выездная регистрация |
+
+### Мечеть — готовой бесплатной под FiveM нет
+| что | | ссылка | заметки |
+|---|---|---|---|
+| **Cami (Mosque)** | ✅ | [gtainside](https://www.gtainside.com/gta5/maps/180438-cami-mosque/) | для одиночки (Menyoo): переносим расстановку в CodeWalker |
+| **Turkish Mosque** | ❔ | [9mods](https://www.9mods.net/mod/turkish-mosque) | 11 КБ, скорее всего тоже расстановка из пропов. проверить |
+| **Sabanci Central Mosque**: 3D-модель | ✅ CC BY | [Sketchfab](https://sketchfab.com/3d-models/sabanci-central-mosque-1413c5a4f7294e77af00946bf015029a) | своя мечеть через Blender + Sollumz, указать автора. 286 тыс. треугольников — нужно упрощать |
+| **Eastern Low Poly Mosque**: лёгкая 3D-модель | ✅ | [CGTrader](https://cgtrader.com/free-3d-models/interior/house/eastern-low-poly-mosque-building) | проще перенести, проверить лицензию |
+
+### Силовой квартал: МВД, ДПС
+| что | | ссылка | куда |
+|---|---|---|---|
+| Mission Row (стандартный) | ✅ | раздел 1 | ГУ МВД в центре |
+| **La Mesa Police Department**: приёмная, кабинеты, диспетчерская | ✅ | [cfx.re](https://forum.cfx.re/t/release-mlo-la-mesa-police-department/4874033) | отдел у промзоны |
+| **PD Beach (Rex Studio)** | ✅ | [cfx.re](https://forum.cfx.re/t/pd-beach-mlo-free-by-rex-studio/5278375) | пост полиции на набережной |
+| **Davis Sheriff's Station** | ❔ | [cfx.re](https://forum.cfx.re/t/davis-sheriff-s-station-mlo-lspd-theme/2522718) | отдел в спальном районе |
+| **Paleto Bay PD + City Hall** | ✅ | [fivemx](https://fivemx.com/free-mods/fivem/paleto-bay-police-department-and-city-hall-mlo-map) | полиция и администрация в сёлах |
+| **Russian Border**: КПП с флагами, 6 КБ | ✅ | [gta5-mods](https://www.gta5-mods.com/maps/russian-border-ymap) | пост ДПС на въезде в горы |
+
+**ФСБ** — офис в небоскрёбе из GTA Online (раздел 1).
+
+### Больница
+| что | | ссылка | куда |
+|---|---|---|---|
+| Pillbox (уже в Qbox) | ✅ | раздел 1 | Республиканская больница |
+| **Pillbox Hospital: the new generation**: переделанная Pillbox | ❔ | [cfx.re](https://forum.cfx.re/t/mlo-script-pillbox-hospital-the-new-generation-of-hospital/5131555?page=2) | в треде есть пометка paid — проверить |
+| **Paleto Bay Clinic**: холл, операционная, кабинет | ✅ | [cfx.re](https://forum.cfx.re/t/mlo-the-paleto-bay-clinick-free/2084877) | сельская больница. может конфликтовать с другими модами в Палето |
+
+### Город: СТО, автосалон, кафе, кальянные
+| что | | ссылка | куда |
+|---|---|---|---|
+| **Redline Mechanic Shop** | ✅ | [gumroad](https://fivemecho.gumroad.com/l/redline) | СТО Бислана |
+| **EvoMotors**: мастерская, шоурум, гараж (Палето) | ✅ | [vertexmods](https://vertexmods.com/fr/free-mods/fivem/mlo-evomotors-mechanic-showroom-garage) | «Борз Тюнинг» или СТО в сёлах |
+| **Patoche Car Dealer** | ✅ | [fivemx](https://fivemx.com/free-patoche-car-dealer-mlo/) | автосалон «Нагорье Моторс» |
+| **Kortz Car Dealership & Auction Hall** | ❔ | [fivemx](https://fivemx.com/kortz-car-dealership-auction-hall/) | авторынок и аукцион номеров |
+| **Coffee House** | ✅ | [fivemx](https://fivemx.com/?p=216531) | основа под чайхану «У Румисы» |
+| **Armadillo Bakery & CoffeeShop** | ✅ | [cfx.re](https://forum.cfx.re/t/mlo-free-armadillo-bakery-coffeeshop/5008264) | **пекарня в Лам-Юрте** |
+| **Fish & Chip Restaurant** | ✅ | [cfx.re](https://forum.cfx.re/t/free-mlo-fivem-fish-chip-restaurant/5262094) | рыбный ресторан у озера Седа-Ам |
+| **Marines Table**: рыбный ресторан | ✅ | [cfx.re](https://forum.cfx.re/t/free-mlo-marines-table-restaurant/5410111) | ресторан на набережной (22 МБ) |
+| **Hookah Lounge** | ✅ | [cfx.re](https://forum.cfx.re/t/hookah-lounge-free-mlo/4765067) | кальянная на набережной |
+| **Sandy Shores Hookah & Bar** | ✅ | [cfx.re](https://forum.cfx.re/t/free-mlo-sandy-shores-hookah-bar/5290400) | кальянная у трассы |
+| **Ammunation [MAP]** | ✅ | [cfx.re](https://forum.cfx.re/t/release-free-ammunation-map/4768111) | оружейный магазин |
+
+### Серпантин и дрифт
+| что | | ссылка | куда |
+|---|---|---|---|
+| дорога на Чилиад (стандартная) | ✅ | раздел 1 | основной серпантин |
+| **Drag Strip / Drifting Spot, Sandy Shores** (YMAP под FiveM) | ✅ | [gta5-mods](https://www.gta5-mods.com/maps/new-drag-strip-drifting-spot-sandy-shores-smilemore) | дрифт-площадка у СТО Бислана |
+| **Drift Track 1.0** (YMAP) | ✅ | [gta5mod.net](https://gta5mod.net/gta-5-mods/maps/drift-track-1-0/) | вторая площадка, ивенты |
+| **Mountain bike route 1** | ✅ | [gta5-mods](https://www.gta5-mods.com/maps/mountain-bike-route) | горная дорога к Лам-Юрту |
+| **Project Touge**: серпантин на ассетах GTA | ✅ | [gta5-mods](https://www.gta5-mods.com/maps/project-touge) | второй серпантин, проверить работу на FiveM |
+| **японские тоге (GodsLobbies)** | ❔ | [gta5-mods](https://www.gta5-mods.com/users/GodsLobbies/files) | горные дуэли, цену смотреть на каждой странице |
+
+### Рублёвка: особняки
+| что | | ссылка |
+|---|---|---|
+| **Luxury Mansion** | ✅ | [fivemx](https://fivemx.com/free-mods/fivem/luxury-mansion) |
+| **Rockyview Mansion** (указано: работает с Qbox) | ✅ | [fivemx](https://fivemx.com/free-mods/fivem/rockyview-mansion) |
+| **Mansion Under the Bridge** | ✅ | [fivemx](https://fivemx.com/free-mods/fivem/mansion-under-the-bridge) |
+| дорогие квартиры и офисы GTA Online | ✅ | раздел 1 |
 
 ### Российская атмосфера
-| что | цена | ссылка | заметки |
+| что | | ссылка | заметки |
 |---|---|---|---|
-| **Little Moscow Recreation**: кусок «Москвы» | бесплатно | [cfx.re](https://forum.cfx.re/t/ymap-free-little-moscow-recreation-half-complete/4949961) | недоделан, но можно взять отдельные дворы и улицы |
-| **Criminal Russia (под FiveM)**: целый русский город | бесплатно | [GitHub](https://github.com/AlexLicu/criminal_russia) | бета, тяжёлый, один LOD. смотреть как источник моделей: панельки, ларьки, остановки |
-| **Russian Border**: КПП с флагами (6 КБ) | бесплатно | [gta5-mods](https://www.gta5-mods.com/maps/russian-border-ymap) | основа для поста ДПС на въезде в горы |
-| **Хрущёвка** (3D-модель) | бесплатно, CC BY | [Sketchfab](https://sketchfab.com/3d-models/khrushchevka-4c759da8b8914ec4924f68ee9cc3cbd5) | не мод: перенос через Blender + Sollumz. лицензия разрешает с указанием автора |
-| **Grozny Map** / **Makhachkala Map** | бесплатно | [Грозный](https://libertycity.net/files/gta-5/208859-grozny-map-city-of-grozny.html) · [Махачкала](https://libertycity.net/files/gta-5/198618-makhachkala-map-dlc.html) | **осторожно**: для одиночки, у людей ломается. по правилам проекта реальные города не копируем. максимум — как референс |
+| **Little Moscow Recreation** | ✅ | [cfx.re](https://forum.cfx.re/t/ymap-free-little-moscow-recreation-half-complete/4949961) | недоделан, берём отдельные дворы и улицы |
+| **Criminal Russia (под FiveM)** | ✅ | [GitHub](https://github.com/AlexLicu/criminal_russia) | тяжёлый, бета. источник панелек, ларьков, остановок |
+| **Хрущёвка**: 3D-модель | ✅ CC BY | [Sketchfab](https://sketchfab.com/3d-models/khrushchevka-4c759da8b8914ec4924f68ee9cc3cbd5) | спальный район через Blender, указать автора |
+| Grozny Map / Makhachkala Map | ✅ | [Грозный](https://libertycity.net/files/gta-5/208859-grozny-map-city-of-grozny.html) · [Махачкала](https://libertycity.net/files/gta-5/198618-makhachkala-map-dlc.html) | **только как референс**: для одиночки, у людей ломается, реальные города не копируем |
 
-### Чего готового не нашлось
-- **панельные дома (хрущёвки) под FiveM:** только 3D-модели, придётся переносить через Blender;
-- **восточный базар**: нет. Собираем из ванильных пропов: навесы, прилавки, ящики с фруктами;
-- **горное село в кавказском стиле:** нет. Собираем из ванильных пропов и избы выше, позже добавляем свои модели;
-- **пост ДПС, советские остановки, ларьки, «ракушки»:** отдельных паков нет, искать модели внутри Criminal Russia;
-- **МРЭО, мэрия, ГУ МВД в российском стиле:** нет. Берём ванильные здания (мэрия Рокфорд-Хиллз, Mission Row) и меняем вывески.
+---
 
-## Что брать первым (стартовый набор)
-1. **Hunt Cabin With Trees**: изба в горах. Бесплатно, сразу под FiveM, первая проверка, что моды ставятся.
-2. **Farmer House & Barn**: ферма в Седа-Юрте. Бесплатно.
-3. **Ballroom in the Observatory**: «Ловзар», зал на 100+ гостей. Бесплатно.
-4. **Redline Mechanic Shop**: СТО Бислана. Бесплатно.
-5. **Patoche Car Dealer**: автосалон. Бесплатно.
-6. **Russian Border**: заготовка поста ДПС. Бесплатно, 6 КБ.
-7. **Mosque (RTX)**, $29: если решим покупать. Другой готовой мечети под FiveM нет.
-8. **`bob74_ipl`** (обычно уже стоит): офисы под Правительство и ФСБ, квартиры, ночной клуб. Бесплатно.
-9. **Hookah Lounge**: кальянная на набережной. Бесплатно.
-10. **Drag Strip / Drifting Spot**: дрифт-площадка. Бесплатно.
-11. **La Mesa Police Department**: второй отдел МВД. Бесплатно.
+## Чего бесплатного готового нет — собираем сами
+| что | из чего |
+|---|---|
+| мечеть | расстановка Cami (Menyoo) или своя модель из Sketchfab/CGTrader |
+| восточный базар | ванильные навесы, прилавки, ящики с фруктами + ковры |
+| кавказское горное село | изба выше + ванильные дома и заборы, позже свои модели |
+| панельные дома | 3D-модель хрущёвки или модели из Criminal Russia |
+| пост ДПС, советские остановки, ларьки, «ракушки» | Russian Border + модели из Criminal Russia |
+| МРЭО, мэрия, ФСБ в российском стиле | ванильные здания и офисы GTA Online + наши вывески |
+| шашлычная на вершине Чилиад-Лам | Taco Farmer или ванильное кафе у вершины + декор |
 
-## Чек-лист перед установкой любого мода
-- [ ] скачиваем **у автора** (форум cfx.re, его Tebex или Gumroad), а не у перепродавцов. fivemx и vertexmods часто перезаливают чужое;
-- [ ] в описании есть **разрешение** на использование на сервере (особенно с донатом);
-- [ ] размер: интерьер больше ~50 МБ или больше ~2000 объектов — проверяем FPS на слабом ПК;
-- [ ] мод **не пересекается** с другими: два MLO в одном месте ломают друг друга;
-- [ ] пробуем на локальном сервере, смотрим ошибки в F8 и в консоли;
-- [ ] записываем мод в таблицу ниже.
+## Стартовый набор (всё бесплатно)
+1. **`bob74_ipl`** и стандартные здания: Правительство, ФСБ, МВД, больница, «Ловзар» (ночной клуб) — без скачивания.
+2. **Hunt Cabin With Trees**: изба в горах. Первая проверка, что моды ставятся.
+3. **Farmer House & Barn**: ферма в Седа-Юрте.
+4. **Ballroom in the Observatory**: «Ловзар».
+5. **Redline Mechanic Shop**: СТО Бислана.
+6. **Patoche Car Dealer**: автосалон.
+7. **Russian Border**: заготовка поста ДПС.
+8. **Hookah Lounge**: кальянная.
+9. **Drag Strip / Drifting Spot**: дрифт-площадка.
+10. **Armadillo Bakery**: пекарня в Лам-Юрте.
+
+## Чек-лист перед установкой
+- [ ] у **автора** мод бесплатный (форум cfx.re, его Tebex/Gumroad с ценой 0). fivemx и vertexmods часто перезаливают чужое, иногда платное;
+- [ ] в описании нет запрета на серверы с донатом;
+- [ ] размер: интерьер больше ~50 МБ или больше ~2000 объектов — проверить FPS на слабом ПК;
+- [ ] мод не пересекается с другими в том же месте (особенно в Палето);
+- [ ] пробуем на локальном сервере, смотрим ошибки в F8 и консоли;
+- [ ] записываем в таблицу ниже.
 
 ## Установленные моды (заполняем по ходу)
 | мод | автор | откуда | лицензия | куда поставили | ресурс |
