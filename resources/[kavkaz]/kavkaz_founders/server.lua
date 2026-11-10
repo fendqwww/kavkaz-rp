@@ -15,16 +15,54 @@ local function loadCars()
     return list
 end
 
+-- место выезда: найденное клиентом основателя на ближайшей дороге (хранится на сервере), иначе запасное из конфига
+local function garageSpawn()
+    local saved = GetResourceKvpString('garage_spawn')
+    if saved then
+        local x, y, z, h = saved:match('([%-%d%.]+),([%-%d%.]+),([%-%d%.]+),([%-%d%.]+)')
+        if x then return vec4(tonumber(x), tonumber(y), tonumber(z), tonumber(h)) end
+    end
+    return Config.Garage.spawn
+end
+
 local function registerGarage()
     local g = Config.Garage
     exports.qbx_garages:RegisterGarage(g.name, {
         label = g.label,
         vehicleType = 'car',
         accessPoints = {
-            { coords = g.access, spawn = g.spawn, blip = { name = g.label, sprite = 357, color = 5 } },
+            { coords = g.access, spawn = garageSpawn(), blip = { name = g.label, sprite = 357, color = 5 } },
         },
     })
 end
+
+local function isFounder(src)
+    local p = exports.qbx_core:GetPlayer(src)
+    if not p then return false end
+    for _, f in ipairs(Config.Founders) do
+        if f.citizenid == p.PlayerData.citizenid then return true end
+    end
+    return false
+end
+
+lib.callback.register('kavkaz_founders:isFounder', function(src) return isFounder(src) end)
+lib.callback.register('kavkaz_founders:garageSpawn', function(src)
+    if not isFounder(src) then return nil end
+    local s = garageSpawn()
+    return { s.x, s.y, s.z }
+end)
+
+-- клиент основателя нашёл дорогу у дома — запомнить место выезда машин
+RegisterNetEvent('kavkaz_founders:server:garageSpawn', function(x, y, z, h)
+    local src = source
+    if GetResourceKvpString('garage_spawn') or not isFounder(src) then return end
+    local pos = vec3(tonumber(x) or 0, tonumber(y) or 0, tonumber(z) or 0)
+    if #(pos - Config.Garage.access.xyz) > 120.0 then return end
+    SetResourceKvp('garage_spawn', ('%.2f,%.2f,%.2f,%.1f'):format(pos.x, pos.y, pos.z, tonumber(h) or 0.0))
+    registerGarage()
+    TriggerClientEvent('kavkaz_founders:client:spawnReset', -1)
+    print(('[kavkaz_founders] место выезда гаража: %.1f, %.1f, %.1f'):format(pos.x, pos.y, pos.z))
+end)
 
 -- выдать недостающие машины (можно запускать сколько угодно раз: что уже есть — не дублирует)
 local function giveCars(cid)

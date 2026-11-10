@@ -67,7 +67,7 @@ return {
             anim = 'eating',
             prop = 'burger',
             usetime = 2500,
-            notification = 'You ate a delicious burger'
+            notification = 'Бургер съеден'
         },
     },
 
@@ -79,7 +79,7 @@ return {
             anim = { dict = 'mp_player_intdrink', clip = 'loop_bottle' },
             prop = { model = `prop_ld_can_01`, pos = vec3(0.01, 0.01, 0.06), rot = vec3(5.0, 5.0, -180.5) },
             usetime = 2500,
-            notification = 'You quenched your thirst with a sprunk'
+            notification = 'Газировка, бодрит'
         }
     },
 
@@ -150,7 +150,7 @@ return {
             anim = { dict = 'mp_player_intdrink', clip = 'loop_bottle' },
             prop = { model = `prop_food_mustard`, pos = vec3(0.01, 0.0, -0.07), rot = vec3(1.0, 1.0, -1.5) },
             usetime = 2500,
-            notification = 'You... drank mustard'
+            notification = 'Ты... выпил горчицу'
         }
     },
 
@@ -163,7 +163,7 @@ return {
             prop = { model = `prop_ld_flow_bottle`, pos = vec3(0.03, 0.03, 0.02), rot = vec3(0.0, 0.0, -1.5) },
             usetime = 2500,
             cancel = true,
-            notification = 'You drank some refreshing water'
+            notification = 'Вода, свежая'
         }
     },
 
@@ -583,6 +583,12 @@ return {
     ['coffee'] = {
         label = 'Кофе',
         weight = 200,
+        client = { -- KAVKAZ: кофе теперь можно выпить (продаётся в kavkaz_food)
+            status = { thirst = 150000 },
+            anim = { dict = 'mp_player_intdrink', clip = 'loop_bottle' },
+            usetime = 2500,
+            notification = 'Кофе, бодрит'
+        },
     },
 
     ['vodka'] = {
@@ -643,5 +649,101 @@ return {
     ['handcuffs'] = {
         label = 'Наручники',
         weight = 200,
+    },
+
+    ['shawarma'] = { -- KAVKAZ: kavkaz_food
+        label = 'Шаурма',
+        weight = 350,
+        client = {
+            image = 'burger.png',
+            status = { hunger = 250000 },
+            anim = 'eating',
+            usetime = 2500,
+            notification = 'Шаурма — то, что надо'
+        },
+    },
+
+    ['shawarma_xl'] = { -- KAVKAZ: kavkaz_food
+        label = 'Шаурма XL',
+        weight = 550,
+        client = {
+            image = 'burger.png',
+            status = { hunger = 450000 },
+            anim = 'eating',
+            usetime = 2500,
+            notification = 'Двойная шаурма, сыт надолго'
+        },
+    },
+
+    ['shashlyk'] = { -- KAVKAZ: kavkaz_food
+        label = 'Шашлык',
+        weight = 400,
+        client = {
+            image = 'burger.png',
+            status = { hunger = 400000 },
+            anim = 'eating',
+            usetime = 2500,
+            notification = 'Шашлык с углей'
+        },
+    },
+
+    ['zhizhig'] = { -- KAVKAZ: kavkaz_food
+        label = 'Жижиг-галнаш',
+        weight = 600,
+        client = {
+            image = 'burger.png',
+            status = { hunger = 600000, thirst = 100000 },
+            anim = 'eating',
+            usetime = 2500,
+            notification = 'Жижиг-галнаш, как дома'
+        },
+    },
+
+    ['chepalgash'] = { -- KAVKAZ: kavkaz_food
+        label = 'Чепалгаш',
+        weight = 250,
+        client = {
+            image = 'burger.png',
+            status = { hunger = 250000 },
+            anim = 'eating',
+            usetime = 2500,
+            notification = 'Тёплый чепалгаш с маслом'
+        },
+    },
+
+    ['samsa'] = { -- KAVKAZ: kavkaz_food
+        label = 'Самса',
+        weight = 200,
+        client = {
+            image = 'burger.png',
+            status = { hunger = 180000 },
+            anim = 'eating',
+            usetime = 2500,
+            notification = 'Горячая самса'
+        },
+    },
+
+    ['chai'] = { -- KAVKAZ: kavkaz_food
+        label = 'Чай с чабрецом',
+        weight = 250,
+        client = {
+            image = 'coffee.png',
+            status = { thirst = 250000 },
+            anim = { dict = 'mp_player_intdrink', clip = 'loop_bottle' },
+            usetime = 2500,
+            notification = 'Чай с чабрецом, горячий'
+        },
+    },
+
+    ['ayran'] = { -- KAVKAZ: kavkaz_food
+        label = 'Айран',
+        weight = 400,
+        client = {
+            image = 'water.png',
+            status = { hunger = 30000, thirst = 300000 },
+            anim = { dict = 'mp_player_intdrink', clip = 'loop_bottle' },
+            usetime = 2500,
+            notification = 'Холодный айран'
+        },
     },
 }
