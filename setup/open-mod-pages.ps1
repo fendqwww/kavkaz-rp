@@ -7,9 +7,9 @@
 #   -Cars all                все машины
 #   -Cars kv_priora,kv_g63   выборочно, по именам спавна
 # скачанный архив назови именем спавна (kv_priora.zip) и положи в C:\kavkaz\mods-inbox\cars
-param([string[]]$Cars)
+param([switch]$Cars, [Parameter(Position = 0)][string[]]$Names)
 
-if ($PSBoundParameters.ContainsKey('Cars')) {
+if ($Cars) {
     $query = [ordered]@{
         kv_camry80 = 'toyota camry 2025'; kv_priora = 'lada priora hatchback'; kv_lc300 = 'land cruiser 300'; kv_g63 = 'mercedes g63 2019'
         kv_m5f90 = 'bmw m5 f90'; kv_vaz2114 = 'vaz 2114'; kv_uaz_dps = 'uaz patriot police'; kv_octavia_dps = 'skoda octavia police'
@@ -35,14 +35,14 @@ if ($PSBoundParameters.ContainsKey('Cars')) {
         kv_octavia_dps = 'https://www.gta5-mods.com/vehicles/2017-skoda-octavia-add-on-replace-dirt-map'
         kv_vaz2107     = 'https://www.gta5-mods.com/vehicles/vaz-2107-lada-riva-add-on-tuning'
     }
-    if (-not $Cars -or $Cars.Count -eq 0) {
+    if (-not $Names -or $Names.Count -eq 0) {
         foreach ($name in $first) { Start-Process $direct[$name]; Start-Sleep -Milliseconds 500; Write-Host ("  {0,-16} {1}" -f $name, $direct[$name]) }
         Write-Host ''
         Write-Host "открыто страниц: $($first.Count). на каждой нажми Download, файлы оставь в «Загрузках», переименовывать не надо."
         Write-Host 'потом напиши Claude: «скачал».'
         return
     }
-    $list = if ($Cars[0] -eq 'all') { @($query.Keys) } else { $Cars -split ',' | ForEach-Object { $_.Trim() } }
+    $list = if ($Names[0] -eq 'all') { @($query.Keys) } else { $Names -split ',' | ForEach-Object { $_.Trim() } }
     New-Item -ItemType Directory -Force -Path 'C:\kavkaz\mods-inbox\cars' | Out-Null
     $opened = 0
     foreach ($name in $list) {
