@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Диалог</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root { --panel: rgba(17, 25, 35, .95); --line: #2b3a4b; --sky: #3d93d8; --text: #e9eef3; --muted: #93a3b4; --font: "Golos Text", "Segoe UI", Arial, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+  body { font: 400 16px/1.5 var(--font); color: var(--text); user-select: none; }
+  body.preview { background: #55606a; }
+  .hidden { display: none !important; }
+  .dlg { position: fixed; left: 50%; bottom: 6vh; transform: translateX(-50%); width: 760px; max-width: calc(100vw - 40px);
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 12px 30px rgba(0,0,0,.4); }
+  .head { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-bottom: 1px solid var(--line); }
+  .head b { font-weight: 600; font-size: 16px; }
+  .head span { color: var(--muted); font-size: 13px; }
+  .grow { flex: 1; }
+  .x { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; font: inherit; }
+  .x:hover { border-color: var(--sky); color: var(--text); }
+  .text { padding: 16px 18px 6px; font-size: 16.5px; }
+  .opts { padding: 8px 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+  .opts button { text-align: left; padding: 9px 12px; border-radius: 6px; border: 1px solid transparent; background: transparent; color: var(--text);
+    font: 400 15px var(--font); cursor: pointer; display: flex; gap: 10px; }
+  .opts button:hover, .opts button:focus { background: #223142; border-color: var(--line); outline: none; }
+  .opts button i { font-style: normal; color: var(--sky); font-weight: 600; min-width: 14px; }
+</style>
+</head>
+<body>
+<div class="dlg hidden" id="dlg">
+  <div class="head"><b id="name"></b><span id="hint">1–9 — выбрать, Esc — закрыть</span><div class="grow"></div><button class="x" id="x">✕</button></div>
+  <div class="text" id="text"></div>
+  <div class="opts" id="opts"></div>
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+const preview = location.search.includes('preview');
+const res = () => (window.GetParentResourceName ? GetParentResourceName() : 'kavkaz_quests');
+let busy = false;
+const post = (name, body) => preview ? Promise.resolve() : fetch(`https://${res()}/${name}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function render(node) {
+  busy = false;
+  $('#name').textContent = node.name;
+  $('#text').textContent = node.text;
+  $('#opts').innerHTML = node.options.map((o, i) => `<button data-id="${esc(o.id)}"><i>${i + 1}</i>${esc(o.label)}</button>`).join('');
+  $('#dlg').classList.remove('hidden');
+}
+function choose(id) { if (busy) return; busy = true; if (preview) { busy = false; return; } post('choose', { id }); }
+function close() { $('#dlg').classList.add('hidden'); post('close'); }
+
+$('#opts').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) choose(b.dataset.id); });
+$('#x').onclick = close;
+document.addEventListener('keydown', (e) => {
+  if ($('#dlg').classList.contains('hidden')) return;
+  if (e.key === 'Escape') return close();
+  const n = Number(e.key);
+  if (n >= 1 && n <= 9) { const b = document.querySelectorAll('#opts button')[n - 1]; if (b) choose(b.dataset.id); }
+});
+window.addEventListener('message', (e) => {
+  const { action, data } = e.data || {};
+  if (action === 'dialog') render(data);
+  if (action === 'close') $('#dlg').classList.add('hidden');
+});
+if (preview) {
+  document.body.classList.add('preview');
+  render({ name: 'Румиса Халвовна', text: 'Ты новенький? Ахмед, значит. Проходи… Стой! Руки помыл? С улицы — и сразу за стол?',
+    options: [{ id: 'wash', label: 'Простите, сейчас помою' }, { id: 'bye', label: 'Я потом зайду' }] });
+}
+</script>
+</body>
+</html>

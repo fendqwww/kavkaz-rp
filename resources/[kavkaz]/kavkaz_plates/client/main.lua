@@ -84,6 +84,7 @@ local function checkVehicle(vehicle)
     if not res then return lib.notify({ description = 'база недоступна: нужна служебная смена', type = 'error' }) end
     local lines = { ('Номер: **%s**'):format(res.pretty or res.plate), STATUS[res.status] or res.status }
     if res.owner then lines[#lines + 1] = 'Владелец: **' .. res.owner .. '**' end
+    if res.fines and res.fines > 0 then lines[#lines + 1] = ('⚠ неоплаченных штрафов у владельца: **%d**'):format(res.fines) end
     if res.frameText then lines[#lines + 1] = ('Рамка: «%s»'):format(res.frameText) end
     if res.model then lines[#lines + 1] = 'Машина по базе: ' .. res.model end
     if res.registeredModel then lines[#lines + 1] = ('Номер выдан на: %s, а перед тобой — %s'):format(res.registeredModel,

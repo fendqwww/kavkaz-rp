@@ -523,6 +523,7 @@ lib.callback.register('kavkaz_plates:check', function(src, netId)
         res.frameText = reg.frame_text or (reg.frame and FRAME[reg.frame] and FRAME[reg.frame].text) or nil
         local ci = reg.charinfo and json.decode(reg.charinfo) or {}
         res.owner = ci.firstname and ('%s %s'):format(ci.firstname, ci.lastname) or reg.citizenid
+        pcall(function() res.fines = exports.kavkaz_fines:GetUnpaid(reg.citizenid) end)
         if not reg.vehicle_id then
             res.status = 'stolen_plate' -- номер числится «в кармане», а висит на машине — подделка или снятый номер
         elseif reg.hash and not sameHash(reg.hash, GetEntityModel(entity)) then
