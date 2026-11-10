@@ -5,21 +5,21 @@
 <title>KAVKAZ RP</title>
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
-  /* стиль KAVKAZ как в игре: тёмный графит, изумруд и золото, шрифт Manrope, заголовки капсом с разрядкой */
+  /* фирменный стиль KAVKAZ: ночной синий, белый курсивный логотип, голубая точка */
   :root {
-    --bg: #0b0f0e; --panel: #121a17; --panel2: rgba(20,29,26,.72); --line: rgba(47,191,138,.16);
-    --text: #f4f7f5; --muted: #9fb3aa; --acc: #2fbf8a; --acc-deep: #1f9a6d; --gold: #e3b341; --on-acc: #06120d;
-    --ok: #3ddc84; --bad: #ff5d6c; --warn: #e3b341;
-    --f-logo: "Manrope", "Segoe UI", sans-serif;
-    --f-ui: "Manrope", "Segoe UI", system-ui, sans-serif;
+    --bg: #030b26; --panel: #0a1a4a; --panel2: rgba(10,26,74,.62); --line: rgba(140,200,255,.16);
+    --text: #ffffff; --muted: #a9c0e6; --acc: #2ab4ff; --acc-deep: #1478ff;
+    --ok: #3ddc84; --bad: #ff5d6c; --warn: #ffc857;
+    --f-logo: "Montserrat", "Arial Black", sans-serif;
+    --f-ui: "Onest", "Segoe UI", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
   body {
-    font: 500 15px/1.5 var(--f-ui); color: var(--text); overflow: hidden; user-select: none;
+    font: 600 15px/1.45 var(--f-ui); color: var(--text); overflow: hidden; user-select: none;
     background:
-      radial-gradient(760px 460px at 82% 10%, rgba(47,191,138,.16), transparent 70%),
-      radial-gradient(640px 400px at 4% 112%, rgba(227,179,65,.10), transparent 70%),
+      radial-gradient(760px 460px at 82% 14%, rgba(20,120,255,.32), transparent 70%),
+      radial-gradient(640px 400px at 6% 112%, rgba(42,180,255,.16), transparent 70%),
       var(--bg);
   }
   button { font-family: inherit; }
@@ -27,43 +27,45 @@
 
   /* шапка */
   .top { display: flex; align-items: center; gap: 24px; }
-  .logo { position: relative; display: inline-block; font: 800 36px/1 var(--f-logo); letter-spacing: .08em; }
-  .logo::after { content: ""; position: absolute; right: -14px; top: -2px; width: 9px; height: 9px; border-radius: 50%; background: var(--gold); }
-  .rp { font: 800 15px var(--f-logo); letter-spacing: .2em; color: var(--acc); margin-left: 18px; vertical-align: 6px; }
+  .logo { position: relative; display: inline-block; font: italic 900 46px/1 var(--f-logo); letter-spacing: -.035em;
+    text-shadow: 0 0 22px rgba(140,200,255,.5), 0 0 2px #fff; }
+  .logo::after { content: ""; position: absolute; right: -11px; top: -4px; width: 15px; height: 15px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #9fe2ff, var(--acc) 55%, #0b74d6); box-shadow: 0 0 12px rgba(42,180,255,.9); }
+  .rp { font: italic 900 18px var(--f-logo); color: var(--acc); margin-left: 8px; }
   nav { margin-left: auto; display: flex; gap: 6px; padding: 5px; border-radius: 14px; background: var(--panel2); border: 1px solid var(--line); }
-  .tab { cursor: pointer; border: 0; background: transparent; color: var(--muted); padding: 9px 18px; border-radius: 10px; font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: .08em; }
+  .tab { cursor: pointer; border: 0; background: transparent; color: var(--muted); padding: 9px 18px; border-radius: 10px; font-weight: 700; font-size: 14px; }
   .tab:hover { color: #fff; }
-  .tab[aria-selected="true"] { background: var(--acc); color: var(--on-acc); }
+  .tab[aria-selected="true"] { background: linear-gradient(180deg, var(--acc), var(--acc-deep)); color: #fff; }
 
   /* общие элементы */
   .view { display: none; flex: 1; min-height: 0; }
   .view.on { display: flex; }
   .scroll { overflow-y: auto; padding-right: 8px; width: 100%; }
   .scroll::-webkit-scrollbar { width: 8px; }
-  .scroll::-webkit-scrollbar-thumb { background: rgba(47,191,138,.3); border-radius: 8px; }
+  .scroll::-webkit-scrollbar-thumb { background: rgba(140,200,255,.25); border-radius: 8px; }
   .btn { cursor: pointer; border: 1px solid var(--line); background: var(--panel2); color: var(--text);
     padding: 9px 16px; border-radius: 10px; font: 600 13px var(--f-ui); }
-  .btn:hover { border-color: var(--acc); color: #c8f5e3; }
+  .btn:hover { border-color: var(--acc); color: #bfe9ff; }
   .btn.warnbtn:hover { border-color: var(--bad); color: #ffb3bb; }
   .btn:disabled { opacity: .5; cursor: default; }
   button:focus-visible, input:focus-visible, .card:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; }
-  h2 { font: 800 22px var(--f-logo); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
+  h2 { font: italic 900 26px var(--f-logo); letter-spacing: -.02em; margin-bottom: 4px; }
   .sub { color: var(--muted); font-size: 14px; margin-bottom: 16px; max-width: 70ch; }
   .badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; letter-spacing: .08em;
-    text-transform: uppercase; font-weight: 700; color: var(--gold); border: 1px solid rgba(227,179,65,.5); background: rgba(11,15,14,.75); }
+    text-transform: uppercase; font-weight: 700; color: var(--warn); border: 1px solid rgba(255,200,87,.5); background: rgba(3,11,38,.7); }
 
   /* главная */
   .home { gap: 34px; align-items: stretch; }
   .play-col { width: 380px; flex: none; display: flex; flex-direction: column; justify-content: center; gap: 18px; }
-  .tag { font-size: 12px; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); }
+  .tag { font-size: 13px; letter-spacing: .3em; text-transform: uppercase; color: var(--muted); }
   .status { display: inline-flex; align-items: center; gap: 10px; align-self: flex-start; padding: 8px 14px;
     border-radius: 999px; background: var(--panel2); border: 1px solid var(--line); font-size: 14px; }
   .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
   .dot.ok { background: var(--ok); box-shadow: 0 0 10px var(--ok); }
   .dot.bad { background: var(--bad); }
   .play { align-self: flex-start; border: 0; cursor: pointer; padding: 22px 84px; border-radius: 16px;
-    font: 800 22px var(--f-ui); letter-spacing: .16em; color: var(--on-acc);
-    background: linear-gradient(180deg, #3fd39d, var(--acc-deep)); box-shadow: 0 14px 36px rgba(47,191,138,.32);
+    font: 800 24px var(--f-ui); letter-spacing: .12em; color: #fff;
+    background: linear-gradient(180deg, var(--acc), var(--acc-deep)); box-shadow: 0 14px 40px rgba(20,120,255,.48);
     transition: filter .12s, transform .12s; }
   .play:hover { filter: brightness(1.08); }
   .play:active { transform: translateY(1px); }
@@ -71,32 +73,31 @@
   .hint { color: var(--muted); font-size: 13px; min-height: 19px; }
   .warn { display: none; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 12px; font-size: 13.5px;
     background: rgba(255,93,108,.1); border: 1px solid rgba(255,93,108,.35); }
-  .warn.soft { background: rgba(227,179,65,.08); border-color: rgba(227,179,65,.4); }
+  .warn.soft { background: rgba(255,200,87,.08); border-color: rgba(255,200,87,.4); }
   .warn span { flex: 1; }
   .news { display: none; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 12px; background: var(--panel2); border: 1px solid var(--line); }
   .news b { font-size: 14px; } .news small { color: var(--muted); font-weight: 600; }
 
   .show { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
   .stage { position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); aspect-ratio: 16 / 9;
-    background: var(--panel); box-shadow: 0 20px 50px rgba(0,0,0,.5); cursor: zoom-in; }
+    background: var(--panel); box-shadow: 0 20px 50px rgba(0,0,0,.45); cursor: zoom-in; }
   .stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .5s; }
   .stage img.on { opacity: 1; }
   .stage .badge { position: absolute; left: 14px; bottom: 14px; }
-  .badge.live { color: var(--acc); border-color: rgba(47,191,138,.55); }
   .slide-nav { display: flex; align-items: center; gap: 12px; }
   .slide-nav .cap { flex: 1; min-width: 0; }
   .slide-nav .cap b { display: block; font-size: 16px; }
   .slide-nav .cap span { color: var(--muted); font-size: 13px; }
   .arrow { width: 38px; height: 38px; border-radius: 50%; padding: 0; font-size: 18px; flex: none; }
   .dots { display: flex; gap: 6px; }
-  .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(159,179,170,.35); cursor: pointer; }
+  .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(169,192,230,.35); cursor: pointer; }
   .dots i.on { background: var(--acc); }
 
   /* гараж */
   .sgu { display: flex; gap: 22px; align-items: center; padding: 16px; margin-bottom: 18px; border-radius: 18px;
     background: var(--panel2); border: 1px solid var(--line); }
   .sgu img { width: 46%; border-radius: 12px; cursor: zoom-in; flex: none; }
-  .sgu h3 { font: 800 20px var(--f-logo); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 8px; }
+  .sgu h3 { font: italic 900 24px var(--f-logo); margin-bottom: 8px; }
   .sgu p { color: var(--muted); font-size: 14px; margin-bottom: 8px; }
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding-bottom: 6px; }
   .card { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--panel); cursor: zoom-in; }
@@ -109,14 +110,14 @@
   /* как начать */
   .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
   .step { padding: 16px; border-radius: 16px; background: var(--panel2); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
-  .step .n { font: 800 30px var(--f-logo); color: var(--gold); line-height: 1; }
+  .step .n { font: italic 900 34px var(--f-logo); color: var(--acc); line-height: 1; }
   .step b { font-size: 16px; } .step p { color: var(--muted); font-size: 13.5px; flex: 1; }
   .box { padding: 18px; border-radius: 16px; background: var(--panel2); border: 1px solid var(--line); margin-bottom: 14px; }
   .box h3 { font-size: 17px; margin-bottom: 8px; }
   .box ol, .box ul { padding-left: 20px; color: var(--muted); font-size: 14px; display: grid; gap: 6px; }
   .box li b { color: var(--text); }
   .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-  .risk { border-color: rgba(227,179,65,.4); }
+  .risk { border-color: rgba(255,200,87,.4); }
 
   /* настройки */
   .set { display: flex; align-items: center; gap: 18px; padding: 16px 18px; border-radius: 16px; background: var(--panel2);
@@ -127,11 +128,11 @@
   .set .res.err { color: var(--bad); }
   .set .res:empty { display: none; }
   .set input[type=text] { width: 250px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line);
-    background: rgba(11,15,14,.85); color: var(--text); font: 600 13px var(--f-ui); }
+    background: rgba(3,11,38,.8); color: var(--text); font: 600 13px var(--f-ui); }
   .acts { display: flex; gap: 8px; align-items: center; flex: none; }
   .switch { position: relative; width: 52px; height: 30px; flex: none; }
   .switch input { position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 1; }
-  .switch u { position: absolute; inset: 0; border-radius: 999px; background: rgba(159,179,170,.28); transition: background .15s; }
+  .switch u { position: absolute; inset: 0; border-radius: 999px; background: rgba(169,192,230,.28); transition: background .15s; }
   .switch u::after { content: ""; position: absolute; left: 4px; top: 4px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform .15s; }
   .switch input:checked + u { background: var(--acc-deep); }
   .switch input:checked + u::after { transform: translateX(22px); }
@@ -142,7 +143,7 @@
 
   /* просмотр картинки */
   .lightbox { position: fixed; inset: 0; z-index: 10; display: none; align-items: center; justify-content: center; padding: 36px;
-    background: rgba(8,12,11,.94); cursor: zoom-out; }
+    background: rgba(3,11,38,.93); cursor: zoom-out; }
   .lightbox.on { display: flex; }
   .lightbox img { max-width: 100%; max-height: 100%; border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
   .lightbox small { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; color: var(--muted); font-size: 12px; }
@@ -186,11 +187,11 @@
   <main class="view" id="v-garage">
     <div class="scroll">
       <h2>Гараж и СГУ</h2>
-      <p class="sub">Машины и тюнинг сервера. С пометкой «уже в игре» можно купить в «Нагорье Моторс» или поставить в гараже Бислана, остальное готовим.</p>
+      <p class="sub">Машины и тюнинг, которые мы готовим для сервера. Пока это показ: в игре они появятся по мере готовности.</p>
       <div class="sgu">
         <img src="img/hazard-7007.jpg" alt="Пульт СГУ Hazard 7007" data-zoom="СГУ Hazard 7007">
         <div>
-          <span class="badge live">уже в игре</span>
+          <span class="badge">скоро в игре</span>
           <h3>СГУ «Hazard 7007»</h3>
           <p>Пульт ставится в салон, крутишь рукой в игре. Режимы: WAIL (вой), YELP (крякалка), HILO (двухтон), PA (громкая связь), HORN (гудок), регулятор громкости.</p>
           <p>Для кортежей, свадеб и службы.</p>
@@ -284,7 +285,7 @@
   </main>
 
   <footer class="foot" id="links">
-    <span class="ver">лаунчер v0.3</span>
+    <span class="ver">лаунчер v0.2</span>
   </footer>
 </div>
 
@@ -295,17 +296,17 @@
   const $ = (id) => document.getElementById(id);
   let cfg = null;
 
-  // картинки: files лежат в img/, подписи наши. live: true — уже есть в игре
+  // картинки: files лежат в img/, подписи наши
   const ITEMS = [
-    { img: 'hazard-7007', live: true, t: 'СГУ «Hazard 7007»', s: 'пульт ставится в салон, крутишь рукой в игре' },
-    { img: 'lc300-black', live: true, t: 'LC 300 чёрный', s: 'во главе кортежа, открывает колонну' },
-    { img: 'g63', live: true, t: 'G 63', s: 'редкость: на сервере всего 20 штук' },
-    { img: 'priora', live: true, t: 'Priora', s: 'первая машина новичка за стартовые задания' },
-    { img: 'm5-f90', live: true, t: 'M5 F90', s: 'чип-тюнинг у механика-игрока' },
+    { img: 'hazard-7007', t: 'СГУ «Hazard 7007»', s: 'пульт ставится в салон, крутишь рукой в игре' },
+    { img: 'lc300-black', t: 'LC 300 чёрный', s: 'во главе кортежа, открывает колонну' },
+    { img: 'g63', t: 'G 63', s: 'редкость: на сервере всего 20 штук' },
+    { img: 'priora', t: 'Priora', s: 'первая машина новичка за стартовые задания' },
+    { img: 'm5-f90', t: 'M5 F90', s: 'чип-тюнинг у механика-игрока' },
     { img: 'camry-80', t: 'Camry 80', s: 'стробы отдельной кнопкой, тонировка, пневма' },
-    { img: 'lc300-white', live: true, t: 'LC 300 белый', s: 'свадебный набор: ленты, кольца на крышу, сигнал' },
-    { img: 'vaz-2114', live: true, t: 'ВАЗ-2114', s: 'дешёвый тюнинг, своя тусовка на окраине' },
-    { img: 'uaz-dps', live: true, t: 'УАЗ ДПС', s: 'выдаётся на смену, после — сдаёшь в гараж' },
+    { img: 'lc300-white', t: 'LC 300 белый', s: 'свадебный набор: ленты, кольца на крышу, сигнал' },
+    { img: 'vaz-2114', t: 'ВАЗ-2114', s: 'дешёвый тюнинг, своя тусовка на окраине' },
+    { img: 'uaz-dps', t: 'УАЗ ДПС', s: 'выдаётся на смену, после — сдаёшь в гараж' },
     { img: 'octavia-dps', t: 'Octavia ДПС', s: 'радар: видишь скорость машин на посту' },
   ];
   const SHOW = ITEMS.slice(0, 6);
@@ -328,11 +329,6 @@
   $('lightbox').onclick = () => $('lightbox').classList.remove('on');
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('lightbox').classList.remove('on'); });
 
-  function badge(el, live, short) {
-    el.textContent = live ? 'уже в игре' : (short ? 'скоро' : 'скоро в игре');
-    el.classList.toggle('live', !!live);
-  }
-
   /* ---------- слайдшоу на главной ---------- */
   let cur = 0, timer = null;
   SHOW.forEach((it, i) => {
@@ -347,7 +343,6 @@
     imgs.forEach((im, k) => im.classList.toggle('on', k === cur));
     $('dots').querySelectorAll('i').forEach((d, k) => d.classList.toggle('on', k === cur));
     $('capTitle').textContent = SHOW[cur].t; $('capSub').textContent = SHOW[cur].s;
-    badge($('stage').querySelector('.badge'), SHOW[cur].live);
     if (manual) { clearInterval(timer); timer = setInterval(() => show(cur + 1), 6000); }
   }
   $('prev').onclick = () => show(cur - 1, true);
@@ -359,8 +354,7 @@
   ITEMS.slice(1).forEach((it) => {
     const c = document.createElement('div');
     c.className = 'card'; c.tabIndex = 0;
-    c.innerHTML = '<span class="badge"></span><img alt=""><div><b></b><span></span></div>';
-    badge(c.querySelector('.badge'), it.live, true);
+    c.innerHTML = '<span class="badge">скоро</span><img alt=""><div><b></b><span></span></div>';
     c.querySelector('img').src = src(it); c.querySelector('img').alt = it.t;
     c.querySelector('b').textContent = it.t; c.querySelector('span:last-child').textContent = it.s;
     const open = () => zoom(src(it), it.t);
