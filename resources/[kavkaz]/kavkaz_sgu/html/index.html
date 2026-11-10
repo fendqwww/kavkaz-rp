@@ -150,8 +150,9 @@ const loops = new Map(); // id -> { v, tone, next }
 // записи настоящих СГУ: html/sounds/<мелодия>.ogg и quack.ogg. если файла нет — звучит синтез
 const SAMPLES = {};
 for (const id of ['quack', ...Object.keys(TONES)]) {
-  fetch('sounds/' + id + '.ogg').then(r => r.ok ? r.arrayBuffer() : null)
-    .then(b => b && ctx.decodeAudioData(b)).then(buf => { if (buf) SAMPLES[id] = buf; }).catch(() => {});
+  const load = (ext) => fetch('sounds/' + id + '.' + ext).then(r => r.ok ? r.arrayBuffer() : null)
+    .then(b => b && ctx.decodeAudioData(b)).then(buf => { if (buf) SAMPLES[id] = buf; return !!buf; }).catch(() => false);
+  load('ogg').then(ok => { if (!ok) load('wav'); });
 }
 
 function sampleVoice(buf, vol, pan, loop) {

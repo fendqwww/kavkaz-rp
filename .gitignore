@@ -16,3 +16,7 @@ launcher/src-tauri/gen/
 # модели машин (чужие и платные файлы): только локально и на VPS, не в git — см. docs/vision/19-car-models-todo.md
 resources/\[cars\]/
 __pycache__/
+
+# чужие записи звуков СГУ — на VPS копируются напрямую, в git не кладём
+resources/[[]kavkaz[]]/kavkaz_sgu/html/sounds/*.wav
+resources/[[]kavkaz[]]/kavkaz_sgu/html/sounds/*.ogg

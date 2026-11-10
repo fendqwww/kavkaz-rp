@@ -14,13 +14,15 @@ Config.Npcs = {
     -- линия «Закон»
     ruslan  = { name = 'Участковый Руслан Протоколович', model = 's_m_y_cop_01', coords = vec4(441.0, -982.0, 30.69, 90.0), scenario = 'WORLD_HUMAN_COP_IDLES',
                 idle = 'Порядок на участке — порядок в голове. Вопросы — заходи.' },
-    adam    = { name = 'Капитан Адам «Тауметр»', model = 's_m_y_hwaycop_01', coords = vec4(434.0, -975.0, 30.71, 90.0), scenario = 'WORLD_HUMAN_COP_IDLES',
+    adam    = { name = 'Капитан Адам «Тауметр»', model = 's_m_y_ranger_01', -- форма ДПС (kv_peds)
+                coords = vec4(434.0, -975.0, 30.71, 90.0), scenario = 'WORLD_HUMAN_COP_IDLES',
                 idle = 'Тонировка? Номер? Документы? …А, ты пешком. Ладно, иди.' },
-    vaha    = { name = 'Майор Ваха («Свадебный патруль»)', model = 's_m_m_ciasec_01', coords = vec4(425.0, -979.0, 30.71, 90.0), scenario = 'WORLD_HUMAN_STAND_IMPATIENT',
+    vaha    = { name = 'Майор Ваха («Свадебный патруль»)', model = 's_m_y_ranger_01', coords = vec4(425.0, -979.0, 30.71, 90.0), scenario = 'WORLD_HUMAN_STAND_IMPATIENT',
                 idle = 'Кортеж без разрешения — штраф. С разрешением — поздравляю. Всё просто.' },
     zulai   = { name = 'Тётя Зулай', model = 'a_f_m_downtown_01', coords = vec4(-40.0, -1450.0, 31.4, 180.0), scenario = 'WORLD_HUMAN_STAND_IMPATIENT',
                 idle = 'Ты слышал, что у соседей… а, ладно, потом расскажу.' },
-    ibragim = { name = 'Майор Ибрагим (ФСБ)', model = 's_m_m_fiboffice_01', coords = vec4(115.0, -760.0, 45.75, 160.0), scenario = 'WORLD_HUMAN_STAND_MOBILE',
+    ibragim = { name = 'Майор Ибрагим (ФСБ)', model = 's_m_y_blackops_01', -- форма ФСБ (kv_peds)
+                coords = vec4(115.0, -760.0, 45.75, 160.0), scenario = 'WORLD_HUMAN_STAND_MOBILE',
                 idle = 'Проходите, гражданин. Здесь не на что смотреть.' },
     -- линия «Бизнес»
     timur   = { name = 'Тимур «Бизнес»', model = 'a_m_y_business_03', coords = vec4(-117.0, -605.0, 36.28, 250.0), scenario = 'WORLD_HUMAN_STAND_MOBILE',
