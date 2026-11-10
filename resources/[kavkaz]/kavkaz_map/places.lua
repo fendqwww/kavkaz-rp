@@ -66,6 +66,10 @@ Config.Places = {
     { cat = 'fun', label = 'Смотровая Чилиад-Лам', coords = vec3(501.8, 5604.5, 797.9), blip = false },
     { cat = 'fun', label = 'Канатная дорога', coords = vec3(-741.0, 5594.0, 41.6), blip = false },
     { cat = 'fun', label = 'Пляж и набережная', coords = vec3(-1550.0, -1050.0, 6.0), blip = false },
+    -- еда (kavkaz_food ставит свои метки)
+    { cat = 'fun', label = 'Шаурма у Расула', coords = vec3(454.6, -651.8, 28.2), desc = 'у автовокзала, шаурма 350 ₽', blip = false },
+    { cat = 'fun', label = 'Шаурма 24', coords = vec3(196.8, -933.6, 30.7), desc = 'центр, круглосуточно', blip = false },
+    { cat = 'fun', label = 'Шашлычная «Мангал»', coords = vec3(1175.4, 2696.8, 37.9), desc = 'у трассы на Песчаный', blip = false },
 
     -- сёла
     { cat = 'land', label = 'Лам-Юрт (горное село)', coords = vec3(-200.0, 6300.0, 31.5), desc = 'отдел полиции, больница, свадебный зал', blip = false },
