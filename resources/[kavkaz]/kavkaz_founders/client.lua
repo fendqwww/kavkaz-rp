@@ -123,6 +123,7 @@ local function treesAround(c)
 end
 
 CreateThread(function()
+    if not Config.Trees then return end -- выключено: деревья мешали машинам на дороге (место выбрать по /mypos)
     while true do
         local me = GetEntityCoords(PlayerPedId())
         for i, f in ipairs(Config.Founders) do
