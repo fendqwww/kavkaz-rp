@@ -11,6 +11,14 @@ powershell -ExecutionPolicy Bypass -File setup\apply-overrides.ps1
 `C:\kavkaz\backup-overrides\<дата>\` и добавит в конец `server.cfg` строку `exec kavkaz.cfg`.
 после этого перезапусти сервер.
 
+**на VPS (Linux)** то же самое делает одна команда — она сама скачивает свежий код с GitHub:
+
+```
+kavkaz-update --restart
+```
+
+(это `setup/kavkaz-update.sh`; старые версии файлов — в `/opt/kavkaz/backup-overrides/<дата>/`). подробно — `docs/vps.md`.
+
 ## что здесь
 
 | файл | что меняет |

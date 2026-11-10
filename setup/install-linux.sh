@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
-# KAVKAZ RP — установка сервера на VPS (Ubuntu 22.04 / 24.04) одной командой.
+# KAVKAZ RP — установка сервера на VPS (Ubuntu 22.04 / 24.04, Debian 12) одной командой.
 # Запуск (под root):
-#   curl -fsSL https://raw.githubusercontent.com/fendqwww/kavkaz-rp/claude/serene-franklin-9x1dw5/setup/install-linux.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/fendqwww/kavkaz-rp/claude/zen-allen-mjpj7c/setup/install-linux.sh | bash
+# другая ветка репозитория:  ... | KAVKAZ_BRANCH=имя-ветки bash
 # Скрипт можно запускать повторно: уже сделанные шаги пропускаются.
+# после него: txAdmin -> рецепт Qbox, затем  kavkaz-update --restart  (ставит наши ресурсы).
 set -euo pipefail
 
 ROOT=/opt/kavkaz
@@ -13,35 +15,54 @@ RUN_USER=fivem
 SERVICE=kavkaz
 DB_NAME=qbox
 DB_USER=kavkaz
+REPO=$ROOT/repo
+REPO_URL=https://github.com/fendqwww/kavkaz-rp.git
+BRANCH=${KAVKAZ_BRANCH:-$(cat $ROOT/branch 2>/dev/null || echo claude/zen-allen-mjpj7c)}
 
 step() { printf '\n\033[1;36m=== %s ===\033[0m\n' "$1"; }
 die()  { printf '\033[1;31mОшибка: %s\033[0m\n' "$1" >&2; exit 1; }
+warn() { printf '\033[1;33m! %s\033[0m\n' "$1"; }
 
 [ "$(id -u)" -eq 0 ] || die "запусти от root (sudo -i)"
 . /etc/os-release
-[ "${ID:-}" = "ubuntu" ] || die "скрипт рассчитан на Ubuntu 22.04 или 24.04, а у тебя ${PRETTY_NAME:-неизвестная система}"
+case "${ID:-}" in ubuntu|debian) ;; *) die "скрипт рассчитан на Ubuntu 22.04 / 24.04 или Debian 12, а у тебя ${PRETTY_NAME:-неизвестная система}. переустанови ОС на VPS в панели хостинга" ;; esac
+[ "$(uname -m)" = x86_64 ] || die "нужен процессор x86-64 (у тебя $(uname -m)). FiveM на ARM не работает"
 # FXServer требует x86-64-v2 (POPCNT, SSE4.2). на VPS с CPU «QEMU Virtual CPU» без этих флагов сервер не стартует
 grep -qw popcnt /proc/cpuinfo && grep -qw sse4_2 /proc/cpuinfo || die "процессор VPS не поддерживает POPCNT/SSE4.2 (x86-64-v2) — FXServer на нём не запустится. попроси у хостинга нормальный CPU (host-passthrough) или возьми другой тариф"
+
+# --- 0. железо: что тянет VPS ---------------------------------------------------
+RAM_GB=$(awk '/MemTotal/ {printf "%d", ($2/1024/1024)+0.5}' /proc/meminfo)
+DISK_GB=$(df -BG --output=avail / | tail -1 | tr -dc 0-9)
+CPUS=$(nproc)
+step "Железо VPS: ядер $CPUS, памяти ${RAM_GB} ГБ, свободно на диске ${DISK_GB} ГБ"
+[ "$RAM_GB" -ge 4 ] || die "памяти ${RAM_GB} ГБ — FiveM + база не поместятся. нужно минимум 4 ГБ (лучше 8–16)"
+[ "$RAM_GB" -ge 8 ] || warn "памяти ${RAM_GB} ГБ: на тест с друзьями хватит, для открытия нужно 8–16 ГБ"
+[ "$DISK_GB" -ge 10 ] || die "на диске свободно ${DISK_GB} ГБ — не хватит даже на сервер с рецептом Qbox (~5 ГБ) и базу. нужно минимум 10 ГБ"
+[ "$DISK_GB" -ge 40 ] || warn "диска ${DISK_GB} ГБ: сервер встанет, но моды карты (здания, машины) быстро съедят место. для модов бери 40+ ГБ"
+[ "$CPUS" -ge 2 ] || warn "одно ядро: сервер запустится, но с 10+ игроками будет тормозить"
 
 # head закрывает трубу раньше tr -> SIGPIPE (код 141); с pipefail это валило скрипт
 gen_pass() { local p; p=$(LC_ALL=C tr -dc 'A-HJ-NP-Za-km-z2-9' </dev/urandom | head -c 24) || true; printf '%s' "$p"; }
 
 # --- 1. пакеты ------------------------------------------------------------------
-step "Ставлю пакеты (MariaDB, curl, xz, ufw)"
+step "Ставлю пакеты (MariaDB, curl, xz, ufw, git, архиваторы)"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq mariadb-server curl xz-utils ufw ca-certificates tzdata >/dev/null
+apt-get install -y -qq mariadb-server curl xz-utils ufw ca-certificates tzdata git unzip p7zip-full >/dev/null
+# 7zip (новый 7-Zip, умеет все .rar) есть не во всех версиях — не страшно, если не встанет
+apt-get install -y -qq 7zip >/dev/null 2>&1 || true
 timedatectl set-timezone Europe/Moscow 2>/dev/null || true
 
 # --- 2. пользователь и папки ------------------------------------------------------
 step "Создаю пользователя $RUN_USER и папки в $ROOT"
 id "$RUN_USER" >/dev/null 2>&1 || useradd --system --create-home --shell /usr/sbin/nologin "$RUN_USER"
-mkdir -p "$SERVER_DIR" "$TXDATA" "$ROOT/backups"
+mkdir -p "$SERVER_DIR" "$TXDATA" "$ROOT/backups" "$ROOT/mods-inbox"
 
 # --- 3. swap, если памяти мало и swap нет ------------------------------------------
 if ! swapon --show | grep -q . && [ "$(awk '/MemTotal/ {print int($2/1024/1024)}' /proc/meminfo)" -lt 12 ]; then
-  step "Создаю swap 4 ГБ"
-  fallocate -l 4G /swapfile && chmod 600 /swapfile && mkswap /swapfile >/dev/null && swapon /swapfile
+  SWAP_GB=4; [ "$DISK_GB" -lt 30 ] && SWAP_GB=2   # маленький диск — swap поменьше
+  step "Создаю swap $SWAP_GB ГБ"
+  fallocate -l ${SWAP_GB}G /swapfile && chmod 600 /swapfile && mkswap /swapfile >/dev/null && swapon /swapfile
   grep -q '^/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
 fi
 
@@ -98,7 +119,32 @@ else
   tar -xJf /tmp/fx.tar.xz -C "$SERVER_DIR"
   rm -f /tmp/fx.tar.xz
 fi
+
+# --- 6.5 наш код и команды kavkaz-update / kavkaz-mods --------------------------------
+step "Скачиваю наш код (ветка $BRANCH) и ставлю команды kavkaz-update, kavkaz-mods"
+if [ -d "$REPO/.git" ]; then
+  git -c safe.directory="$REPO" -C "$REPO" fetch --quiet --depth 20 origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH"
+  git -c safe.directory="$REPO" -C "$REPO" checkout --quiet -B "$BRANCH" "origin/$BRANCH"
+  git -c safe.directory="$REPO" -C "$REPO" reset --quiet --hard "origin/$BRANCH"
+else
+  git clone --quiet --depth 20 --branch "$BRANCH" "$REPO_URL" "$REPO" || die "не скачался репозиторий $REPO_URL (ветка $BRANCH)"
+fi
+echo "$BRANCH" > "$ROOT/branch"
+cat > /usr/local/bin/kavkaz-update <<'CMD'
+#!/usr/bin/env bash
+# KAVKAZ RP: скачать свежий код с GitHub и поставить наши ресурсы на сервер (setup/kavkaz-update.sh)
+exec bash /opt/kavkaz/repo/setup/kavkaz-update.sh "$@"
+CMD
+cat > /usr/local/bin/kavkaz-mods <<'CMD'
+#!/usr/bin/env bash
+# KAVKAZ RP: поставить моды карты из /opt/kavkaz/mods-inbox (setup/import-mods.sh)
+exec bash /opt/kavkaz/repo/setup/import-mods.sh "$@"
+CMD
+chmod 755 /usr/local/bin/kavkaz-update /usr/local/bin/kavkaz-mods
+echo "Код: $REPO ($(git -c safe.directory="$REPO" -C "$REPO" log -1 --format='%h %s'))"
+
 chown -R "$RUN_USER:$RUN_USER" "$ROOT"
+chown -R root:root "$REPO"   # код ставит и обновляет root; сервер получает копию через kavkaz-update
 chmod 600 "$SECRETS"
 
 # --- 7. служба (автозапуск, перезапуск при падении) ----------------------------------
@@ -166,7 +212,12 @@ cat <<EOF
 3) Дальше как в прошлый раз: Link Account -> Popular Recipes -> Qbox.
    База данных: host 127.0.0.1, port 3306, user $DB_USER, имя базы $DB_NAME
    Пароль базы:  cat $SECRETS     (строка mariadb_kavkaz_password)
-4) Вход в игру:  F8 -> connect $IP
+   Ключ сервера (Cfx.re): создай новый на portal.cfx.re для IP $IP
+4) Когда рецепт Qbox встал и сервер один раз запустился — поставь наши ресурсы:
+      kavkaz-update --restart
+   (этой же командой потом ставятся все обновления с GitHub)
+5) Вход в игру:  F8 -> connect $IP
+6) Моды карты: закинь архивы в $ROOT/mods-inbox (WinSCP или scp) и запусти  kavkaz-mods --restart
 
 Бэкап на свой ПК (в PowerShell на ПК):  scp root@$IP:$ROOT/backups/* .
 Управление:  systemctl restart $SERVICE | systemctl stop $SERVICE | journalctl -u $SERVICE -f

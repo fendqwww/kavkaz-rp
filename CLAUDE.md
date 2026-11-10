@@ -17,6 +17,21 @@ RP-сервер для FiveM на фреймворке **Qbox** (qbx_core + ox_l
 
 Установка с нуля: `setup/install.ps1` (идемпотентный, можно перезапускать).
 
+## Боевой сервер — VPS на Linux (главная цель)
+сервер живёт на VPS (Ubuntu 22.04 / 24.04). всё, что делаем, обязано работать на Linux; домашний Windows-ПК — только для разработки.
+| путь на VPS | что |
+|---|---|
+| `/opt/kavkaz/server` | артефакты FXServer |
+| `/opt/kavkaz/txData/<имя>.base` | сервер Qbox (`resources`, `server.cfg`) |
+| `/opt/kavkaz/secrets.cfg` | пароли и ключи — **только на VPS** |
+| `/opt/kavkaz/repo` | копия этого репозитория (её обновляет `kavkaz-update`) |
+| `/opt/kavkaz/mods-inbox` | сюда кладут архивы модов карты |
+
+- установка: `setup/install-linux.sh`; обновление наших ресурсов: `kavkaz-update --restart`; моды: `kavkaz-mods`. подробно — `docs/vps.md`.
+- у каждого скрипта для Windows (`.ps1`) есть пара для Linux (`.sh`); меняешь один — меняй второй.
+- Linux различает регистр букв в именах файлов: пути в `fxmanifest.lua`, html и css пишем точно как на диске, только с `/`.
+- в коде ресурсов никаких путей вида `C:\...` и вызовов программ Windows.
+
 ## Секреты — железное правило
 - пароли, `sv_licenseKey`, `mysql_connection_string`, steam/discord-токены **никогда** не попадают в git, в чат, в логи и в issues.
 - в `server.cfg` секреты подключаются только через `exec C:/kavkaz/secrets.cfg`.

@@ -2,7 +2,16 @@
 
 RP-сервер FiveM на Qbox. Правила проекта — в [CLAUDE.md](CLAUDE.md).
 
-## установка на windows
+## боевой сервер — VPS на Linux
+
+полная инструкция: [docs/vps.md](docs/vps.md). коротко (под root на Ubuntu 22.04 / 24.04):
+```
+curl -fsSL https://raw.githubusercontent.com/fendqwww/kavkaz-rp/claude/zen-allen-mjpj7c/setup/install-linux.sh | bash
+```
+потом рецепт Qbox в txAdmin и `kavkaz-update --restart` (ставит наши ресурсы; этой же командой — все обновления).
+моды карты: архивы в `/opt/kavkaz/mods-inbox`, затем `kavkaz-mods --restart`.
+
+## установка на windows (домашний ПК, для разработки)
 
 1. скачай [`setup/install.ps1`](setup/install.ps1) (кнопка «Download raw file»).
 2. открой PowerShell и выполни:

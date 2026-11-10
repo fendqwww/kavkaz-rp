@@ -71,11 +71,11 @@ ALT, как в плане, занят ox_target (глазок), поэтому �
 `kavkaz_admins`, `kavkaz_admin_log`, `kavkaz_bans`, `kavkaz_warns`, `kavkaz_punish` (мут и недосиженная тюрьма).
 
 ## Discord-лог
-создать вебхук в закрытом канале и добавить в `C:\kavkaz\secrets.cfg` строку
+создать вебхук в закрытом канале и добавить в `secrets.cfg` (VPS: `/opt/kavkaz/secrets.cfg`, Windows: `C:\kavkaz\secrets.cfg`) строку
 `set kavkaz_admin_webhook "https://discord.com/api/webhooks/..."`. без неё лог пишется только в базу и консоль.
 
 ## проверка
-1. `powershell -ExecutionPolicy Bypass -File setup\apply-overrides.ps1`, перезапустить сервер (или `ensure kavkaz_admin`).
+1. на VPS: `kavkaz-update --restart`; на Windows: `powershell -ExecutionPolicy Bypass -File setup\apply-overrides.ps1`, перезапустить сервер (или `ensure kavkaz_admin`).
 2. зайти, `/alogin`, придумать PIN → в чате «Основатель … заступил на смену».
 3. F10 → Игроки → себя → Карточка; F2 — noclip; F3 — клик-ТП; `/report тест` → F10 → Репорты.
 

@@ -64,7 +64,7 @@ RP-проекты (RMRP и др.) рисуют свои карты сами и �
 |---|---|---|
 | Нагорье на карте | `resources/[kavkaz]/kavkaz_map` | ~90 районов по-русски, метки всех ведомств, вход в ФСБ (холл FIB), скрытие объектов, папка `stream` |
 | страницы модов | `setup/open-mod-pages.ps1` | одной командой открывает страницы 10 бесплатных модов стартового набора и папку `C:\kavkaz\mods-inbox` |
-| установка модов | `setup/import-mods.ps1` | всё из `mods-inbox`: распаковать → проверить на `.exe/.dll` и бэкдоры → собрать ресурс (если мод — просто файлы карты) → `resources\[maps]` → `maps.cfg` с `ensure` → строка `exec maps.cfg` в `server.cfg`. отчёт — `import-log.txt` |
+| установка модов | `setup/import-mods.ps1` (на VPS — команда `kavkaz-mods`) | всё из `mods-inbox`: распаковать → проверить на `.exe/.dll` и бэкдоры → собрать ресурс (если мод — просто файлы карты) → `resources\[maps]` → `maps.cfg` с `ensure` → строка `exec maps.cfg` в `server.cfg`. отчёт — `import-log.txt` |
 
 **Дома, по шагам:**
 1. `setup\apply-overrides.ps1` — накатить наши ресурсы (в том числе `kavkaz_map`);
