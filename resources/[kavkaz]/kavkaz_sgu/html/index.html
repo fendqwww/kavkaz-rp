@@ -73,28 +73,46 @@ function shaperCurve(k) {
   for (let i = 0; i < n; i++) { const x = i * 2 / n - 1; c[i] = (1 + k) * x / (1 + k * Math.abs(x)); }
   return c;
 }
-const CURVE = shaperCurve(9);
+const CURVE = shaperCurve(0.5); // лёгкая «рупорная» окраска, без жужжания
+
+// отражения от улицы: короткий «зал» 0.9 с, генерируется (без записей)
+const room = ctx.createConvolver();
+room.buffer = (() => {
+  const len = Math.floor(ctx.sampleRate * 0.9), b = ctx.createBuffer(2, len, ctx.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = b.getChannelData(ch);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2) * (i < 220 ? i / 220 : 1);
+  }
+  return b;
+})();
+const roomGain = ctx.createGain(); roomGain.gain.value = 0.22;
+room.connect(roomGain); roomGain.connect(comp);
 
 function chain(vol, pan, band = 1500) {
-  const input = ctx.createGain(); input.gain.value = 0.55;
+  const input = ctx.createGain(); input.gain.value = 0.8;
   const sh = ctx.createWaveShaper(); sh.curve = CURVE;
-  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 350;
-  const bp = ctx.createBiquadFilter(); bp.type = 'peaking'; bp.frequency.value = band; bp.gain.value = 6; bp.Q.value = 0.8;
-  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3200;
+  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 300;
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 6000;
   const out = ctx.createGain(); out.gain.value = vol * BASE;
   const p = ctx.createStereoPanner(); p.pan.value = pan;
-  input.connect(sh); sh.connect(hp); hp.connect(bp); bp.connect(lp); lp.connect(out); out.connect(p); p.connect(comp);
+  input.connect(sh); sh.connect(hp); hp.connect(lp); lp.connect(out); out.connect(p); p.connect(comp); p.connect(room);
   return { input, out, pan: p };
 }
 
-// генератор: два пилообразных тона с общей частотой (offset) и «воротами» (gate) для прерывистых мелодий
+// тембр настоящего «Хазард 7007»: почти чистый тон, 2-я и 3-я гармоники ~ в 10–13 раз тише (сняты со спектра записи)
+const HARM = [0, 1, 0.13, 0.05, 0.04, 0.012, 0.015, 0.01, 0.01, 0.008, 0.006];
+const WAVE = ctx.createPeriodicWave(new Float32Array(HARM.length), new Float32Array(HARM));
+
+// генератор: тон с тембром настоящего СГУ (WAVE) или заданной формы, общая частота (offset) и «ворота» (gate)
 function voice(vol, pan, opts = {}) {
   const c = chain(vol, pan, opts.band);
   const gate = ctx.createGain(); gate.gain.value = 1; gate.connect(c.input);
   const f = ctx.createConstantSource(); f.offset.value = opts.freq || 800;
   const oscs = [];
-  for (const d of (opts.detune || [0, 9])) {
-    const o = ctx.createOscillator(); o.type = opts.type || 'sawtooth'; o.frequency.value = 0; o.detune.value = d;
+  for (const d of (opts.detune || [0])) {
+    const o = ctx.createOscillator();
+    if (opts.type) o.type = opts.type; else o.setPeriodicWave(WAVE);
+    o.frequency.value = 0; o.detune.value = d;
     f.connect(o.frequency); o.connect(gate); o.start(); oscs.push(o);
   }
   f.start();
@@ -119,33 +137,38 @@ function quackShape(v, t, hi = 1800, lo = 560, len = 0.24) {
 }
 
 // мелодии: функция расписывает один цикл с момента t и возвращает его длину (с).
-// частоты и время сняты с записи настоящего российского СГУ (видео основателя, 11.11.2026, спектр по 10 мс):
-//   вой: 505 ↔ 1540 Гц, ~3 с вверх и ~3 с вниз; крякалка (йелп): 650 ↔ 1780 Гц, 0.40 с вверх, 0.42 с вниз;
-//   кряк: провал 1000 → 650 → 950 Гц за 0.24 с; гудок: ровный тон 770 Гц; ручной (MAN): 510 → 1250 Гц за 1 с, потолок ~1780.
-// крутить звук — здесь: TUNE (выше/ниже — частоты, быстрее/медленнее — времена).
+// всё снято со спектра записи настоящего «Хазард 7007» (видео основателя от «Элект», 11.11.2026, шаг 1–3 мс):
+//   трель: 1260 и 810 Гц сменяются каждые 28 мс; вой: 1650 → 500 Гц за 3.3 с и обратно; крякалка: 1450 → 520 за 0.16 с, вверх 0.13 с;
+//   кряк: взлёт за 0.05 с и спад 0.33 с (860 → 560 Гц); фирменный цикл: взлёт 560→1450, трель, спад, взлёт, «дрожь» наверху, трель, спад.
 const TUNE = {
-  wail: { lo: 505, hi: 1540, up: 3.0, down: 3.0 },
-  yelp: { lo: 650, hi: 1780, up: 0.40, down: 0.42 },
-  quack: { start: 1000, low: 650, end: 950, len: 0.24 },
-  horn: 385,                      // основной тон гудка ×2 = 770 Гц на записи
-  manual: { from: 510, max: 1800, riseTau: 1.2, fallTau: 0.6, floor: 520 },
+  trill: { hi: 1260, lo: 810, step: 0.028 },
+  wail: { lo: 500, hi: 1650, up: 3.3, down: 3.3 },
+  yelp: { lo: 520, hi: 1450, down: 0.16, up: 0.13, top: 0.02 },
+  quack: { from: 520, peak: 860, end: 560, rise: 0.05, fall: 0.33 },
+  horn: 385,
+  manual: { from: 520, max: 1650, riseTau: 1.2, fallTau: 0.6, floor: 530 },
 };
-// «кряк» как на записи: быстрый провал и возврат
+function trill(v, t, dur) {
+  const r = TUNE.trill; let s = t, hi = true;
+  while (s < t + dur - 1e-6) { v.f.setValueAtTime(hi ? r.hi : r.lo, s); hi = !hi; s += r.step; }
+}
+// «кряк» как у настоящего: резкий взлёт и спад вниз
 function quackDip(v, t, k = 1) {
   const q = TUNE.quack;
-  v.f.setValueAtTime(q.start * k, t);
-  v.f.exponentialRampToValueAtTime(q.low * k, t + q.len * 0.5);
-  v.f.exponentialRampToValueAtTime(q.end * k, t + q.len);
+  v.f.setValueAtTime(q.from * k, t);
+  v.f.exponentialRampToValueAtTime(q.peak * k, t + q.rise);
+  v.f.exponentialRampToValueAtTime(q.end * k, t + q.rise + q.fall);
   v.gate.setValueAtTime(0, t);
-  v.gate.linearRampToValueAtTime(1, t + 0.006);
-  v.gate.setValueAtTime(1, t + q.len - 0.02);
-  v.gate.linearRampToValueAtTime(0, t + q.len);
+  v.gate.linearRampToValueAtTime(1, t + 0.008);
+  v.gate.setValueAtTime(1, t + q.rise + q.fall - 0.03);
+  v.gate.linearRampToValueAtTime(0, t + q.rise + q.fall);
+  return q.rise + q.fall;
 }
 const TONES = {
-  wail(v, t) { const w = TUNE.wail; v.gate.setValueAtTime(1, t); v.f.setValueAtTime(w.lo, t); v.f.linearRampToValueAtTime(w.hi, t + w.up); v.f.linearRampToValueAtTime(w.lo, t + w.up + w.down); return w.up + w.down; },
-  yelp(v, t) { const y = TUNE.yelp; v.gate.setValueAtTime(1, t); v.f.setValueAtTime(y.lo, t); v.f.linearRampToValueAtTime(y.hi, t + y.up); v.f.linearRampToValueAtTime(y.lo, t + y.up + y.down); return y.up + y.down; },
-  phaser(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(700, t); v.f.linearRampToValueAtTime(1650, t + 0.09); return 0.1; },
-  hilo(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(960, t); v.f.setValueAtTime(720, t + 0.55); return 1.1; },
+  wail(v, t) { const w = TUNE.wail; v.gate.setValueAtTime(1, t); v.f.setValueAtTime(w.hi, t); v.f.linearRampToValueAtTime(w.lo, t + w.down); v.f.linearRampToValueAtTime(w.hi, t + w.down + w.up); return w.up + w.down; },
+  yelp(v, t) { const y = TUNE.yelp; v.gate.setValueAtTime(1, t); v.f.setValueAtTime(y.hi, t); v.f.linearRampToValueAtTime(y.lo, t + y.down); v.f.linearRampToValueAtTime(y.hi, t + y.down + y.up); return y.down + y.up + y.top; },
+  phaser(v, t) { v.gate.setValueAtTime(1, t); trill(v, t, 1.12); return 1.12; },   // трель «Хазарда» без взлётов
+  hilo(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(1260, t); v.f.setValueAtTime(810, t + 0.5); return 1.0; },
   pulse(v, t) {
     for (let i = 0; i < 4; i++) {
       const s = t + i * 0.2;
@@ -155,24 +178,23 @@ const TONES = {
     return 0.8;
   },
   horn(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(TUNE.horn, t); return 1.0; },
-  // кря-кря: два «кряка» и пауза, как на записи (повтор ~0.75 с)
-  krya(v, t) { quackDip(v, t); quackDip(v, t + 0.3); v.gate.setValueAtTime(0, t + 0.56); return 0.75; },
-  // фирменная «Хазард»: три коротких кряка и взлёт «уиу»
+  krya(v, t) { const a = quackDip(v, t); const b = quackDip(v, t + a + 0.04); v.gate.setValueAtTime(0, t + a + b + 0.04); return a + b + 0.3; },
+  // фирменный цикл «Хазарда» — повторяет первые 3.5 с записи: «ступеньки» вверх, дрожь наверху, трель, спад
   hazard(v, t) {
     let s = t;
-    for (let i = 0; i < 3; i++) { quackDip(v, s, 1.1); s += 0.19; }
-    v.f.setValueAtTime(600, s);
     v.gate.setValueAtTime(1, s);
-    v.f.exponentialRampToValueAtTime(1750, s + 0.55);
-    v.f.setValueAtTime(1750, s + 0.67);
-    v.f.linearRampToValueAtTime(1100, s + 0.77);
-    v.gate.setValueAtTime(1, s + 0.75);
-    v.gate.linearRampToValueAtTime(0, s + 0.78);
-    return (s - t) + 1.08;
+    for (const lv of [560, 760, 900, 1050, 1200, 1330]) {                 // 6 ступенек за ~1 с: рывок вверх и чуть вниз
+      v.f.setValueAtTime(lv * 0.93, s); v.f.exponentialRampToValueAtTime(lv * 1.04, s + 0.035); v.f.exponentialRampToValueAtTime(lv, s + 0.165); s += 0.165;
+    }
+    v.f.exponentialRampToValueAtTime(1450, s + 0.05); s += 0.05;
+    for (let i = 0; i < 5; i++) { v.f.setValueAtTime(1455, s); v.f.linearRampToValueAtTime(1385, s + 0.08); v.f.linearRampToValueAtTime(1455, s + 0.165); s += 0.165; } // дрожь
+    trill(v, s, 1.2); s += 1.2;                                              // трель 1260/810
+    v.f.setValueAtTime(1450, s); v.f.exponentialRampToValueAtTime(820, s + 0.45); s += 0.45; // спад
+    return s - t;
   },
 };
 const OPTS = {
-  horn: { type: 'square', detune: [0, 1200, 1902], band: 780 }, // тон, октава (770 Гц) и квинта сверху — «пневма»-гудок
+  horn: { type: 'square', detune: [0, 1200, 1902] }, // гудок: тон, октава (770 Гц) и квинта — нарочно «жёсткий», как пневмосигнал
 };
 
 const loops = new Map(); // id -> { v, tone, next }
@@ -219,11 +241,11 @@ setInterval(() => {
 
 function quack(vol, pan) {
   if (SAMPLES.quack) { sampleVoice(SAMPLES.quack, vol, pan, false); return; }
-  const v = voice(vol, pan, { freq: 1000 });
+  const v = voice(vol, pan, { freq: TUNE.quack.from });
   v.gate.setValueAtTime(0, ctx.currentTime);
   const t = ctx.currentTime + 0.01;
-  quackDip(v, t);
-  for (const n of v.nodes) n.stop(t + 0.4);
+  const len = quackDip(v, t);
+  for (const n of v.nodes) n.stop(t + len + 0.1);
 }
 
 // ручной режим (кнопка MAN): пока держишь — тон растёт к потолку, отпустил — плавно падает и затихает
