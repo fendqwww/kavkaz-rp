@@ -10,12 +10,29 @@ Config.Npcs = {
     isa     = { name = 'Иса Медович', model = 's_m_m_scientist_01', coords = vec4(-1637.0, 182.0, 61.76, 300.0),   scenario = 'WORLD_HUMAN_CLIPBOARD', blip = { sprite = 499, color = 2, label = 'Лаборатория Исы Медовича' } },
     zarema  = { name = 'Зарема Поворотовна', model = 'a_f_y_business_04', coords = vec4(-549.5, -199.5, 38.22, 210.0), scenario = 'WORLD_HUMAN_CLIPBOARD', blip = { sprite = 545, color = 3, label = 'Автошкола' } },
     zaur    = { name = 'Заур (прокат скутеров)', model = 'a_m_y_business_02', coords = vec4(213.5, -926.0, 30.69, 230.0), scenario = 'WORLD_HUMAN_STAND_MOBILE', blip = { sprite = 348, color = 3, label = 'Прокат скутеров у Заура' } },
-    -- линия «На заработки»
-    bislan  = { name = 'Бислан «Крякалка»', model = 'a_m_y_stwhi_01', coords = vec4(731.0, -1088.0, 22.17, 90.0), scenario = 'WORLD_HUMAN_WELDING', blip = { sprite = 446, color = 47, label = 'Гараж Бислана' } },
-    guard   = { name = 'Сторож Висхан', model = 'a_m_m_salton_02', coords = vec4(-456.0, -1715.0, 18.64, 200.0), scenario = 'WORLD_HUMAN_SMOKING' },
-    adam    = { name = 'Капитан Адам «Тауметр»', model = 's_m_y_cop_01', coords = vec4(434.0, -981.0, 30.71, 90.0), scenario = 'WORLD_HUMAN_COP_IDLES', blip = { sprite = 60, color = 38, label = 'Капитан Адам' } },
-    -- линия «На учёбу»
-    madina  = { name = 'Доктор Мадина', model = 's_f_y_scrubs_01', coords = vec4(298.7, -584.6, 43.26, 70.0), scenario = 'WORLD_HUMAN_CLIPBOARD' },
+    -- линия «Закон»
+    ruslan  = { name = 'Участковый Руслан Протоколович', model = 's_m_y_cop_01', coords = vec4(441.0, -982.0, 30.69, 90.0), scenario = 'WORLD_HUMAN_COP_IDLES',
+                idle = 'Порядок на участке — порядок в голове. Вопросы — заходи.' },
+    adam    = { name = 'Капитан Адам «Тауметр»', model = 's_m_y_hwaycop_01', coords = vec4(434.0, -975.0, 30.71, 90.0), scenario = 'WORLD_HUMAN_COP_IDLES',
+                idle = 'Тонировка? Номер? Документы? …А, ты пешком. Ладно, иди.' },
+    vaha    = { name = 'Майор Ваха («Свадебный патруль»)', model = 's_m_m_ciasec_01', coords = vec4(425.0, -979.0, 30.71, 90.0), scenario = 'WORLD_HUMAN_STAND_IMPATIENT',
+                idle = 'Кортеж без разрешения — штраф. С разрешением — поздравляю. Всё просто.' },
+    zulai   = { name = 'Тётя Зулай', model = 'a_f_m_downtown_01', coords = vec4(-40.0, -1450.0, 31.4, 180.0), scenario = 'WORLD_HUMAN_STAND_IMPATIENT',
+                idle = 'Ты слышал, что у соседей… а, ладно, потом расскажу.' },
+    ibragim = { name = 'Майор Ибрагим (ФСБ)', model = 's_m_m_fiboffice_01', coords = vec4(115.0, -760.0, 45.75, 160.0), scenario = 'WORLD_HUMAN_STAND_MOBILE',
+                idle = 'Проходите, гражданин. Здесь не на что смотреть.' },
+    -- линия «Бизнес»
+    timur   = { name = 'Тимур «Бизнес»', model = 'a_m_y_business_03', coords = vec4(-117.0, -605.0, 36.28, 250.0), scenario = 'WORLD_HUMAN_STAND_MOBILE',
+                blip = { sprite = 500, color = 2, label = 'Тимур «Бизнес»' }, idle = 'Время — деньги. Есть идея — заходи.' },
+    liana   = { name = 'Лиана (Правительство, регистрация дел)', model = 'a_f_y_business_01', coords = vec4(-541.0, -207.0, 38.22, 210.0), scenario = 'WORLD_HUMAN_CLIPBOARD',
+                idle = 'Регистрация дел — по записи. Шучу, подходите.' },
+    -- линия «Криминал»
+    bislan  = { name = 'Бислан «Крякалка»', model = 'a_m_y_stwhi_01', coords = vec4(731.0, -1088.0, 22.17, 90.0), scenario = 'WORLD_HUMAN_WELDING',
+                blip = { sprite = 446, color = 47, label = 'Гараж Бислана' }, idle = 'Брат, тебе Хазард? Только ДПС не говори, что от меня.' },
+    guard   = { name = 'Сторож Висхан', model = 'a_m_m_salton_02', coords = vec4(-456.0, -1715.0, 18.64, 200.0), scenario = 'WORLD_HUMAN_SMOKING',
+                idle = 'Чего надо? Свалка закрыта. Для чужих.' },
+    ahmed   = { name = 'Ахмед-Падишах (авторынок)', model = 'a_m_m_business_01', coords = vec4(1150.0, -784.0, 57.6, 90.0), scenario = 'WORLD_HUMAN_STAND_MOBILE',
+                blip = { sprite = 225, color = 46, label = 'Авторынок Ахмеда-Падишаха' }, idle = 'Брат, заходи! Машины как новые, на них бабушки только в мечеть ездили.' },
     -- базар (Старый город)
     v_greens = { name = 'Тётя Хеда (зелень и овощи)', model = 'a_f_m_soucent_01', coords = vec4(-708.0, -900.0, 19.2, 180.0), scenario = 'WORLD_HUMAN_STAND_IMPATIENT' },
     v_dairy  = { name = 'Аминат (творог, сыр)',         model = 'a_f_y_soucent_02', coords = vec4(-702.0, -900.0, 19.2, 180.0), scenario = 'WORLD_HUMAN_STAND_IMPATIENT' },
@@ -25,20 +42,11 @@ Config.Npcs = {
 -- места
 Config.Places = {
     scooter = vec4(218.0, -919.0, 30.0, 150.0), -- где Заур ставит скутер
-    scrap = vec3(-470.0, -1720.0, 18.7),       -- запчасти на свалке
-    testdrive = vec3(-1640.0, -985.0, 13.0),   -- тест-драйв: пирс Дель-Перро
-    water = { vec3(-1520.0, -1180.0, 1.9), vec3(-1110.0, -1040.0, 2.0), vec3(1100.0, -640.0, 56.8) }, -- пробы воды
-    herbs = { vec3(-425.0, 1123.0, 325.9), vec3(-390.0, 1200.0, 325.6), vec3(-470.0, 1150.0, 326.0) }, -- травы на холмах
-    sink = vec3(-715.0, -915.0, 19.2),        -- рукомойник у чайханы
-    lamyurt = vec3(-113.0, 6460.0, 31.5),     -- заказ в Лам-Юрт (у банка Палето)
-    car = vec4(-723.0, -905.0, 19.0, 90.0),   -- где стоит машина Румисы
 }
 
 -- машины (модели GTA, пока нет своих: «Семёрка» — когда поставим мод)
 Config.Cars = {
-    rumisa = 'emperor', -- старая машина Румисы
     scooter = 'faggio', -- прокатный скутер
-    client = 'blista',  -- машина клиента Бислана
     school = 'asea',    -- учебная машина автошколы
 }
 
@@ -58,36 +66,6 @@ Config.Budget = {
 
 -- прокат скутеров
 Config.Rent = { price = 1500, hours = 24 }
-
--- три сюжетные линии на старте. все заканчиваются в автошколе
-Config.Lines = {
-    home  = { label = 'Домой, к своим', text = 'вернулся из Москвы к родне. Наставник — Румиса Халвовна: чайхана, базар, село.', final = 40000, title = 'Свой человек' },
-    work  = { label = 'На заработки', text = 'руки помнят моторы. Наставник — Бислан «Крякалка»: гараж, свалка, ДПС.', final = 40000, title = 'Рабочий человек' },
-    study = { label = 'На учёбу', text = 'поступил в университет. Наставник — Иса Медович: лаборатория, больница, горы.', final = 40000, title = 'Юный химик' },
-}
-
--- линия «На заработки»
-Config.Work = { scrapCost = 2000, scrapReward = 4000, testMinutes = 8, testReward = 3000, adamReward = 2000 }
--- линия «На учёбу»
-Config.Study = { waterReward = 4000, madinaReward = 3000, herbsReward = 5000 }
-
-Config.Porog = {
-    washReward = 5000,
-    deliveryMinutes = 10,
-    finalReward = 40000,
-    -- что купить на базаре (id товара -> продавец, цена). неправильные товары Румиса не примет
-    list = {
-        greens  = { label = 'зелень', vendor = 'v_greens', price = 300 },
-        pumpkin = { label = 'тыква', vendor = 'v_greens', price = 500 },
-        cheese  = { label = 'творог', vendor = 'v_dairy', price = 400 },
-        mutton  = { label = 'баранина', vendor = 'v_meat', price = 1500 },
-    },
-    wrong = {
-        onion   = { label = 'лук', vendor = 'v_greens', price = 200 },
-        milk    = { label = 'молоко', vendor = 'v_dairy', price = 250 },
-        beef    = { label = 'говядина', vendor = 'v_meat', price = 1200 },
-    },
-}
 
 -- ежедневка «Обед для Исы»
 Config.IsaLunch = { reward = 3000, trust = 1 }
@@ -127,7 +105,7 @@ Config.School = {
 
 -- подсказки Ислама
 Config.Islam = {
-    { id = 'start', label = 'С чего начать?', text = 'Иди в чайхану «У Румисы» в Старом городе — метка на карте. Она и накормит, и работу даст. Только руки помой сначала, иначе не пустит.' },
+    { id = 'start', label = 'С чего начать?', text = 'Сначала скутер у Заура — он рядом. Дальше иди по своей дороге: метка всегда на карте. Голодный — к Румисе в чайхану, она и накормит, и работу даст.' },
     { id = 'money', label = 'Где заработать?', text = 'У Румисы есть работа: развозить обеды. Платит каждый заказ. Потом — права в автошколе, и можно в такси или на автобус. Зарплата сразу на карту.' },
     { id = 'docs', label = 'Документы', text = 'Паспорт у тебя в инвентаре (TAB). Права получишь в автошколе у Заремы Поворотовны — сначала теория, потом вождение. Номер на машину — в МРЭО, нужен паспорт.' },
     { id = 'car', label = 'Машина и номера', text = 'Машину покупают в автосалоне, ставят в гараж. Без номера ездишь на транзите — ДПС может оштрафовать. Номер — в МРЭО ГИБДД у мэрии.' },

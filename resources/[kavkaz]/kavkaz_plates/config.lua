@@ -93,7 +93,7 @@ Config.Tiers = {
 }
 
 -- кто может выдавать номера и пробивать по базе (имена работ qbx_core)
-Config.PoliceJobs = { police = 0, sheriff = 0 } -- работа = минимальный ранг
+Config.PoliceJobs = { police = 0, sheriff = 0, sasp = 0 } -- sasp = ГИБДД / полк ДПС -- работа = минимальный ранг
 Config.DpsDistance = 6.0
 
 -- уровень админа для /setplate (kavkaz_admin)

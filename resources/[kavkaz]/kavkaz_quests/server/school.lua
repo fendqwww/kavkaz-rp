@@ -56,6 +56,7 @@ local function practice(src, st)
                 Q.removeCar(s, netId)
                 giveLicense(s)
                 Q.notify(s, 'экзамен сдан! права категории B — в инвентаре', 'success')
+                Q.storyCheck(s)
             end,
         })
     end
@@ -64,14 +65,6 @@ local function practice(src, st)
 end
 
 Q.handlers.zarema = function(src, st, choice)
-    -- финал любой сюжетной линии
-    if Q.lineReady(st) then
-        local who = ({ home = 'Румиса звонила', work = 'Адам звонил', study = 'Иса звонил' })[st.line]
-        Q.lineFinale(src, st)
-        return Q.node('zarema', who .. ', говорит — хороший человек, но без прав. Это мы исправим. Сначала теория, потом вождение.',
-            { { id = 'theory', label = 'Сдать теорию' }, { id = 'bye', label = 'Позже' } })
-    end
-
     -- теория
     local t = theory[src]
     if choice == 'theory' then

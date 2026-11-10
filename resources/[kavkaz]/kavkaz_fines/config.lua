@@ -1,7 +1,7 @@
 Config = {}
 
 -- кто выписывает штрафы: работа = минимальный ранг (на смене)
-Config.Jobs = { police = 0, sheriff = 0 }
+Config.Jobs = { police = 0, sheriff = 0, sasp = 0 } -- sasp = ГИБДД / полк ДПС
 Config.Distance = 6.0
 Config.OfficerShare = 0.10  -- доля инспектору после оплаты
 Config.DoubleAfterDays = 3  -- неоплаченный штраф удваивается (один раз)

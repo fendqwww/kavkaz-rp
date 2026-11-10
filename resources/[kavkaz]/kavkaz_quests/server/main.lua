@@ -1,5 +1,5 @@
 -- ядро квестов: состояние персонажа, диалоги с NPC, цели на карте, награды. всё решает сервер.
--- состояние хранится в metadata персонажа: kavkaz_q = { porog, washed, bag, trust, isaDay, theory, title, lunch }
+-- состояние хранится в metadata персонажа: kavkaz_q = { line, step, rep, afterRent, trust, isaDay, theory, title, career, lineDone }
 
 Q = { handlers = {}, objectives = {}, cars = {} }
 
@@ -132,12 +132,16 @@ end
 
 lib.callback.register('kavkaz_quests:talk', function(src, npcId, choice)
     if not nearNpc(src, npcId) then return nil end
-    local handler = Q.handlers[npcId]
-    if not handler then return nil end
     if choice == 'bye' then return nil end
     local st = Q.get(src)
     if not st then return nil end
-    local ok, node = pcall(handler, src, st, choice)
+    -- сначала сюжет: если у этого NPC сейчас шаг линии — разговор по шагу, иначе обычный разговор
+    local ok, node = pcall(function()
+        local storyNode = Q.storyTalk(src, st, npcId, choice)
+        if storyNode then return storyNode end
+        local handler = Q.handlers[npcId]
+        return handler and handler(src, st, choice) or nil
+    end)
     if not ok then
         lib.print.error(node)
         return nil
@@ -146,31 +150,9 @@ lib.callback.register('kavkaz_quests:talk', function(src, npcId, choice)
     return node
 end)
 
--- метка: куда идти дальше по сюжету, если цели нет (после перезахода)
+-- после перезахода: вернуть текущую цель сюжета (story.lua)
 RegisterNetEvent('kavkaz_quests:server:resume', function()
     local src = source
-    local st = Q.get(src)
-    if not st or Q.objectives[src] then return end
-    if not st.line or st.lineDone then return end
-    if not st.afterRent then
-        local npc = Config.Npcs.zaur
-        return Q.objective(src, { id = 'goto_zaur', text = 'Арендуй скутер у Заура', coords = npc.coords.xyz, radius = 4.0, onReach = function() end })
-    end
-    local where
-    if st.line == 'home' then
-        where = ({ [0] = 'rumisa', [1] = st.washed and 'rumisa' or nil, [2] = 'v_greens', [3] = 'isa', [4] = 'rumisa', [5] = 'rumisa', [6] = 'zarema' })[st.porog]
-        if st.porog == 1 and not st.washed then return Q.setWash(src) end
-    elseif st.line == 'work' then
-        -- шаги со свалкой и тест-драйвом начинаются заново у того, кто их дал
-        if st.ls == 2 then st.scrapPaid = nil Q.save(src, st) end
-        where = ({ [1] = 'bislan', [2] = 'guard', [3] = 'bislan', [4] = 'bislan', [5] = 'adam', [6] = 'zarema' })[st.ls]
-    elseif st.line == 'study' then
-        if st.ls == 2 then st.ls = 1 Q.save(src, st) end
-        if st.ls == 5 then st.ls = 4 Q.save(src, st) end
-        where = ({ [1] = 'isa', [3] = 'isa', [4] = 'madina', [6] = 'isa', [7] = 'zarema' })[st.ls]
-    end
-    if where then
-        local npc = Config.Npcs[where]
-        Q.objective(src, { id = 'goto_' .. where, text = 'Иди к: ' .. npc.name, coords = npc.coords.xyz, radius = 4.0, onReach = function() end })
-    end
+    if Q.objectives[src] then return end
+    Q.storyResume(src)
 end)

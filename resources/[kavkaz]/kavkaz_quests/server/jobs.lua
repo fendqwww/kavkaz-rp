@@ -26,7 +26,8 @@ local function nextOrder(src)
             Q.reward(s, pay, 'работа: доставка обедов')
             cur.done, cur.earned = cur.done + 1, cur.earned + pay
             Q.notify(s, ('заказ доставлен: %s. следующий — на карте'):format(Q.money(pay)), 'success')
-            nextOrder(s)
+            Q.storyJob(s)
+            if shifts[s] then nextOrder(s) end
         end,
     })
 end
@@ -44,6 +45,7 @@ Q.delivery = {
         if not sh then return 'Ты не на смене.' end
         shifts[src] = nil
         Q.objective(src, nil)
+        Q.storyResume(src)
         return ('Смена закрыта. Доставлено заказов: %d, заработал %s. Молодец.'):format(sh.done, Q.money(sh.earned))
     end,
 }
