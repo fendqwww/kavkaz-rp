@@ -9,29 +9,11 @@ end
 
 CreateThread(function()
     Wait(10000) -- ждём, пока стартуют остальные ресурсы
-    local registered, ours, owners = {}, {}, {}
+    local registered, ours = {}, {}
     for _, rc in ipairs(GetRegisteredCommands()) do
         registered[rc.name] = true
         if rc.resource and rc.resource:find('^kavkaz_') then ours[rc.name] = rc.resource end
-        if rc.resource and rc.resource ~= '' then
-            owners[rc.name] = owners[rc.name] or {}
-            owners[rc.name][rc.resource] = true
-        end
     end
-    -- одна и та же команда в нашем и чужом ресурсе: сработает только одна из них
-    local dupes = {}
-    for name, set in pairs(owners) do
-        local list, hasOurs = {}, false
-        for res in pairs(set) do
-            list[#list + 1] = res
-            if res:find('^kavkaz_') then hasOurs = true end
-        end
-        if hasOurs and #list > 1 then
-            table.sort(list)
-            dupes[#dupes + 1] = ('/%s (%s)'):format(name, table.concat(list, ' и '))
-        end
-    end
-    report('команда объявлена в нескольких ресурсах, сработает одна', dupes)
     local listed, missing, unlisted = {}, {}, {}
     for _, c in ipairs(Config.Commands) do
         if c.cmd then
