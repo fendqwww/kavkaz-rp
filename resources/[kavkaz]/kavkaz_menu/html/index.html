@@ -32,20 +32,34 @@
 
   <main>
     <section data-page="profile">
-      <h1 id="p-name">—</h1>
-      <p class="sub">Паспорт гражданина Республики Нагорье · № <b id="p-cid">—</b> · ID <b id="p-id">—</b></p>
-      <div class="grid">
-        <div class="card"><span>Работа</span><b id="p-job">—</b></div>
-        <div class="card"><span>Организация</span><b id="p-gang">—</b></div>
-        <div class="card"><span>Дата рождения</span><b id="p-birth">—</b></div>
-        <div class="card"><span>Место рождения</span><b id="p-place">—</b></div>
-        <div class="card"><span>Телефон</span><b id="p-phone">—</b></div>
-        <div class="card"><span>Пол</span><b id="p-gender">—</b></div>
-        <div class="card gold"><span>Наличные</span><b id="p-cash">—</b></div>
-        <div class="card"><span>На карте</span><b id="p-bank">—</b></div>
-        <div class="card"><span>Машин в гаражах</span><b id="p-cars">—</b></div>
+      <div class="passport">
+        <div class="pp-top">
+          <span>РЕСПУБЛИКА НАГОРЬЕ</span>
+          <span class="pp-num" id="pp-num">95 07 000000</span>
+        </div>
+        <div class="pp-title">ПАСПОРТ ГРАЖДАНИНА</div>
+        <div class="pp-body">
+          <div class="pp-photo"><img id="pp-photo" alt=""><span>фото</span></div>
+          <div class="pp-fields">
+            <div><i>Фамилия</i><b id="pp-last">—</b></div>
+            <div><i>Имя</i><b id="pp-first">—</b></div>
+            <div class="two"><div><i>Пол</i><b id="pp-gender">—</b></div><div><i>Дата рождения</i><b id="pp-birth">—</b></div></div>
+            <div><i>Место рождения</i><b id="pp-place">—</b></div>
+            <div class="two"><div><i>Дата выдачи</i><b id="pp-issued">—</b></div><div><i>Код подразделения</i><b>095-001</b></div></div>
+            <div class="sign"><i>Личная подпись</i><b id="pp-sign">—</b></div>
+          </div>
+        </div>
+        <div class="pp-mrz" id="pp-mrz"></div>
       </div>
-      <h2>Документы и лицензии</h2>
+      <div class="facts">
+        <div><i>Работа</i><b id="p-job">—</b></div>
+        <div><i>Организация</i><b id="p-gang">—</b></div>
+        <div><i>Телефон</i><b id="p-phone">—</b></div>
+        <div><i>Наличные</i><b id="p-cash" class="gold">—</b></div>
+        <div><i>На карте</i><b id="p-bank">—</b></div>
+        <div><i>Машин</i><b id="p-cars">—</b></div>
+        <div><i>ID в игре</i><b id="p-id">—</b></div>
+      </div>
       <div id="p-lic" class="chips"></div>
     </section>
 

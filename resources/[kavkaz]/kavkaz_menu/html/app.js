@@ -13,9 +13,25 @@ function tab(name) {
 
 function fill(d) {
   const p = d.profile, s = d.stats, sec = d.security;
-  set('p-name', p.name); set('p-cid', p.cid); set('p-id', p.id);
-  set('p-job', p.job + (p.onduty ? ' · на смене' : '')); set('p-gang', p.gang || 'нет');
-  set('p-birth', (p.birth || '').replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$3.$2.$1')); set('p-place', p.place); set('p-phone', p.phone); set('p-gender', p.gender);
+  const [first, ...rest] = (p.name || '').trim().split(' ');
+  const last = rest.join(' ');
+  set('pp-last', last); set('pp-first', first); set('pp-gender', p.gender === 'женский' ? 'жен.' : 'муж.');
+  const birth = (p.birth || '').replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$3.$2.$1');
+  set('pp-birth', birth); set('pp-place', p.place); set('pp-issued', d.stats.first);
+  set('pp-sign', last ? last.charAt(0).toUpperCase() + last.slice(1).toLowerCase() : '—');
+  // серия и номер из номера персонажа: 95 (регион) + 2 цифры + 6 цифр
+  let h = 0; for (const c of String(p.cid)) h = (h * 31 + c.charCodeAt(0)) % 100000000;
+  const num = String(h).padStart(8, '0');
+  set('pp-num', `95 ${num.slice(0, 2)} ${num.slice(2)}`);
+  const tr = (t) => t.toUpperCase().replace(/[^A-ZА-ЯЁ]/g, '');
+  const lat = (t) => { const m = { А:'A',Б:'B',В:'V',Г:'G',Д:'D',Е:'E',Ё:'E',Ж:'ZH',З:'Z',И:'I',Й:'I',К:'K',Л:'L',М:'M',Н:'N',О:'O',П:'P',Р:'R',С:'S',Т:'T',У:'U',Ф:'F',Х:'KH',Ц:'TS',Ч:'CH',Ш:'SH',Щ:'SHCH',Ы:'Y',Э:'E',Ю:'IU',Я:'IA',Ь:'',Ъ:'' }; return tr(t).split('').map((c) => m[c] ?? c).join(''); };
+  const line1 = ('PNNAG' + lat(last) + '<<' + lat(first)).padEnd(44, '<').slice(0, 44);
+  const line2 = (num + '<' + '9NAG' + birth.replace(/\./g, '').slice(4) + birth.slice(3, 5) + birth.slice(0, 2)).padEnd(44, '<').slice(0, 44);
+  $('pp-mrz').textContent = line1 + '\n' + line2;
+  const img = $('pp-photo');
+  if (p.photo) { img.src = p.photo; img.classList.add('on'); } else { img.removeAttribute('src'); img.classList.remove('on'); }
+  set('p-id', p.id);
+  set('p-job', p.job + (p.onduty ? ' · на смене' : '')); set('p-gang', p.gang || 'нет'); set('p-phone', p.phone);
   set('p-cash', rub(p.cash)); set('p-bank', rub(p.bank)); set('p-cars', p.cars);
   const lic = $('p-lic'); lic.innerHTML = '';
   (p.licences.length ? p.licences : [null]).forEach((l) => {

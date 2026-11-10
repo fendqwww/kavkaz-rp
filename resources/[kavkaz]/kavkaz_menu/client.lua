@@ -1,10 +1,26 @@
 -- KAVKAZ RP — меню игрока (F4 или /menu)
 
 local open = false
+local headshot
+
+-- фото в паспорт: снимок лица персонажа (живёт, пока открыто меню)
+local function takePhoto()
+    if headshot then UnregisterPedheadshot(headshot) headshot = nil end
+    local h = RegisterPedheadshot(PlayerPedId())
+    local t = GetGameTimer() + 2000
+    while not IsPedheadshotReady(h) or not IsPedheadshotValid(h) do
+        if GetGameTimer() > t then UnregisterPedheadshot(h) return nil end
+        Wait(0)
+    end
+    headshot = h
+    local txd = GetPedheadshotTxdString(h)
+    return ('https://nui-img/%s/%s'):format(txd, txd)
+end
 
 local function close()
     if not open then return end
     open = false
+    if headshot then UnregisterPedheadshot(headshot) headshot = nil end
     SetNuiFocus(false, false)
     SendNUIMessage({ action = 'close' })
 end
@@ -13,6 +29,7 @@ local function openMenu(tab)
     if open or not LocalPlayer.state.isLoggedIn or IsPauseMenuActive() then return end
     local data = lib.callback.await('kavkaz_menu:data', false)
     if not data then return end
+    data.profile.photo = takePhoto()
     -- настройки хранят сами ресурсы (у каждого своё хранилище на ПК игрока)
     local okH, hints = pcall(function() return exports.kavkaz_hud:GetHints() end)
     local okV, vol = pcall(function() return exports.kavkaz_sgu:GetVolume() end)
