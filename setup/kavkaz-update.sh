@@ -8,6 +8,7 @@
 #      и (первой строкой) "exec /opt/kavkaz/secrets.cfg" — вебхук и прочие секреты;
 #   4) включает русский язык в ox.cfg;
 #   5) подключает наши темы ox_inventory и ox_lib (строка <link> в их web/build/index.html);
+#      применяет новые файлы sql/*.sql к базе (каждый один раз);
 #   6) отдаёт файлы пользователю fivem и (с --restart) перезапускает сервер.
 # заменённые файлы сохраняются в /opt/kavkaz/backup-overrides/<дата>/ — ничего не теряется.
 #
@@ -127,7 +128,8 @@ if [ -d "$BASE/resources/[kavkaz]" ]; then
       while IFS= read -r -d '' f; do
         rel=${f#"$BASE/resources/[kavkaz]/"}
         [ -e "$SRC/resources/[kavkaz]/$rel" ] && continue
-        case "/$rel" in */stream/*) continue ;; esac # файлы карты, положенные прямо на сервер, не трогаем
+        # файлы, которые кладут прямо на сервер мимо git (.gitignore), не трогаем: модели карты и записи звуков СГУ
+        case "/$rel" in */stream/*|*/html/sounds/*.ogg|*/html/sounds/*.wav) continue ;; esac
         backup "$f"; rm -f "$f"; say "  - $rel"
       done < <(find "$d" -type f -print0)
     fi
@@ -222,6 +224,35 @@ theme() { # $1 ресурс, $2 css внутри ресурса, $3 href
 }
 theme ox_inventory web/build/assets/kavkaz-theme.css ./assets/kavkaz-theme.css
 theme ox_lib       web/build/kavkaz-theme.css        ./kavkaz-theme.css
+
+step '5.5) база данных: sql/*.sql'
+# каждый файл из sql/ применяется один раз (список — /opt/kavkaz/sql-applied). все файлы безопасны для повтора (IF NOT EXISTS)
+APPLIED=$ROOT/sql-applied
+if command -v mariadb >/dev/null 2>&1; then
+  # имя базы — из строки подключения сервера (сама строка никуда не печатается)
+  DB=$(cat "$CFG" "$SECRETS" 2>/dev/null | sed -n 's/^[[:space:]]*set[[:space:]]\+mysql_connection_string[[:space:]]\+"\?mysql:\/\/[^@]*@[^/]*\/\([A-Za-z0-9_]\+\).*/\1/p' | head -n1 || true)
+  [ -n "$DB" ] || DB=$(cat "$CFG" "$SECRETS" 2>/dev/null | sed -n 's/^[[:space:]]*set[[:space:]]\+mysql_connection_string.*[;"]database=\([A-Za-z0-9_]\+\).*/\1/p' | head -n1 || true)
+  if [ -z "$DB" ]; then
+    warn 'не понял имя базы из mysql_connection_string — sql пропускаю'
+  elif ! mariadb -N -e "SHOW TABLES LIKE 'players'" "$DB" 2>/dev/null | grep -q players; then
+    warn "в базе $DB ещё нет таблиц Qbox (сервер ни разу не запускался?) — sql применю в следующий раз"
+  else
+    touch "$APPLIED"
+    for f in "$SRC"/sql/*.sql; do
+      [ -f "$f" ] || continue
+      n=$(basename "$f")
+      grep -Fxq "$n" "$APPLIED" && continue
+      if mariadb "$DB" < "$f" 2>"$ROOT/sql-error.log"; then
+        printf '%s\n' "$n" >> "$APPLIED"; say "  + $n"
+      else
+        warn "$n не применился: $(head -n1 "$ROOT/sql-error.log")"
+      fi
+    done
+    rm -f "$ROOT/sql-error.log"
+  fi
+else
+  warn 'нет программы mariadb — sql пропускаю'
+fi
 
 step '6) права на файлы'
 if id "$RUN_USER" >/dev/null 2>&1; then

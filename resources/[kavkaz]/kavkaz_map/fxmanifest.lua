@@ -14,9 +14,12 @@ this_is_a_map 'yes'
 shared_scripts {
     '@ox_lib/init.lua',
     'config.lua',
+    'places.lua',
 }
 
-client_script 'client.lua'
+client_scripts { 'client.lua', 'client_places.lua' }
+
+files { 'data/*.json' }
 server_script 'server.lua'
 
 dependencies {

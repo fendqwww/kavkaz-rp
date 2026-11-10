@@ -1,17 +1,17 @@
 /* KAVKAZ RP — тема ox_inventory. исходник: собранный файл со шрифтом внутри —
    overrides/resources/[ox]/ox_inventory/web/build/assets/kavkaz-theme.css (python setup/build-theme.py).
    setup/apply-overrides.ps1 подключает его строкой <link> в web/build/index.html (код ox_inventory не меняем).
-   стиль: плоский, спокойный, без свечения и градиентов. акцент — небесно-синий. */
+   стиль: плоский, спокойный, без свечения и градиентов. акцент — изумрудный. */
 
 :root {
-  --kz-panel: rgba(17, 25, 35, .94);
-  --kz-slot: #1c2734;
-  --kz-slot-hover: #223142;
-  --kz-line: #2b3a4b;
-  --kz-line-hover: #3d93d8;
-  --kz-sky: #3d93d8;
-  --kz-text: #e9eef3;
-  --kz-muted: #93a3b4;
+  --kz-panel: rgba(15, 20, 18, .94);
+  --kz-slot: #18211d;
+  --kz-slot-hover: #1f2b26;
+  --kz-line: #2a3832;
+  --kz-line-hover: #2fbf8a;
+  --kz-sky: #2fbf8a;
+  --kz-text: #e8efea;
+  --kz-muted: #8fa39a;
   --kz-font: "Golos Text", "Segoe UI", Arial, sans-serif;
 }
 
@@ -33,7 +33,7 @@ body, .app-wrapper, .app-wrapper * { font-family: var(--kz-font) !important; }
 .inventory-grid-header-wrapper p:last-child { color: var(--kz-muted); font-weight: 500; }
 .inventory-grid-container { gap: 4px; }
 .inventory-grid-container::-webkit-scrollbar { width: 6px; }
-.inventory-grid-container::-webkit-scrollbar-thumb { background: #34465a; border-radius: 3px; }
+.inventory-grid-container::-webkit-scrollbar-thumb { background: #34463e; border-radius: 3px; }
 
 .inventory-slot, .hotbar-item-slot, .item-notification-item-box {
   background-color: var(--kz-slot);
@@ -44,7 +44,7 @@ body, .app-wrapper, .app-wrapper * { font-family: var(--kz-font) !important; }
 .inventory-slot:hover { background-color: var(--kz-slot-hover); border-color: var(--kz-line-hover) !important; }
 
 .inventory-slot-label-box {
-  background: rgba(10, 16, 23, .75);
+  background: rgba(8, 12, 10, .75);
   color: var(--kz-text);
   border-top: 0 !important;
   border-radius: 0 0 5px 5px;
@@ -71,8 +71,8 @@ body, .app-wrapper, .app-wrapper * { font-family: var(--kz-font) !important; }
 .item-slot-info-wrapper p, .item-slot-header-wrapper p { color: var(--kz-muted); font-size: 11px !important; font-weight: 500; }
 .item-slot-currency-wrapper p, .item-slot-price-wrapper p { color: var(--kz-text); font-weight: 600; text-shadow: none !important; }
 
-.weight-bar { height: 4px; background: #0f161f; border: 0; border-radius: 2px; }
-.durability-bar { height: 3px; background: #0f161f; }
+.weight-bar { height: 4px; background: #0b100e; border: 0; border-radius: 2px; }
+.durability-bar { height: 3px; background: #0b100e; }
 
 .inventory-control .inventory-control-input {
   background: var(--kz-panel);
@@ -94,7 +94,7 @@ body, .app-wrapper, .app-wrapper * { font-family: var(--kz-font) !important; }
 .inventory-control .inventory-control-button:hover { background: var(--kz-sky); border-color: var(--kz-sky); color: #fff; }
 
 .tooltip-wrapper, .context-menu-list {
-  background: #141d28;
+  background: #121a17;
   border: 1px solid var(--kz-line);
   border-radius: 6px;
   color: var(--kz-text);
@@ -104,11 +104,41 @@ body, .app-wrapper, .app-wrapper * { font-family: var(--kz-font) !important; }
 .tooltip-wrapper p { color: var(--kz-muted); font-size: 12.5px; }
 .divider { background: var(--kz-line) !important; }
 .context-menu-item { color: var(--kz-text); border-radius: 4px; font-size: 13.5px; }
-.context-menu-item:hover { background: #223142; }
+.context-menu-item:hover { background: #1f2b26; }
 
 .hotbar-container { gap: 4px; }
 .item-notification-action-box { background: var(--kz-sky); color: #fff; border-radius: 5px 5px 0 0; text-transform: none !important; }
 .item-notification-action-box p { font-weight: 600; }
 
-.useful-controls-dialog { background: #141d28 !important; border: 1px solid var(--kz-line); border-radius: 8px !important; color: var(--kz-text); }
+.useful-controls-dialog { background: #121a17 !important; border: 1px solid var(--kz-line); border-radius: 8px !important; color: var(--kz-text); }
 .useful-controls-dialog-title { color: var(--kz-text); font-weight: 600; }
+
+/* ===== вид как у крупных RP-проектов: окружение слева, инвентарь справа, серые полупрозрачные панели, крупные иконки ===== */
+.inventory-wrapper { flex-direction: row-reverse; gap: 22px; }
+.inventory-grid-wrapper {
+  background: rgba(28, 31, 33, 0.86) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(6px);
+  padding: 14px !important;
+}
+.inventory-grid-header-wrapper { margin-bottom: 6px; }
+.inventory-grid-header-wrapper p { font-size: 15px !important; font-weight: 700 !important; }
+.inventory-grid-header-wrapper p:last-child { color: var(--kz-sky) !important; font-weight: 700 !important; }
+.inventory-grid-container { gap: 6px !important; }
+.inventory-slot {
+  background-color: rgba(255, 255, 255, 0.055) !important;
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  background-size: 72% !important;
+}
+.inventory-slot:hover { background-color: rgba(255, 255, 255, 0.11) !important; border-color: var(--kz-sky) !important; }
+.inventory-slot-label-box { background: transparent !important; }
+.inventory-slot-label-text { font-size: 10.5px !important; color: rgba(255, 255, 255, 0.75); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9); }
+.item-slot-header-wrapper p { color: #fff !important; font-weight: 700 !important; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9); }
+.weight-bar { background: rgba(255, 255, 255, 0.08) !important; }
+.weight-bar div, .durability-bar div { background: var(--kz-sky) !important; }
+.inventory-control .inventory-control-input, .inventory-control .inventory-control-button {
+  background: rgba(28, 31, 33, 0.86) !important; border-color: rgba(255, 255, 255, 0.08) !important; border-radius: 10px !important;
+}
+.hotbar-item-slot { background-color: rgba(28, 31, 33, 0.82) !important; border-radius: 8px !important; }

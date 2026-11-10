@@ -5,3 +5,5 @@ body, body * { font-family: "Golos Text", "Segoe UI", Arial, sans-serif !importa
 .mantine-TextInput-input, .mantine-NumberInput-input, .mantine-Select-input, .mantine-Textarea-input,
 .mantine-Notification-root, .mantine-Alert-root { border-radius: 6px !important; }
 .mantine-Button-root { font-weight: 500 !important; text-transform: none !important; letter-spacing: 0 !important; }
+/* фон окон — тёмно-зелёный, как HUD (изумруд + золото, docs/vision/21 блок 2) */
+.mantine-Paper-root, .mantine-Modal-modal, .mantine-Notification-root { background-color: #121a17 !important; }

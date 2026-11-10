@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>KAVKAZ — меню игрока</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="menu" class="off">
+  <aside>
+    <svg class="logo" viewBox="0 0 274 64" aria-label="KAVKAZ RP">
+      <defs>
+        <linearGradient id="m-text" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e3b341"/></linearGradient>
+      </defs>
+      <path d="M4 50 L24 24 L33 35 L49 10 L70 50" fill="none" stroke="#2fbf8a" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+      <path d="M43 19 L49 10 L55 19 L51 17 L49 20 L46 17 Z" fill="#ffffff"/>
+      <text x="76" y="46" font-family="Montserrat" font-style="italic" font-weight="900" font-size="34" letter-spacing="-1" fill="url(#m-text)">KAVKAZ</text>
+      <rect x="238" y="20" width="34" height="21" rx="5" fill="#2fbf8a"/>
+      <text x="255" y="35.5" text-anchor="middle" font-family="Montserrat" font-style="italic" font-weight="900" font-size="14" fill="#0f1412">RP</text>
+    </svg>
+    <nav id="tabs">
+      <button data-tab="profile">Профиль</button>
+      <button data-tab="stats">Статистика</button>
+      <button data-tab="security">Безопасность</button>
+      <button data-tab="promo">Промокод</button>
+      <button data-tab="referral">Реферальная программа <em>скоро</em></button>
+      <button data-tab="settings">Настройки</button>
+      <button data-tab="help">Помощь</button>
+    </nav>
+    <div class="foot"><kbd>Esc</kbd> закрыть</div>
+  </aside>
+
+  <main>
+    <section data-page="profile">
+      <div class="passport">
+        <div class="pp-top">
+          <span>РЕСПУБЛИКА НАГОРЬЕ</span>
+          <span class="pp-num" id="pp-num">95 07 000000</span>
+        </div>
+        <div class="pp-title">ПАСПОРТ ГРАЖДАНИНА</div>
+        <div class="pp-body">
+          <div class="pp-photo"><img id="pp-photo" alt=""><span>фото</span></div>
+          <div class="pp-fields">
+            <div><i>Фамилия</i><b id="pp-last">—</b></div>
+            <div><i>Имя</i><b id="pp-first">—</b></div>
+            <div class="two"><div><i>Пол</i><b id="pp-gender">—</b></div><div><i>Дата рождения</i><b id="pp-birth">—</b></div></div>
+            <div><i>Место рождения</i><b id="pp-place">—</b></div>
+            <div class="two"><div><i>Дата выдачи</i><b id="pp-issued">—</b></div><div><i>Код подразделения</i><b>095-001</b></div></div>
+            <div class="sign"><i>Личная подпись</i><b id="pp-sign">—</b></div>
+          </div>
+        </div>
+        <div class="pp-mrz" id="pp-mrz"></div>
+      </div>
+      <div class="facts">
+        <div><i>Работа</i><b id="p-job">—</b></div>
+        <div><i>Организация</i><b id="p-gang">—</b></div>
+        <div><i>Телефон</i><b id="p-phone">—</b></div>
+        <div><i>Наличные</i><b id="p-cash" class="gold">—</b></div>
+        <div><i>На карте</i><b id="p-bank">—</b></div>
+        <div><i>Машин</i><b id="p-cars">—</b></div>
+        <div><i>ID в игре</i><b id="p-id">—</b></div>
+      </div>
+      <div id="p-lic" class="chips"></div>
+    </section>
+
+    <section data-page="stats">
+      <h1>Статистика</h1>
+      <div class="grid">
+        <div class="card big"><span>Время в игре</span><b id="s-time">—</b></div>
+        <div class="card big"><span>На сервере с</span><b id="s-first">—</b></div>
+        <div class="card big"><span>Дней в республике</span><b id="s-days">—</b></div>
+        <div class="card big"><span>Неоплаченные штрафы</span><b id="s-fines">—</b></div>
+      </div>
+      <h2>Достижения</h2>
+      <p class="note">Скоро: «Первая Приора», «Номер 777», «Три дня без штрафа», «Свой дом» — за них будут награды.</p>
+    </section>
+
+    <section data-page="security">
+      <h1>Безопасность</h1>
+      <div class="grid">
+        <div class="card"><span>Прошлый вход</span><b id="sec-last">—</b></div>
+        <div class="card"><span>Аккаунт Rockstar</span><b id="sec-lic">—</b></div>
+        <div class="card"><span>Discord</span><b id="sec-discord">—</b></div>
+        <div class="card"><span>Steam</span><b id="sec-steam">—</b></div>
+      </div>
+      <p class="note">Не передавай никому доступ к своему компьютеру и аккаунту. Администрация никогда не просит пароли и коды.
+        Если зашёл не ты — сразу напиши в <b>/report</b>.</p>
+      <div class="actions">
+        <button data-act="switch">Сменить персонажа</button>
+      </div>
+    </section>
+
+    <section data-page="promo">
+      <h1>Промокод</h1>
+      <p class="sub">Промокоды раздают на мероприятиях, в соцсетях и стримах. Один код — один раз на аккаунт.</p>
+      <div class="promo">
+        <input id="promo-code" maxlength="24" placeholder="ВВЕДИ КОД" autocomplete="off" spellcheck="false">
+        <button id="promo-go" class="primary">Активировать</button>
+      </div>
+      <p id="promo-msg" class="msg"></p>
+    </section>
+
+    <section data-page="referral">
+      <h1 id="ref-title">Реферальная программа</h1>
+      <p class="sub" id="ref-text"></p>
+      <div class="soon">Скоро</div>
+    </section>
+
+    <section data-page="settings">
+      <h1>Настройки</h1>
+      <label class="row"><span>Подсказки клавиш справа на экране <em>(F6)</em></span><input type="checkbox" id="set-hints"></label>
+      <label class="row"><span>Громкость СГУ «Хазард»</span><input type="range" id="set-sgu" min="0" max="100" step="5"><b id="set-sgu-val">100</b></label>
+      <div class="actions"><button data-act="hud">Скрыть интерфейс (/hud)</button></div>
+      <p class="note">Клавиши меняются в настройках игры: Настройки → Назначение клавиш → FiveM.</p>
+    </section>
+
+    <section data-page="help">
+      <h1>Помощь</h1>
+      <div class="actions col">
+        <button data-act="gps">Навигатор: куда идти <em>F5</em></button>
+        <button data-act="gaid">Памятка новичка</button>
+        <button data-act="help">Все команды <em>/help</em></button>
+        <button data-act="report">Написать администрации</button>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

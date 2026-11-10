@@ -43,7 +43,10 @@ local function spawn(id, npc)
     local c = npc.coords
     local model = joaat(npc.model)
     lib.requestModel(model)
-    local ped = CreatePed(4, model, c.x, c.y, c.z - 1.0, c.w, false, true)
+    -- ставим на землю: если высота в конфиге неточная, NPC не висит в воздухе и не уходит под асфальт
+    local found, groundZ = GetGroundZFor_3dCoord(c.x, c.y, c.z + 2.0, false)
+    local z = (found and math.abs(groundZ - c.z) < 5.0) and groundZ or (c.z - 1.0)
+    local ped = CreatePed(4, model, c.x, c.y, z, c.w, false, true)
     SetEntityInvincible(ped, true)
     SetBlockingOfNonTemporaryEvents(ped, true)
     FreezeEntityPosition(ped, true)

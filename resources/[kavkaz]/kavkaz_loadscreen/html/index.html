@@ -6,10 +6,10 @@
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
   /* стиль по antr5-skill (C:\kavkaz\SKILL.md):
-     тёмно-синий #04103a / #0a1636 + голубой #2ab4ff, без неона, стекла и нарисованных пейзажей.
+     тёмно-синий #0b110f / #111a16 + голубой #2fbf8a, без неона, стекла и нарисованных пейзажей.
      фон — только настоящие кадры из игры (html/bg/1.jpg … 5.jpg), тонированные в наш синий. */
   :root {
-    --bg: #04103a; --bg2: #0a1636; --acc: #2ab4ff; --text: #ffffff; --muted: #b7c8e8;
+    --bg: #0b110f; --bg2: #111a16; --acc: #2fbf8a; --text: #ffffff; --muted: #b9cbc2;
     --f-logo: "Montserrat", "Arial Black", sans-serif;
     --f-ui: "Golos Text", "Segoe UI", system-ui, sans-serif;
   }
@@ -20,10 +20,10 @@
   /* слои фона: кадр → тонировка цветом → градиенты сверху/снизу → виньетка */
   .shot { position: absolute; inset: 0; background: center / cover no-repeat; opacity: 0; transition: opacity 1.6s ease; }
   .shot.on { opacity: 1; }
-  .tint { position: absolute; inset: 0; background: #1a6dff; mix-blend-mode: color; opacity: .6; }
+  .tint { position: absolute; inset: 0; background: #1f6b4f; mix-blend-mode: color; opacity: .6; }
   .grad { position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(4,16,58,.92) 0%, rgba(4,16,58,.25) 30%, rgba(4,16,58,.25) 55%, rgba(4,16,58,.96) 100%); }
-  .vign { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(2,8,30,.85) 100%); }
+    background: linear-gradient(180deg, rgba(8,13,11,.92) 0%, rgba(8,13,11,.25) 30%, rgba(8,13,11,.25) 55%, rgba(8,13,11,.96) 100%); }
+  .vign { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(3,7,5,.85) 100%); }
   /* пока кадров нет — плоский тёмно-синий фон без рисунков */
   body.noshots .grad { background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%); }
 
@@ -31,9 +31,9 @@
 
   .brand { display: flex; align-items: baseline; }
   .logo { position: relative; display: inline-block; font: italic 900 150px/1 var(--f-logo); letter-spacing: -.035em;
-    text-shadow: 0 0 30px rgba(140,200,255,.45); }
+    text-shadow: 0 0 30px rgba(140,230,190,.45); }
   .logo::after { content: ""; position: absolute; right: -24px; top: -6px; width: 38px; height: 38px; border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #9fe2ff, var(--acc) 55%, #0b74d6); }
+    background: radial-gradient(circle at 35% 35%, #8fe6c4, var(--acc) 55%, #1f8f66); }
   .rp { font: italic 900 46px var(--f-logo); color: var(--acc); margin-left: 22px; }
   .tag { margin-top: 18px; font: 500 18px var(--f-ui); color: var(--muted); }
 
@@ -50,9 +50,9 @@
   .load-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
   .status { font: 500 16px var(--f-ui); color: var(--muted); }
   .pct { font: italic 900 52px/1 var(--f-logo); }
-  .bar { height: 6px; background: rgba(183,200,232,.18); }
+  .bar { height: 6px; background: rgba(185,203,194,.18); }
   .fill { height: 100%; width: 0%; background: var(--acc); transition: width .6s ease; }
-  .log { margin-top: 12px; font: 600 13px var(--f-ui); color: rgba(183,200,232,.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .log { margin-top: 12px; font: 600 13px var(--f-ui); color: rgba(185,203,194,.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 </style>
 </head>
 <body class="noshots">

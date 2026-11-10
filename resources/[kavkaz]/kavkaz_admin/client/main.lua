@@ -167,3 +167,10 @@ end)
 RegisterNetEvent('kavkaz_admin:client:unjail', function()
     jailLeft = 0
 end)
+
+-- /aheal: здоровье до максимума и смыть кровь (qbx_medical лечит раны, а полоску здоровья ставим здесь)
+RegisterNetEvent('kavkaz_admin:client:heal', function()
+    local ped = PlayerPedId()
+    SetEntityHealth(ped, GetEntityMaxHealth(ped))
+    ClearPedBloodDamage(ped)
+end)

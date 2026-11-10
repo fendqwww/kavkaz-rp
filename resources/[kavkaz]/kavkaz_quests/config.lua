@@ -1,25 +1,28 @@
 Config = {}
 
+-- Ислам и Заур стоят у автовокзала (точка появления новичка, qbx_core defaultSpawn). высоту NPC клиент берёт по земле.
 -- ВАЖНО: координаты поставлены по известным местам GTA, без проверки в игре. сверить командой /mypos (kavkaz_map)
 -- и поправить здесь. здания под чайхану и автошколу пока нет — NPC стоят на улице.
 
 -- NPC: id -> модель и место
 Config.Npcs = {
     rumisa  = { name = 'Румиса Халвовна', model = 'a_f_m_soucent_02', coords = vec4(-717.5, -911.5, 19.2, 90.0),   scenario = 'WORLD_HUMAN_STAND_IMPATIENT', blip = { sprite = 93, color = 47, label = 'Чайхана «У Румисы»' } },
-    islam   = { name = 'Ислам', model = 'a_m_y_soucent_01', coords = vec4(193.0, -929.0, 30.69, 200.0),           scenario = 'WORLD_HUMAN_STAND_MOBILE', blip = { sprite = 280, color = 3, label = 'Ислам: помощь новичкам' } },
+    islam   = { name = 'Ислам', model = 'a_m_y_soucent_01', coords = vec4(462.0, -645.5, 28.45, 355.0),           scenario = 'WORLD_HUMAN_STAND_MOBILE', blip = { sprite = 280, color = 3, label = 'Ислам: помощь новичкам' } },
     isa     = { name = 'Иса Медович', model = 's_m_m_scientist_01', coords = vec4(-1637.0, 182.0, 61.76, 300.0),   scenario = 'WORLD_HUMAN_CLIPBOARD', blip = { sprite = 499, color = 2, label = 'Лаборатория Исы Медовича' } },
     zarema  = { name = 'Зарема Поворотовна', model = 'a_f_y_business_04', coords = vec4(-549.5, -199.5, 38.22, 210.0), scenario = 'WORLD_HUMAN_CLIPBOARD', blip = { sprite = 545, color = 3, label = 'Автошкола' } },
-    zaur    = { name = 'Заур (прокат скутеров)', model = 'a_m_y_business_02', coords = vec4(200.5, -936.0, 30.69, 70.0), scenario = 'WORLD_HUMAN_STAND_MOBILE', blip = { sprite = 348, color = 3, label = 'Прокат скутеров у Заура' } },
+    zaur    = { name = 'Заур (прокат скутеров)', model = 'a_m_y_business_02', coords = vec4(467.0, -644.0, 28.45, 100.0), scenario = 'WORLD_HUMAN_STAND_MOBILE', blip = { sprite = 348, color = 3, label = 'Прокат скутеров у Заура' } },
     -- линия «Закон»
     ruslan  = { name = 'Участковый Руслан Протоколович', model = 's_m_y_cop_01', coords = vec4(441.0, -982.0, 30.69, 90.0), scenario = 'WORLD_HUMAN_COP_IDLES',
                 idle = 'Порядок на участке — порядок в голове. Вопросы — заходи.' },
-    adam    = { name = 'Капитан Адам «Тауметр»', model = 's_m_y_hwaycop_01', coords = vec4(434.0, -975.0, 30.71, 90.0), scenario = 'WORLD_HUMAN_COP_IDLES',
+    adam    = { name = 'Капитан Адам «Тауметр»', model = 's_m_y_ranger_01', -- форма ДПС (kv_peds)
+                coords = vec4(434.0, -975.0, 30.71, 90.0), scenario = 'WORLD_HUMAN_COP_IDLES',
                 idle = 'Тонировка? Номер? Документы? …А, ты пешком. Ладно, иди.' },
-    vaha    = { name = 'Майор Ваха («Свадебный патруль»)', model = 's_m_m_ciasec_01', coords = vec4(425.0, -979.0, 30.71, 90.0), scenario = 'WORLD_HUMAN_STAND_IMPATIENT',
+    vaha    = { name = 'Майор Ваха («Свадебный патруль»)', model = 's_m_y_ranger_01', coords = vec4(425.0, -979.0, 30.71, 90.0), scenario = 'WORLD_HUMAN_STAND_IMPATIENT',
                 idle = 'Кортеж без разрешения — штраф. С разрешением — поздравляю. Всё просто.' },
     zulai   = { name = 'Тётя Зулай', model = 'a_f_m_downtown_01', coords = vec4(-40.0, -1450.0, 31.4, 180.0), scenario = 'WORLD_HUMAN_STAND_IMPATIENT',
                 idle = 'Ты слышал, что у соседей… а, ладно, потом расскажу.' },
-    ibragim = { name = 'Майор Ибрагим (ФСБ)', model = 's_m_m_fiboffice_01', coords = vec4(115.0, -760.0, 45.75, 160.0), scenario = 'WORLD_HUMAN_STAND_MOBILE',
+    ibragim = { name = 'Майор Ибрагим (ФСБ)', model = 's_m_y_blackops_01', -- форма ФСБ (kv_peds)
+                coords = vec4(115.0, -760.0, 45.75, 160.0), scenario = 'WORLD_HUMAN_STAND_MOBILE',
                 idle = 'Проходите, гражданин. Здесь не на что смотреть.' },
     -- линия «Бизнес»
     timur   = { name = 'Тимур «Бизнес»', model = 'a_m_y_business_03', coords = vec4(-117.0, -605.0, 36.28, 250.0), scenario = 'WORLD_HUMAN_STAND_MOBILE',
@@ -41,7 +44,7 @@ Config.Npcs = {
 
 -- места
 Config.Places = {
-    scooter = vec4(204.0, -939.5, 30.0, 70.0), -- где Заур ставит скутер (рядом с ним, на площадке)
+    scooter = vec4(469.5, -639.5, 28.45, 180.0), -- где Заур ставит скутер (у автовокзала, рядом с ним)
 }
 
 -- машины (модели GTA, пока нет своих: «Семёрка» — когда поставим мод)

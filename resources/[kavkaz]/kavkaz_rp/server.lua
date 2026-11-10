@@ -199,3 +199,22 @@ lib.addCommand('pay', {
 end)
 
 AddEventHandler('playerDropped', function() lastPay[source] = nil end)
+
+-- первая помощь от игрока: проверяем расстояние, что человек упал, и списываем аптечку
+local lastAid = {}
+RegisterNetEvent('kavkaz_rp:server:firstAid', function(target)
+    local src = source
+    target = tonumber(target)
+    if not target or target == src or not GetPlayerName(target) then return end
+    if (lastAid[src] or 0) + 8000 > GetGameTimer() then return end
+    lastAid[src] = GetGameTimer()
+    if #(GetEntityCoords(GetPlayerPed(src)) - GetEntityCoords(GetPlayerPed(target))) > 4.0 then return end
+    if not Player(target).state.isDead then return end
+    if not exports.ox_inventory:RemoveItem(src, 'firstaid', 1) then
+        return exports.qbx_core:Notify(src, 'Нужна аптечка', 'error')
+    end
+    exports.qbx_medical:Revive(target)
+    exports.qbx_core:Notify(src, 'Ты поднял человека. Пусть всё же доедет до больницы', 'success')
+    exports.qbx_core:Notify(target, 'Тебе оказали первую помощь', 'success')
+end)
+AddEventHandler('playerDropped', function() lastAid[source] = nil end)

@@ -4,9 +4,14 @@
 import base64, pathlib
 
 root = pathlib.Path(__file__).resolve().parent.parent
-font = root / 'resources' / '[kavkaz]' / 'kavkaz_plates' / 'html' / 'fonts' / 'golos-text.woff2'
-face = ("@font-face{font-family:'Golos Text';font-style:normal;font-weight:400 900;font-display:swap;"
-        f"src:url(data:font/woff2;base64,{base64.b64encode(font.read_bytes()).decode()}) format('woff2');}}")
+fonts = root / 'resources' / '[kavkaz]' / 'kavkaz_plates' / 'html' / 'fonts'
+CYR = 'U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116'
+LAT = 'U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC, U+20BD, U+2116, U+FEFF, U+FFFD'
+# единый шрифт Montserrat (OFL) под именем 'Golos Text' — так его уже ждут темы
+face = ''.join(
+    "@font-face{font-family:'Golos Text';font-style:normal;font-weight:100 900;font-display:swap;"
+    f"src:url(data:font/woff2;base64,{base64.b64encode((fonts / f'montserrat-{sub}.woff2').read_bytes()).decode()}) format('woff2');unicode-range:{rng};}}"
+    for sub, rng in (('cyrillic', CYR), ('latin', LAT)))
 
 targets = {
     'inventory.css': root / 'overrides' / 'resources' / '[ox]' / 'ox_inventory' / 'web' / 'build' / 'assets' / 'kavkaz-theme.css',

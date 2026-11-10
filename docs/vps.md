@@ -38,8 +38,8 @@ curl -fsSL https://raw.githubusercontent.com/fendqwww/kavkaz-rp/claude/zen-allen
 ```
 kavkaz-update --restart
 ```
-ставит админку, номера, квесты, штрафы, чат, карту, перевод и тему интерфейса, потом перезапускает сервер.
-таблицы в базе создаются сами при запуске.
+ставит все наши ресурсы (`resources/[kavkaz]`), переводы, тему интерфейса и чата, потом перезапускает сервер.
+таблицы в базе команда создаёт сама: применяет новые файлы из `sql/`, каждый один раз.
 
 ## 6. первый вход
 - в игре: F8 → `connect IP`;
@@ -73,6 +73,10 @@ kavkaz-update --restart
 модели машин в git не лежат (`resources/[cars]`, их собирает `setup/cars/build.py` на ПК).
 на VPS их закидывают в папку сервера `resources/[cars]` (WinSCP или `scp -r`), потом `kavkaz-update --restart`:
 команда сама пишет `cars.cfg` и ставит `ensure kavkaz_cars` перед `qbx_core`.
+
+## звуки СГУ
+записи сирен в git не лежат. их закидывают прямо в папку сервера `resources/[kavkaz]/kavkaz_sgu/html/sounds`
+(`.ogg` / `.wav`). `kavkaz-update` эти файлы не трогает и не удаляет.
 
 ## секреты
 - файл `/opt/kavkaz/secrets.cfg` есть только на VPS: пароль базы, а также всё, что допишем (вебхук Discord:
