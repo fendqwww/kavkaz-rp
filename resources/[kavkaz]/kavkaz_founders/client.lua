@@ -57,3 +57,28 @@ AddEventHandler('onResourceStop', function(res)
         for _, obj in ipairs(list) do DeleteObject(obj) end
     end
 end)
+
+-- основатели появляются у своей усадьбы при каждом входе в персонажа
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    local pd = exports.qbx_core:GetPlayerData()
+    local home
+    for _, f in ipairs(Config.Founders) do
+        if pd and pd.citizenid == f.citizenid then home = f.house end
+    end
+    if not home or not Config.SpawnAtHome then return end
+    Wait(2500) -- даём qbx_core закончить своё появление
+    DoScreenFadeOut(300)
+    while not IsScreenFadedOut() do Wait(0) end
+    local ped = PlayerPedId()
+    RequestCollisionAtCoord(home.x, home.y, home.z)
+    SetEntityCoords(ped, home.x, home.y, home.z + 1.0, false, false, false, false)
+    local t = GetGameTimer() + 3000
+    while not HasCollisionLoadedAroundEntity(ped) and GetGameTimer() < t do Wait(50) end
+    -- ближайшая точка, где можно стоять (двор у дома), а не внутри стен
+    local ok, safe = GetSafeCoordForPed(home.x, home.y, home.z, true, 16)
+    if ok then SetEntityCoords(ped, safe.x, safe.y, safe.z, false, false, false, false) end
+    SetEntityHeading(ped, home.w)
+    Wait(300)
+    DoScreenFadeIn(600)
+    lib.notify({ title = 'Усадьба', description = 'С возвращением домой. Гараж — у въезда с дороги (метка на карте).', type = 'inform' })
+end)
