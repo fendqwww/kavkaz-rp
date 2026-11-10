@@ -118,11 +118,33 @@ function quackShape(v, t, hi = 1800, lo = 560, len = 0.24) {
   v.gate.linearRampToValueAtTime(0, t + len);
 }
 
-// мелодии: функция расписывает один цикл с момента t и возвращает его длину (с)
+// мелодии: функция расписывает один цикл с момента t и возвращает его длину (с).
+// частоты и время сняты с записи настоящего российского СГУ (видео основателя, 11.11.2026, спектр по 10 мс):
+//   вой: 505 ↔ 1540 Гц, ~3 с вверх и ~3 с вниз; крякалка (йелп): 650 ↔ 1780 Гц, 0.40 с вверх, 0.42 с вниз;
+//   кряк: провал 1000 → 650 → 950 Гц за 0.24 с; гудок: ровный тон 770 Гц; ручной (MAN): 510 → 1250 Гц за 1 с, потолок ~1780.
+// крутить звук — здесь: TUNE (выше/ниже — частоты, быстрее/медленнее — времена).
+const TUNE = {
+  wail: { lo: 505, hi: 1540, up: 3.0, down: 3.0 },
+  yelp: { lo: 650, hi: 1780, up: 0.40, down: 0.42 },
+  quack: { start: 1000, low: 650, end: 950, len: 0.24 },
+  horn: 385,                      // основной тон гудка ×2 = 770 Гц на записи
+  manual: { from: 510, max: 1800, riseTau: 1.2, fallTau: 0.6, floor: 520 },
+};
+// «кряк» как на записи: быстрый провал и возврат
+function quackDip(v, t, k = 1) {
+  const q = TUNE.quack;
+  v.f.setValueAtTime(q.start * k, t);
+  v.f.exponentialRampToValueAtTime(q.low * k, t + q.len * 0.5);
+  v.f.exponentialRampToValueAtTime(q.end * k, t + q.len);
+  v.gate.setValueAtTime(0, t);
+  v.gate.linearRampToValueAtTime(1, t + 0.006);
+  v.gate.setValueAtTime(1, t + q.len - 0.02);
+  v.gate.linearRampToValueAtTime(0, t + q.len);
+}
 const TONES = {
-  wail(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(650, t); v.f.linearRampToValueAtTime(1450, t + 1.9); v.f.linearRampToValueAtTime(650, t + 3.8); return 3.8; },
-  yelp(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(650, t); v.f.linearRampToValueAtTime(1450, t + 0.3); return 0.32; },
-  phaser(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(820, t); v.f.linearRampToValueAtTime(1700, t + 0.09); return 0.1; },
+  wail(v, t) { const w = TUNE.wail; v.gate.setValueAtTime(1, t); v.f.setValueAtTime(w.lo, t); v.f.linearRampToValueAtTime(w.hi, t + w.up); v.f.linearRampToValueAtTime(w.lo, t + w.up + w.down); return w.up + w.down; },
+  yelp(v, t) { const y = TUNE.yelp; v.gate.setValueAtTime(1, t); v.f.setValueAtTime(y.lo, t); v.f.linearRampToValueAtTime(y.hi, t + y.up); v.f.linearRampToValueAtTime(y.lo, t + y.up + y.down); return y.up + y.down; },
+  phaser(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(700, t); v.f.linearRampToValueAtTime(1650, t + 0.09); return 0.1; },
   hilo(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(960, t); v.f.setValueAtTime(720, t + 0.55); return 1.1; },
   pulse(v, t) {
     for (let i = 0; i < 4; i++) {
@@ -132,12 +154,13 @@ const TONES = {
     }
     return 0.8;
   },
-  horn(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(233, t); return 1.0; },
-  krya(v, t) { quackShape(v, t); quackShape(v, t + 0.3); v.gate.setValueAtTime(0, t + 0.56); return 1.15; },
+  horn(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(TUNE.horn, t); return 1.0; },
+  // кря-кря: два «кряка» и пауза, как на записи (повтор ~0.75 с)
+  krya(v, t) { quackDip(v, t); quackDip(v, t + 0.3); v.gate.setValueAtTime(0, t + 0.56); return 0.75; },
   // фирменная «Хазард»: три коротких кряка и взлёт «уиу»
   hazard(v, t) {
     let s = t;
-    for (let i = 0; i < 3; i++) { quackShape(v, s, 1850, 720, 0.14); s += 0.19; }
+    for (let i = 0; i < 3; i++) { quackDip(v, s, 1.1); s += 0.19; }
     v.f.setValueAtTime(600, s);
     v.gate.setValueAtTime(1, s);
     v.f.exponentialRampToValueAtTime(1750, s + 0.55);
@@ -149,7 +172,7 @@ const TONES = {
   },
 };
 const OPTS = {
-  horn: { type: 'square', detune: [0, 702, 1200], band: 700 },
+  horn: { type: 'square', detune: [0, 1200, 1902], band: 780 }, // тон, октава (770 Гц) и квинта сверху — «пневма»-гудок
 };
 
 const loops = new Map(); // id -> { v, tone, next }
@@ -196,11 +219,40 @@ setInterval(() => {
 
 function quack(vol, pan) {
   if (SAMPLES.quack) { sampleVoice(SAMPLES.quack, vol, pan, false); return; }
-  const v = voice(vol, pan, { freq: 1600 });
+  const v = voice(vol, pan, { freq: 1000 });
   v.gate.setValueAtTime(0, ctx.currentTime);
   const t = ctx.currentTime + 0.01;
-  quackShape(v, t, 1800, 540, 0.3);
+  quackDip(v, t);
   for (const n of v.nodes) n.stop(t + 0.4);
+}
+
+// ручной режим (кнопка MAN): пока держишь — тон растёт к потолку, отпустил — плавно падает и затихает
+const manual = new Map(); // id -> { v, on }
+function manualSet(id, on, vol, pan) {
+  const m = TUNE.manual;
+  const t = ctx.currentTime;
+  let x = manual.get(id);
+  if (!x) {
+    if (!on) return;
+    const v = voice(vol, pan, { freq: m.from });
+    v.gate.setValueAtTime(1, t);
+    x = { v, on: false };
+    manual.set(id, x);
+  }
+  x.v.c.out.gain.setTargetAtTime(vol * BASE, t, 0.05);
+  x.v.c.pan.pan.setTargetAtTime(pan, t, 0.05);
+  if (on === x.on) return;
+  x.on = on;
+  x.v.f.cancelScheduledValues(t);
+  x.v.f.setValueAtTime(x.v.f.value, t);
+  if (on) {
+    x.v.f.setTargetAtTime(m.max, t, m.riseTau);
+    clearTimeout(x.timer);
+  } else {
+    x.v.f.setTargetAtTime(m.from - 60, t, m.fallTau);
+    clearTimeout(x.timer);
+    x.timer = setTimeout(() => { stopVoice(x.v); manual.delete(id); }, m.fallTau * 3400);
+  }
 }
 
 const $ = (id) => document.getElementById(id);
@@ -237,6 +289,7 @@ window.addEventListener('message', (e) => {
   if (d.action === 'flash') return flash(d.which);
   if (ctx.state !== 'running') ctx.resume();
   if (d.action === 'quack') quack(d.vol, d.pan || 0);
+  if (d.action === 'manual') manualSet(d.id, !!d.on, d.vol || 0, d.pan || 0);
   else if (d.action === 'loop') {
     const l = loops.get(d.id);
     if (l && l.tone !== d.tone) stopLoop(d.id);
@@ -257,6 +310,7 @@ if (location.search.includes('preview')) {
   const add = (label, fn) => { const b = document.createElement('button'); b.textContent = label; b.style.margin = '4px'; b.onclick = () => { ctx.resume(); fn(); }; document.body.appendChild(b); };
   add('кряк', () => quack(1, 0));
   for (const t of Object.keys(TONES)) add(t, () => { stopLoop(1); startLoop(1, t, 1, 0); });
+  add('MAN (держать 2 с)', () => { manualSet('m', true, 1, 0); setTimeout(() => manualSet('m', false, 1, 0), 2000); });
   add('стоп', () => stopLoop(1));
   panel({ show: true, label: 'Хазард 7007 Про', tones: ['«Хазард»', 'Вой', 'Йелп', 'Двухтон', 'Фазер', 'Пульс', 'Горн', 'Кря-кря'], index: 1, on: true, strobe: true, canStrobe: true, keys: { quack: 'G', tone: 'J', next: 'U', strobe: 'O' } });
 }
