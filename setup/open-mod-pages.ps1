@@ -3,7 +3,7 @@
 # запуск: powershell -ExecutionPolicy Bypass -File setup\open-mod-pages.ps1
 #
 # машины (docs/vision/19-car-models-todo.md): открыть поиск моделей на gta5-mods.com и forum.cfx.re
-#   -Cars                    первые 8 (Камри 80, Приора, LC300, G 63, M5, 2114, УАЗ ДПС, Октавия ДПС)
+#   -Cars                    первые 9 (Камри 80, Приора, LC300, G 63, M5, 2114, УАЗ ДПС, Октавия ДПС, «Семёрка»)
 #   -Cars all                все машины
 #   -Cars kv_priora,kv_g63   выборочно, по именам спавна
 # скачанный архив назови именем спавна (kv_priora.zip) и положи в C:\kavkaz\mods-inbox\cars
@@ -22,7 +22,7 @@ if ($PSBoundParameters.ContainsKey('Cars')) {
         kv_gazel_taxi = 'gazel next'; kv_gazel_ems = 'gazel ambulance'; kv_liaz = 'liaz 5292'; kv_tow = 'kamaz evacuator'
         kv_truck = 'kamaz 5490'; kv_mchs = 'kamaz fire truck'
     }
-    $first = @('kv_camry80', 'kv_priora', 'kv_lc300', 'kv_g63', 'kv_m5f90', 'kv_vaz2114', 'kv_uaz_dps', 'kv_octavia_dps')
+    $first = @('kv_camry80', 'kv_priora', 'kv_lc300', 'kv_g63', 'kv_m5f90', 'kv_vaz2114', 'kv_uaz_dps', 'kv_octavia_dps', 'kv_vaz2107')
     $list = if (-not $Cars -or $Cars.Count -eq 0) { $first } elseif ($Cars[0] -eq 'all') { @($query.Keys) } else { $Cars -split ',' | ForEach-Object { $_.Trim() } }
     New-Item -ItemType Directory -Force -Path 'C:\kavkaz\mods-inbox\cars' | Out-Null
     $opened = 0
