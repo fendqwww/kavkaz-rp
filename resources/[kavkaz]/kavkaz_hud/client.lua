@@ -277,6 +277,14 @@ lib.addKeybind({
     end,
 })
 
+-- для меню игрока (kavkaz_menu)
+exports('GetHints', function() return not hintsOff end)
+exports('SetHints', function(state)
+    hintsOff = not state
+    SetResourceKvpInt(HINTS_KVP, hintsOff and 1 or 0)
+    sendHints()
+end)
+
 RegisterCommand('hud', function()
     userHidden = not userHidden
     exports.qbx_core:Notify(userHidden and 'Интерфейс скрыт. /hud — вернуть' or 'Интерфейс снова виден', 'inform')

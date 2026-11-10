@@ -497,3 +497,40 @@ cmd('asgu', 'sgu', 'Поставить или снять СГУ «Хазард»
         Admin.log(src, 'sgu', args.target, args.model)
     end
 end)
+
+---------------------------------------------------------------------------
+-- оружие: /aweapon ID оружие [патроны] — по-русски или кодом GTA (WEAPON_PISTOL)
+---------------------------------------------------------------------------
+
+Admin.Weapons = {
+    { 'пистолет', 'WEAPON_PISTOL', 'Пистолет' }, { 'боевой', 'WEAPON_COMBATPISTOL', 'Боевой пистолет' },
+    { 'тяжёлый', 'WEAPON_HEAVYPISTOL', 'Тяжёлый пистолет' }, { 'револьвер', 'WEAPON_REVOLVER', 'Револьвер' },
+    { 'шокер', 'WEAPON_STUNGUN', 'Электрошокер' }, { 'пп', 'WEAPON_SMG', 'Пистолет-пулемёт' },
+    { 'автомат', 'WEAPON_ASSAULTRIFLE', 'Автомат' }, { 'ксюха', 'WEAPON_COMPACTRIFLE', 'Укороченный автомат' },
+    { 'карабин', 'WEAPON_CARBINERIFLE', 'Карабин' }, { 'дробовик', 'WEAPON_PUMPSHOTGUN', 'Помповый дробовик' },
+    { 'снайперка', 'WEAPON_SNIPERRIFLE', 'Снайперская винтовка' }, { 'нож', 'WEAPON_KNIFE', 'Нож' },
+    { 'бита', 'WEAPON_BAT', 'Бита' }, { 'дубинка', 'WEAPON_NIGHTSTICK', 'Дубинка' },
+    { 'фонарик', 'WEAPON_FLASHLIGHT', 'Фонарик' }, { 'огнетушитель', 'WEAPON_FIREEXTINGUISHER', 'Огнетушитель' },
+}
+local WEAPON_BY = {}
+for _, w in ipairs(Admin.Weapons) do WEAPON_BY[w[1]] = w[2]; WEAPON_BY[w[2]:lower()] = w[2] end
+WEAPON_BY['тяжелый'] = 'WEAPON_HEAVYPISTOL'
+
+cmd('aweapon', 'giveweapon', 'Выдать оружие с патронами', {
+    P_TARGET,
+    { name = 'weapon', type = 'string', help = 'пистолет, автомат, карабин, дробовик, снайперка, нож, бита, шокер … или WEAPON_…' },
+    { name = 'ammo', type = 'number', help = 'патронов (по умолчанию 60)', optional = true },
+}, function(src, args)
+    local target = args.target
+    local key = args.weapon:lower()
+    local name = WEAPON_BY[key] or (key:find('^weapon_') and key:upper()) or nil
+    local item = name and exports.ox_inventory:Items(name)
+    if not item then return Admin.notify(src, 'нет такого оружия. пример: /aweapon 12 пистолет 60', 'error') end
+    if not exports.ox_inventory:CanCarryItem(target, name, 1) then return Admin.notify(src, 'у игрока нет места', 'error') end
+    exports.ox_inventory:AddItem(target, name, 1, { registered = Admin.label(src), serial = 'ADM' .. math.random(10000, 99999) })
+    local ammo = math.max(0, math.min(500, math.floor(args.ammo or 60)))
+    if item.ammoname and ammo > 0 then exports.ox_inventory:AddItem(target, item.ammoname, ammo) end
+    Admin.notify(src, ('выдано: %s%s'):format(item.label, (item.ammoname and ammo > 0) and (' + ' .. ammo .. ' патр.') or ''), 'success')
+    if target ~= src then Admin.notify(target, 'администратор выдал тебе: ' .. item.label, 'inform') end
+    Admin.log(src, 'giveweapon', target, ('%s +%d'):format(name, ammo))
+end)

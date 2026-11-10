@@ -23,7 +23,7 @@ Config.Perms = {
     kick = 2, mute = 2, ajail = 2, warn = 2, revive = 2, freeze = 2, check = 2,
     afix = 2, adv = 2, aflip = 2, heal = 2, feed = 2,
     armor = 3, ban = 3, noclip = 3, clicktp = 3, atpm = 3, tpc = 3, invis = 3, aveh = 3, disarm = 3,
-    healall = 4, weather = 4, time = 4, sgu = 4,
+    healall = 4, weather = 4, time = 4, sgu = 4, giveweapon = 4,
     unban = 4, giveitem = 4, givecar = 4, setjob = 4, setgang = 4, setleader = 4, announce = 4,
     givemoney = 5, setmoney = 5, setadmin = 5, banforever = 5, logs = 5,
     resetpin = 6,

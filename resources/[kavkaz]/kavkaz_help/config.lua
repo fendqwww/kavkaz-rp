@@ -31,6 +31,7 @@ C{ tab = 'general', cmd = 'gaid', side = 'client', ex = '/gaid', desc = 'пам�
 C{ tab = 'general', cmd = 'id', src = 'qbox', ex = '/id', desc = 'узнать свой ID' }
 C{ tab = 'general', cmd = 'report', p = { { 'текст', 'что случилось' } }, ex = '/report застрял в стене у мэрии', desc = 'написать администрации, не чаще раза в минуту' }
 C{ tab = 'general', cmd = 'pay', p = { { 'ID', 'кому' }, { 'сумма', 'в рублях' } }, ex = '/pay 12 5000', desc = 'передать наличные игроку рядом (до 3 м)' }
+C{ tab = 'general', key = 'F4', cmd = 'menu', side = 'client', ex = '/menu', desc = 'меню игрока: профиль, статистика, безопасность, промокод, настройки, помощь' }
 C{ tab = 'general', key = 'F5', cmd = 'gps', side = 'client', ex = '/gps', desc = 'навигатор: с чего начать, работа, госучреждения, ближайший магазин или заправка — ставит метку на карте' }
 C{ tab = 'general', cmd = 'hud', side = 'client', ex = '/hud', desc = 'спрятать или показать интерфейс (для скриншотов)' }
 C{ tab = 'general', key = 'G', title = 'СГУ: кряк', ex = 'G в машине', desc = 'если стоит СГУ «Хазард 7007» или служебное. J — мелодия вкл/выкл, U — сменить мелодию, O — стробоскоп (Про)' }
@@ -85,6 +86,8 @@ C{ tab = 'admin', cmd = 'ajail', perm = 'ajail', p = { { 'ID', '' }, { 'мину
 C{ tab = 'admin', cmd = 'unjail', perm = 'ajail', p = { { 'ID', '' } }, ex = '/unjail 12', desc = 'выпустить из админ-тюрьмы' }
 C{ tab = 'admin', cmd = 'warn', perm = 'warn', p = { { 'ID', '' }, { 'причина', '' } }, ex = '/warn 12 нон-РП', desc = 'предупреждение; три — бан на 3 дня' }
 C{ tab = 'admin', cmd = 'arevive', perm = 'revive', p = { { '[ID]', 'пусто — себя' } }, ex = '/arevive 12', desc = 'поднять и вылечить' }
+C{ tab = 'admin', cmd = 'apromo', perm = 'givemoney', p = { { 'код', 'латиница и цифры' }, { 'тип', 'cash, bank, item:название, car:kv_модель' }, { 'сумма', 'или количество' }, { '[раз]', 'сколько активаций, по умолчанию 1' } }, ex = '/apromo START cash 50000 100', desc = 'создать промокод (игроки вводят в F4 → Промокод)' }
+C{ tab = 'admin', cmd = 'aweapon', perm = 'giveweapon', p = { { 'ID', 'кому (свой ID — себе)' }, { 'оружие', 'пистолет, автомат, карабин, дробовик, снайперка, нож, бита, шокер …' }, { '[патроны]', 'по умолчанию 60' } }, ex = '/aweapon 12 пистолет 60', desc = 'выдать оружие с патронами (то же — F10 → игрок)' }
 C{ tab = 'admin', cmd = 'aheal', perm = 'heal', p = { { '[ID]', 'пусто — себя' } }, ex = '/aheal 12', desc = 'вылечить: здоровье 100% (без поднятия)' }
 C{ tab = 'admin', cmd = 'afeed', perm = 'feed', p = { { '[ID]', 'пусто — себя' } }, ex = '/afeed 12', desc = 'накормить и напоить: еда и вода 100%, стресс 0' }
 C{ tab = 'admin', cmd = 'aarmor', perm = 'armor', p = { { '[ID]', 'пусто — себя' }, { '[броня]', '0–100, по умолчанию 100' } }, ex = '/aarmor 12 50', desc = 'выдать броню' }

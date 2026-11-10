@@ -71,6 +71,17 @@ openPlayer = function(p)
             item('disarm', { title = 'Забрать оружие', icon = 'gun', onSelect = function()
                 local i = ask('Изъять оружие', { F_REASON }) if i then run('disarm %d %s', id, clean(i[1])) end
             end }),
+            item('giveweapon', { title = 'Выдать оружие', icon = 'gun', onSelect = function()
+                local W = { { 'пистолет', 'Пистолет' }, { 'боевой', 'Боевой пистолет' }, { 'тяжёлый', 'Тяжёлый пистолет' }, { 'револьвер', 'Револьвер' },
+                    { 'шокер', 'Электрошокер' }, { 'пп', 'Пистолет-пулемёт' }, { 'автомат', 'Автомат' }, { 'ксюха', 'Укороченный автомат' },
+                    { 'карабин', 'Карабин' }, { 'дробовик', 'Помповый дробовик' }, { 'снайперка', 'Снайперская винтовка' },
+                    { 'нож', 'Нож' }, { 'бита', 'Бита' }, { 'дубинка', 'Дубинка' }, { 'фонарик', 'Фонарик' } }
+                local opts = {}
+                for _, w in ipairs(W) do opts[#opts + 1] = { value = w[1], label = w[2] } end
+                local i = ask('Выдать оружие', { { type = 'select', label = 'оружие', required = true, options = opts },
+                    { type = 'number', label = 'патронов', default = 60, min = 0, max = 500 } })
+                if i then run('aweapon %d %s %d', id, i[1], i[2] or 0) end
+            end }),
             item('givemoney', { title = 'Выдать рубли', icon = 'ruble-sign', onSelect = function()
                 local i = ask('Выдать рубли', {
                     { type = 'select', label = 'счёт', required = true, default = 'cash', options = { { value = 'cash', label = 'наличные' }, { value = 'bank', label = 'банк' } } },

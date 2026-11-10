@@ -65,7 +65,8 @@ const BASE = 0.38;
 
 const comp = ctx.createDynamicsCompressor();
 comp.threshold.value = -14; comp.ratio.value = 6;
-comp.connect(ctx.destination);
+const master = ctx.createGain(); master.gain.value = 1;
+comp.connect(master); master.connect(ctx.destination);
 
 function shaperCurve(k) {
   const n = 1024, c = new Float32Array(n);
@@ -231,6 +232,7 @@ function flash(which) {
 
 window.addEventListener('message', (e) => {
   const d = e.data || {};
+  if (d.action === 'volume') { master.gain.value = Math.max(0, Math.min(1, d.value)); return; }
   if (d.action === 'panel') return panel(d);
   if (d.action === 'flash') return flash(d.which);
   if (ctx.state !== 'running') ctx.resume();

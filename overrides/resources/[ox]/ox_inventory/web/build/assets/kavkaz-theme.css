@@ -114,3 +114,33 @@ body, .app-wrapper, .app-wrapper * { font-family: var(--kz-font) !important; }
 
 .useful-controls-dialog { background: #121a17 !important; border: 1px solid var(--kz-line); border-radius: 8px !important; color: var(--kz-text); }
 .useful-controls-dialog-title { color: var(--kz-text); font-weight: 600; }
+
+/* ===== вид как у крупных RP-проектов: окружение слева, инвентарь справа, серые полупрозрачные панели, крупные иконки ===== */
+.inventory-wrapper { flex-direction: row-reverse; gap: 22px; }
+.inventory-grid-wrapper {
+  background: rgba(28, 31, 33, 0.86) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 12px !important;
+  backdrop-filter: blur(6px);
+  padding: 14px !important;
+}
+.inventory-grid-header-wrapper { margin-bottom: 6px; }
+.inventory-grid-header-wrapper p { font-size: 15px !important; font-weight: 700 !important; }
+.inventory-grid-header-wrapper p:last-child { color: var(--kz-sky) !important; font-weight: 700 !important; }
+.inventory-grid-container { gap: 6px !important; }
+.inventory-slot {
+  background-color: rgba(255, 255, 255, 0.055) !important;
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  background-size: 72% !important;
+}
+.inventory-slot:hover { background-color: rgba(255, 255, 255, 0.11) !important; border-color: var(--kz-sky) !important; }
+.inventory-slot-label-box { background: transparent !important; }
+.inventory-slot-label-text { font-size: 10.5px !important; color: rgba(255, 255, 255, 0.75); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9); }
+.item-slot-header-wrapper p { color: #fff !important; font-weight: 700 !important; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9); }
+.weight-bar { background: rgba(255, 255, 255, 0.08) !important; }
+.weight-bar div, .durability-bar div { background: var(--kz-sky) !important; }
+.inventory-control .inventory-control-input, .inventory-control .inventory-control-button {
+  background: rgba(28, 31, 33, 0.86) !important; border-color: rgba(255, 255, 255, 0.08) !important; border-radius: 10px !important;
+}
+.hotbar-item-slot { background-color: rgba(28, 31, 33, 0.82) !important; border-radius: 8px !important; }

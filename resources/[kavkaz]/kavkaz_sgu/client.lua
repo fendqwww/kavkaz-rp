@@ -5,6 +5,17 @@ local toneIndex = 1
 local active = {}   -- netId -> мелодия (машины рядом с включённым СГУ)
 local strobing = {} -- машины со стробоскопом (мигает тот, кто ими управляет)
 
+-- громкость СГУ на этом ПК (меню игрока → настройки), 0–100
+local volume = GetResourceKvpInt('volume_set') == 1 and GetResourceKvpInt('volume') or 100
+CreateThread(function() Wait(1000) SendNUIMessage({ action = 'volume', value = volume / 100 }) end)
+exports('GetVolume', function() return volume end)
+exports('SetVolume', function(v)
+    volume = math.max(0, math.min(100, math.floor(v)))
+    SetResourceKvpInt('volume', volume)
+    SetResourceKvpInt('volume_set', 1)
+    SendNUIMessage({ action = 'volume', value = volume / 100 })
+end)
+
 local function notify(text, kind) lib.notify({ title = 'СГУ', description = text, type = kind or 'inform' }) end
 local function model() return myModel and Config.Models[myModel] end
 
