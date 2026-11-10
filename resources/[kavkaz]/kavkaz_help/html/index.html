@@ -5,19 +5,19 @@
 <title>KAVKAZ RP — команды</title>
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
-  /* тот же стиль, что у памятки kavkaz_start: тёмно-синий, небесно-синий акцент, Golos Text; Montserrat — только логотип */
+  /* тот же стиль, что у памятки kavkaz_start: тёмно-синий, изумрудный акцент, Golos Text; Montserrat — только логотип */
   :root {
-    --bg: #111a26; --panel: #172231; --line: #2a3a4d;
-    --acc: #3d93d8; --text: #eef2f6; --muted: #9fb0c2;
+    --bg: #0f1614; --panel: #151f1b; --line: #2a3832;
+    --acc: #2fbf8a; --text: #edf3ef; --muted: #9db0a7;
     --f-logo: "Montserrat", "Arial Black", sans-serif;
     --f-ui: "Golos Text", "Segoe UI", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
   body { font: 400 16px/1.5 var(--f-ui); color: var(--text); user-select: none; }
-  body.preview { background: #1b2a4a; }
+  body.preview { background: #1a2b24; }
 
-  .shade { position: fixed; inset: 0; background: rgba(8,12,18,.6); display: none; align-items: center; justify-content: center; }
+  .shade { position: fixed; inset: 0; background: rgba(6,10,8,.6); display: none; align-items: center; justify-content: center; }
   .shade.open { display: flex; }
 
   .card { width: 980px; max-width: calc(100vw - 48px); height: min(760px, calc(100vh - 48px)); display: flex; flex-direction: column;
@@ -26,7 +26,7 @@
   .brand { display: flex; align-items: baseline; }
   .logo { position: relative; font: italic 900 30px/1 var(--f-logo); letter-spacing: -.03em; }
   .logo::after { content: ""; position: absolute; right: -10px; top: -3px; width: 12px; height: 12px; border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #9fe2ff, var(--acc) 55%, #0b74d6); }
+    background: radial-gradient(circle at 35% 35%, #8fe6c4, var(--acc) 55%, #1f8f66); }
   .rp { font: italic 900 13px var(--f-logo); color: var(--acc); margin-left: 12px; }
 
   h1 { margin-top: 18px; font: 600 26px/1.2 var(--f-ui); }
@@ -40,22 +40,22 @@
   .list { flex: 1; overflow-y: auto; margin-top: 6px; padding-right: 6px; }
   .list::-webkit-scrollbar { width: 6px; }
   .list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
-  .row { display: grid; grid-template-columns: 300px 1fr; gap: 4px 24px; padding: 12px 0; border-bottom: 1px solid #1f2d3e; }
+  .row { display: grid; grid-template-columns: 300px 1fr; gap: 4px 24px; padding: 12px 0; border-bottom: 1px solid #1d2a25; }
   .cmd { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font: 600 15px var(--f-ui); }
-  .cmd code { font: 600 15px var(--f-ui); color: #cfe6fa; }
+  .cmd code { font: 600 15px var(--f-ui); color: #d3f2e4; }
   kbd { flex: none; min-width: 40px; padding: 1px 8px; border-radius: 6px; text-align: center;
-    font: 600 13px var(--f-ui); color: var(--text); background: #243347; border: 1px solid #3a4c62; border-bottom-width: 2px; }
+    font: 600 13px var(--f-ui); color: var(--text); background: #22302a; border: 1px solid #3a4a43; border-bottom-width: 2px; }
   .lvl { font: 600 12px var(--f-ui); color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; }
   .desc { font-size: 15px; }
   .ex { grid-column: 2; font-size: 14px; color: var(--muted); }
-  .ex span { color: #b9cbdc; }
+  .ex span { color: #bfd0c7; }
 
   .foot { margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
   .note { color: var(--muted); font-size: 14px; }
   .note b { color: var(--text); font-weight: 600; }
   .main { cursor: pointer; border: 0; border-radius: 6px; padding: 12px 34px; font: 600 16px var(--f-ui); color: #fff; background: var(--acc); }
-  .main:hover { background: #2f7fc0; }
-  button:focus-visible { outline: 2px solid #8cc4ef; outline-offset: 2px; }
+  .main:hover { background: #1f8f66; }
+  button:focus-visible { outline: 2px solid #6fd3a8; outline-offset: 2px; }
 </style>
 </head>
 <body>

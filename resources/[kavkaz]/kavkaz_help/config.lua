@@ -31,6 +31,8 @@ C{ tab = 'general', cmd = 'gaid', side = 'client', ex = '/gaid', desc = 'пам�
 C{ tab = 'general', cmd = 'id', src = 'qbox', ex = '/id', desc = 'узнать свой ID' }
 C{ tab = 'general', cmd = 'report', p = { { 'текст', 'что случилось' } }, ex = '/report застрял в стене у мэрии', desc = 'написать администрации, не чаще раза в минуту' }
 C{ tab = 'general', cmd = 'pay', p = { { 'ID', 'кому' }, { 'сумма', 'в рублях' } }, ex = '/pay 12 5000', desc = 'передать наличные игроку рядом (до 3 м)' }
+C{ tab = 'general', cmd = 'hud', side = 'client', ex = '/hud', desc = 'спрятать или показать интерфейс (для скриншотов)' }
+C{ tab = 'general', key = 'G', title = 'СГУ: кряк', ex = 'G в машине', desc = 'если стоит СГУ «Хазард 7007» или служебное. J — мелодия вкл/выкл, U — сменить мелодию, O — стробоскоп (Про)' }
 
 -- чаты
 C{ tab = 'chats', key = 'T', title = 'обычный текст', ex = 'Салам, брат', desc = 'речь персонажа, слышно рядом (15 м)' }
@@ -102,6 +104,7 @@ C{ tab = 'admin', cmd = 'agiveitem', perm = 'giveitem', p = { { 'ID', '' }, { '�
 C{ tab = 'admin', cmd = 'agivecar', perm = 'givecar', p = { { 'ID', '' }, { 'модель', '' }, { 'причина', '' } }, ex = '/agivecar 12 kv_priora компенсация', desc = 'выдать машину в гараж (номер — транзит от kavkaz_plates)' }
 C{ tab = 'admin', cmd = 'kavkaz_cars', ace = 'command.kavkaz_cars', ex = 'kavkaz_cars', desc = 'консоль сервера: автопарк — какие машины настоящие, какие на заглушках, вес' }
 C{ tab = 'admin', cmd = 'kavkaz_cars_migrate', ace = 'command.kavkaz_cars_migrate', p = { { '[apply]', 'без apply — только показать' } }, ex = 'kavkaz_cars_migrate apply', desc = 'консоль: перевести купленные машины с заглушки на настоящую модель' }
+C{ tab = 'admin', cmd = 'asgu', ace = 'command.asgu', p = { { 'модель', 'mini, std, pro или off' } }, ex = '/asgu pro', desc = 'поставить или снять СГУ «Хазард» на свою машину из гаража, в которой сидишь' }
 C{ tab = 'admin', cmd = 'asetjob', perm = 'setjob', p = { { 'ID', '' }, { 'работа', 'например police' }, { 'ранг', '' }, { 'причина', '' } }, ex = '/asetjob 12 police 0 набор', desc = 'назначить работу и ранг' }
 C{ tab = 'admin', cmd = 'asetgang', perm = 'setgang', p = { { 'ID', '' }, { 'банда', '' }, { 'ранг', '' }, { 'причина', '' } }, ex = '/asetgang 12 ballas 0 заявка', desc = 'назначить банду и ранг' }
 C{ tab = 'admin', cmd = 'setleader', perm = 'setleader', p = { { 'ID', '' }, { 'организация', 'работа или банда' }, { 'причина', '' } }, ex = '/setleader 12 police выборы', desc = 'назначить лидера организации' }

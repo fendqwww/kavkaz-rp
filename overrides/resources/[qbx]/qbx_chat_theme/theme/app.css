@@ -1,0 +1,125 @@
+/* KAVKAZ: свой вид чата поверх qbx_chat_theme (overrides). было: серые плашки Mantine и «утка» Qbox в строке ввода.
+   цвета: тёмный #0F1412, изумруд #2FBF8A, золото #E3B341 (docs/vision/21, блок 2). */
+@font-face {
+    font-family: 'Golos Text';
+    src: url('golos-text.woff2') format('woff2');
+    font-weight: 400 900;
+}
+
+* {
+    font-family: 'Golos Text', 'Segoe UI', Arial, sans-serif !important;
+    margin: 0;
+    padding: 0;
+}
+
+#app {
+    -webkit-font-smoothing: antialiased;
+    color: #e8efea;
+    font-size: 0.86rem;
+}
+
+.chat-window {
+    height: 26% !important;
+    background: none !important;
+    left: 1.2% !important;
+    top: 2.5% !important;
+}
+
+.chat-messages {
+    height: 100%;
+    margin: 0;
+    font-size: inherit;
+    color: #e8efea;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 1.5rem);
+}
+
+.msg { margin: 0.28rem 0; }
+
+.message-wrapper {
+    display: block;
+    padding: 0.38rem 0.7rem;
+    overflow-wrap: anywhere;
+    width: fit-content;
+    max-width: 100%;
+    line-height: 1.35;
+    background: rgba(15, 20, 18, 0.72);
+    border: 0;
+    border-left: 3px solid #2fbf8a;
+    border-radius: 0.35rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.message-wrapper > span { display: inline; }
+
+.author {
+    display: inline;
+    margin-right: 0.4rem;
+    color: #2fbf8a;
+    font-weight: 700;
+}
+.alt { color: #e8efea; }
+.author, .author.alt { color: #2fbf8a; }
+.console { color: #e3b341; font-weight: 700; }
+.join, .quit { color: #8fa39a; font-size: 0.8rem; }
+.message-wrapper:has(.join) { border-left-color: #2fbf8a; }
+.message-wrapper:has(.quit) { border-left-color: #e5534b; }
+.message-wrapper:has(.console) { border-left-color: #e3b341; }
+
+.print, .print * { font-family: Consolas, monospace !important; }
+
+.multiline { margin-left: 0; text-indent: 0; }
+
+.chat-input {
+    top: 30% !important;
+    left: 1.2% !important;
+    background: none;
+    font-size: inherit;
+}
+
+.chat-input > div.input {
+    align-items: center;
+    background: rgba(15, 20, 18, 0.92);
+    border: 1px solid #2fbf8a;
+    border-radius: 0.45rem;
+    box-shadow: 0 0 0 3px rgba(47, 191, 138, 0.15);
+}
+.chat-input > div.input::after { content: none; }
+
+textarea {
+    display: block;
+    min-height: 100% !important;
+    padding: 0.45rem 0.75rem 0.45rem 0.4rem;
+    resize: none;
+    box-sizing: content-box;
+    line-height: 1.5rem;
+    font-size: inherit;
+    color: #e8efea;
+    background: transparent;
+    border-width: 0;
+}
+
+.prefix {
+    height: fit-content;
+    margin: 0;
+    padding-left: 0.75rem;
+    line-height: 1rem;
+    font-size: inherit;
+    font-weight: 800;
+    color: #2fbf8a;
+}
+
+.suggestions {
+    margin-top: 0.3rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.82rem;
+    color: #e8efea;
+    background: rgba(15, 20, 18, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.45rem;
+}
+.suggestion { margin: 0.35rem 0; font-weight: 700; color: #e8efea; }
+.suggestion * { font-family: 'Golos Text', sans-serif !important; }
+.help { color: #8fa39a; font-weight: 400; }
+.disabled { color: #5d6e66; font-weight: 400; }
+
+.chat-hide-state { position: absolute; }

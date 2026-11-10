@@ -5,19 +5,19 @@
 <title>KAVKAZ RP — памятка</title>
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
-  /* спокойный плоский стиль: тёмно-синий фон, небесно-синий акцент, шрифт Golos Text; Montserrat — только логотип */
+  /* спокойный плоский стиль: тёмно-синий фон, изумрудный акцент, шрифт Golos Text; Montserrat — только логотип */
   :root {
-    --bg: #111a26; --panel: #172231; --line: #2a3a4d;
-    --acc: #3d93d8; --text: #eef2f6; --muted: #9fb0c2;
+    --bg: #0f1614; --panel: #151f1b; --line: #2a3832;
+    --acc: #2fbf8a; --text: #edf3ef; --muted: #9db0a7;
     --f-logo: "Montserrat", "Arial Black", sans-serif;
     --f-ui: "Golos Text", "Segoe UI", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
   body { font: 400 16px/1.5 var(--f-ui); color: var(--text); user-select: none; }
-  body.preview { background: #1b2a4a; }
+  body.preview { background: #1a2b24; }
 
-  .shade { position: fixed; inset: 0; background: rgba(8,12,18,.6); display: none; align-items: center; justify-content: center; }
+  .shade { position: fixed; inset: 0; background: rgba(6,10,8,.6); display: none; align-items: center; justify-content: center; }
   .shade.open { display: flex; }
 
   .card { width: 940px; max-width: calc(100vw - 48px); background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
@@ -26,7 +26,7 @@
   .brand { display: flex; align-items: baseline; }
   .logo { position: relative; font: italic 900 34px/1 var(--f-logo); letter-spacing: -.03em; }
   .logo::after { content: ""; position: absolute; right: -11px; top: -3px; width: 13px; height: 13px; border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #9fe2ff, var(--acc) 55%, #0b74d6); }
+    background: radial-gradient(circle at 35% 35%, #8fe6c4, var(--acc) 55%, #1f8f66); }
   .rp { font: italic 900 14px var(--f-logo); color: var(--acc); margin-left: 12px; }
 
   h1 { margin-top: 22px; font: 600 28px/1.2 var(--f-ui); }
@@ -42,15 +42,15 @@
   .keys { margin-top: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 28px; }
   .key { display: flex; align-items: center; gap: 12px; font-size: 16px; }
   kbd { flex: none; min-width: 52px; padding: 3px 10px; border-radius: 6px; text-align: center;
-    font: 600 14px var(--f-ui); color: var(--text); background: #243347; border: 1px solid #3a4c62; border-bottom-width: 2px; }
+    font: 600 14px var(--f-ui); color: var(--text); background: #22302a; border: 1px solid #3a4a43; border-bottom-width: 2px; }
 
   .foot { margin-top: 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
   .note { color: var(--muted); font-size: 14px; }
   .note b { color: var(--text); font-weight: 600; }
   button { cursor: pointer; border: 0; border-radius: 6px; padding: 12px 34px; font: 600 16px var(--f-ui);
     color: #fff; background: var(--acc); }
-  button:hover { background: #2f7fc0; }
-  button:focus-visible { outline: 2px solid #8cc4ef; outline-offset: 2px; }
+  button:hover { background: #1f8f66; }
+  button:focus-visible { outline: 2px solid #6fd3a8; outline-offset: 2px; }
 </style>
 </head>
 <body>

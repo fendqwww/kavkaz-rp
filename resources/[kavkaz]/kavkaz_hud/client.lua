@@ -236,7 +236,6 @@ RegisterCommand('hud', function()
     userHidden = not userHidden
     exports.qbx_core:Notify(userHidden and 'Интерфейс скрыт. /hud — вернуть' or 'Интерфейс снова виден', 'inform')
 end, false)
-TriggerEvent('chat:addSuggestion', '/hud', 'Спрятать или показать интерфейс (для скриншотов)')
 
 -- exports.kavkaz_hud:SetVisible(false) — спрятать HUD из другого ресурса
 exports('SetVisible', function(state) userHidden = not state end)

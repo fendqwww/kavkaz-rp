@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>KAVKAZ СГУ</title></head>
+<body style="background:transparent">
+<script>
+// KAVKAZ RP — звук СГУ «Хазард 7007». всё синтезируется (WebAudio), файлов и чужих записей нет.
+// цепочка: генераторы → «рупор» (перегруз + полоса 350–3000 Гц) → громкость → панорама → общий компрессор.
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+const BASE = 0.38;
+
+const comp = ctx.createDynamicsCompressor();
+comp.threshold.value = -14; comp.ratio.value = 6;
+comp.connect(ctx.destination);
+
+function shaperCurve(k) {
+  const n = 1024, c = new Float32Array(n);
+  for (let i = 0; i < n; i++) { const x = i * 2 / n - 1; c[i] = (1 + k) * x / (1 + k * Math.abs(x)); }
+  return c;
+}
+const CURVE = shaperCurve(9);
+
+function chain(vol, pan, band = 1500) {
+  const input = ctx.createGain(); input.gain.value = 0.55;
+  const sh = ctx.createWaveShaper(); sh.curve = CURVE;
+  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 350;
+  const bp = ctx.createBiquadFilter(); bp.type = 'peaking'; bp.frequency.value = band; bp.gain.value = 6; bp.Q.value = 0.8;
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 3200;
+  const out = ctx.createGain(); out.gain.value = vol * BASE;
+  const p = ctx.createStereoPanner(); p.pan.value = pan;
+  input.connect(sh); sh.connect(hp); hp.connect(bp); bp.connect(lp); lp.connect(out); out.connect(p); p.connect(comp);
+  return { input, out, pan: p };
+}
+
+// генератор: два пилообразных тона с общей частотой (offset) и «воротами» (gate) для прерывистых мелодий
+function voice(vol, pan, opts = {}) {
+  const c = chain(vol, pan, opts.band);
+  const gate = ctx.createGain(); gate.gain.value = 1; gate.connect(c.input);
+  const f = ctx.createConstantSource(); f.offset.value = opts.freq || 800;
+  const oscs = [];
+  for (const d of (opts.detune || [0, 9])) {
+    const o = ctx.createOscillator(); o.type = opts.type || 'sawtooth'; o.frequency.value = 0; o.detune.value = d;
+    f.connect(o.frequency); o.connect(gate); o.start(); oscs.push(o);
+  }
+  f.start();
+  return { c, gate: gate.gain, f: f.offset, nodes: [f, ...oscs] };
+}
+
+function stopVoice(v, t = ctx.currentTime) {
+  v.c.out.gain.cancelScheduledValues(t);
+  v.c.out.gain.setTargetAtTime(0, t, 0.03);
+  for (const n of v.nodes) { try { n.stop(t + 0.2); } catch (e) {} }
+}
+
+// один «кряк»: резкий взлёт и падение тона (start — время начала)
+function quackShape(v, t, hi = 1800, lo = 560, len = 0.24) {
+  v.f.setValueAtTime(hi * 0.9, t);
+  v.f.linearRampToValueAtTime(hi, t + 0.02);
+  v.f.exponentialRampToValueAtTime(lo, t + len);
+  v.gate.setValueAtTime(0, t);
+  v.gate.linearRampToValueAtTime(1, t + 0.008);
+  v.gate.setValueAtTime(1, t + len - 0.03);
+  v.gate.linearRampToValueAtTime(0, t + len);
+}
+
+// мелодии: функция расписывает один цикл с момента t и возвращает его длину (с)
+const TONES = {
+  wail(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(650, t); v.f.linearRampToValueAtTime(1450, t + 1.9); v.f.linearRampToValueAtTime(650, t + 3.8); return 3.8; },
+  yelp(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(650, t); v.f.linearRampToValueAtTime(1450, t + 0.3); return 0.32; },
+  phaser(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(820, t); v.f.linearRampToValueAtTime(1700, t + 0.09); return 0.1; },
+  hilo(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(960, t); v.f.setValueAtTime(720, t + 0.55); return 1.1; },
+  pulse(v, t) {
+    for (let i = 0; i < 4; i++) {
+      const s = t + i * 0.2;
+      v.f.setValueAtTime(i % 2 ? 1150 : 1300, s);
+      v.gate.setValueAtTime(1, s); v.gate.setValueAtTime(0, s + 0.12);
+    }
+    return 0.8;
+  },
+  horn(v, t) { v.gate.setValueAtTime(1, t); v.f.setValueAtTime(233, t); return 1.0; },
+  krya(v, t) { quackShape(v, t); quackShape(v, t + 0.3); v.gate.setValueAtTime(0, t + 0.56); return 1.15; },
+  // фирменная «Хазард»: три коротких кряка и взлёт «уиу»
+  hazard(v, t) {
+    let s = t;
+    for (let i = 0; i < 3; i++) { quackShape(v, s, 1850, 720, 0.14); s += 0.19; }
+    v.f.setValueAtTime(600, s);
+    v.gate.setValueAtTime(1, s);
+    v.f.exponentialRampToValueAtTime(1750, s + 0.55);
+    v.f.setValueAtTime(1750, s + 0.67);
+    v.f.linearRampToValueAtTime(1100, s + 0.77);
+    v.gate.setValueAtTime(1, s + 0.75);
+    v.gate.linearRampToValueAtTime(0, s + 0.78);
+    return (s - t) + 1.08;
+  },
+};
+const OPTS = {
+  horn: { type: 'square', detune: [0, 702, 1200], band: 700 },
+};
+
+const loops = new Map(); // id -> { v, tone, next }
+
+function startLoop(id, tone, vol, pan) {
+  const v = voice(vol, pan, OPTS[tone]);
+  v.gate.setValueAtTime(0, ctx.currentTime);
+  loops.set(id, { v, tone, next: ctx.currentTime + 0.02 });
+}
+
+function stopLoop(id) {
+  const l = loops.get(id);
+  if (!l) return;
+  stopVoice(l.v);
+  loops.delete(id);
+}
+
+// планировщик: расписываем мелодии на 0.4 с вперёд
+setInterval(() => {
+  const ahead = ctx.currentTime + 0.4;
+  for (const l of loops.values()) {
+    let guard = 0;
+    while (l.next < ahead && guard++ < 64) l.next += TONES[l.tone](l.v, l.next);
+  }
+}, 60);
+
+function quack(vol, pan) {
+  const v = voice(vol, pan, { freq: 1600 });
+  v.gate.setValueAtTime(0, ctx.currentTime);
+  const t = ctx.currentTime + 0.01;
+  quackShape(v, t, 1800, 540, 0.3);
+  for (const n of v.nodes) n.stop(t + 0.4);
+}
+
+window.addEventListener('message', (e) => {
+  const d = e.data || {};
+  if (ctx.state !== 'running') ctx.resume();
+  if (d.action === 'quack') quack(d.vol, d.pan || 0);
+  else if (d.action === 'loop') {
+    const l = loops.get(d.id);
+    if (l && l.tone !== d.tone) stopLoop(d.id);
+    if (!loops.has(d.id)) {
+      if (!TONES[d.tone] || d.vol <= 0.005) return;
+      startLoop(d.id, d.tone, d.vol, d.pan || 0);
+    } else {
+      const v = loops.get(d.id).v, now = ctx.currentTime;
+      v.c.out.gain.setTargetAtTime(d.vol * BASE, now, 0.06);
+      v.c.pan.pan.setTargetAtTime(d.pan || 0, now, 0.06);
+    }
+  } else if (d.action === 'stop') stopLoop(d.id);
+});
+
+// предпросмотр в браузере: index.html?preview — кнопки мелодий
+if (location.search.includes('preview')) {
+  document.body.style.cssText = 'background:#0f1412;color:#e8efea;font:16px sans-serif;padding:24px';
+  const add = (label, fn) => { const b = document.createElement('button'); b.textContent = label; b.style.margin = '4px'; b.onclick = () => { ctx.resume(); fn(); }; document.body.appendChild(b); };
+  add('кряк', () => quack(1, 0));
+  for (const t of Object.keys(TONES)) add(t, () => { stopLoop(1); startLoop(1, t, 1, 0); });
+  add('стоп', () => stopLoop(1));
+}
+</script>
+</body>
+</html>

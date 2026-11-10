@@ -8,7 +8,7 @@
 <style>
   :root {
     --bg: #f3f7fb; --card: #ffffff; --line: #dce5ee; --line2: #c5d3e0;
-    --text: #17222e; --muted: #607285; --sky: #1f8ae0; --sky-d: #1570bd; --sky-l: #e8f3fc;
+    --text: #131b18; --muted: #607285; --sky: #2fbf8a; --sky-d: #1f8f66; --sky-l: #e6f6ef;
     --ok: #1f9d55; --warn: #c27a00; --bad: #d23c3c;
     --font: "Golos Text", "Segoe UI", Arial, sans-serif;
   }
@@ -19,7 +19,7 @@
   .hidden { display: none !important; }
   button, select, input { font: inherit; color: inherit; }
 
-  .overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(12, 22, 34, .45); }
+  .overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(10, 16, 13, .45); }
   .win { width: 1060px; max-width: calc(100vw - 40px); height: 680px; max-height: calc(100vh - 40px);
     display: grid; grid-template-rows: auto 1fr; background: var(--bg); border-radius: 8px; overflow: hidden;
     box-shadow: 0 20px 50px rgba(0, 0, 0, .35); }
@@ -73,7 +73,7 @@
   .rules b { color: var(--text); font-weight: 600; }
 
   /* диалог */
-  .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(12, 22, 34, .35); }
+  .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(10, 16, 13, .35); }
   .dlg { width: 560px; max-height: calc(100vh - 60px); overflow-y: auto; background: var(--card); border-radius: 8px; box-shadow: 0 16px 40px rgba(0,0,0,.3); }
   .dlg h3 { padding: 16px 20px; font-size: 17px; font-weight: 600; border-bottom: 1px solid var(--line); }
   .dlg .in { padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
@@ -89,14 +89,14 @@
   .opt.wide { grid-template-columns: 18px auto 1fr; }
   label.f { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--muted); }
   select, input { padding: 8px 10px; border: 1px solid var(--line2); border-radius: 6px; background: #fff; font-size: 14.5px; outline: none; }
-  select:focus, input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(31, 138, 224, .15); }
+  select:focus, input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(47, 191, 138, .15); }
   .preview-plate { display: flex; justify-content: center; padding: 6px 0 10px; } .preview-plate .plate-svg { width: 320px; }
 
   /* мастер получения номера */
   .steps { display: flex; gap: 6px; padding: 12px 20px 0; }
   .steps span { flex: 1; padding-bottom: 8px; border-bottom: 3px solid var(--line); font-size: 13px; color: var(--muted); }
   .steps span.on { border-color: var(--sky); color: var(--text); font-weight: 600; }
-  .steps span.done { border-color: #9ccbf0; color: var(--muted); }
+  .steps span.done { border-color: #9fdcc2; color: var(--muted); }
   .doc { display: grid; grid-template-columns: 84px 1fr; gap: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fbfcfe; }
   .doc .photo { width: 84px; height: 104px; border-radius: 4px; background: #dfe7ef; display: grid; place-items: center; color: #8aa0b5; font-size: 34px; }
   .doc dl { display: grid; grid-template-columns: 130px 1fr; gap: 4px 10px; font-size: 14px; }
@@ -114,7 +114,7 @@
   .ftile .fl { margin-top: 6px; display: flex; justify-content: space-between; font-size: 13px; }
   .ftile .fl b { font-weight: 600; white-space: nowrap; }
   .dlg.wide { width: 720px; }
-  .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); padding: 10px 16px; border-radius: 6px; background: #17222e; color: #fff;
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); padding: 10px 16px; border-radius: 6px; background: #131b18; color: #fff;
     font-size: 14.5px; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
   .toast.err { background: var(--bad); }
 </style>
@@ -226,7 +226,7 @@ function stepsBar(n) {
 function registerDialog(vehicleId) {
   const d = S.passport || {}, car = S.vehicles.find((v) => v.id === vehicleId);
   modal(`<h3>${car ? 'Регистрация: ' + esc(car.label) : 'Номер на хранение'}</h3>${stepsBar(1)}<div class="in">
-      <div class="doc"><div class="photo"><svg width="46" height="56" viewBox="0 0 46 56"><circle cx="23" cy="17" r="11" fill="#9fb2c4"/><path d="M2 56c0-14 9-22 21-22s21 8 21 22z" fill="#9fb2c4"/></svg></div><dl>
+      <div class="doc"><div class="photo"><svg width="46" height="56" viewBox="0 0 46 56"><circle cx="23" cy="17" r="11" fill="#9db0a7"/><path d="M2 56c0-14 9-22 21-22s21 8 21 22z" fill="#9db0a7"/></svg></div><dl>
         <dt>Документ</dt><dd>Паспорт гражданина</dd>
         <dt>Фамилия, имя</dt><dd>${esc(d.lastname || '—')} ${esc(d.firstname || '')}</dd>
         <dt>Дата рождения</dt><dd>${esc(d.birthdate || '—')}</dd>
