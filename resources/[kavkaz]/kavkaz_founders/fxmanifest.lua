@@ -11,4 +11,5 @@ shared_scripts { '@ox_lib/init.lua', 'config.lua' }
 client_script 'client.lua'
 server_scripts { '@oxmysql/lib/MySQL.lua', 'server.lua' }
 
-dependencies { 'ox_lib', 'oxmysql', 'qbx_core', 'qbx_vehicles', 'qbx_garages', 'kavkaz_cars' }
+-- KAVKAZ: только то, что есть и у игрока: qbx_vehicles работает лишь на сервере (server_only), из-за него вход обрывался
+dependencies { 'ox_lib', 'oxmysql', 'qbx_core', 'qbx_garages' }
