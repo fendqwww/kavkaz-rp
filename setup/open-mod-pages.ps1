@@ -23,7 +23,26 @@ if ($PSBoundParameters.ContainsKey('Cars')) {
         kv_truck = 'kamaz 5490'; kv_mchs = 'kamaz fire truck'
     }
     $first = @('kv_camry80', 'kv_priora', 'kv_lc300', 'kv_g63', 'kv_m5f90', 'kv_vaz2114', 'kv_uaz_dps', 'kv_octavia_dps', 'kv_vaz2107')
-    $list = if (-not $Cars -or $Cars.Count -eq 0) { $first } elseif ($Cars[0] -eq 'all') { @($query.Keys) } else { $Cars -split ',' | ForEach-Object { $_.Trim() } }
+    # выбранные моды первой очереди (docs/vision/19-car-models-todo.md): сразу страница мода, на ней нажать Download
+    $direct = @{
+        kv_camry80     = 'https://www.gta5-mods.com/vehicles/toyota-camry-2022-gle-replace-unlocked-exrtas'
+        kv_priora      = 'https://www.gta5-mods.com/vehicles/lada-priora-hatchback'
+        kv_lc300       = 'https://www.gta5-mods.com/vehicles/toyota-land-cruiser-300-2021-add-on'
+        kv_g63         = 'https://www.gta5-mods.com/vehicles/mercedes-g63-amg-2019-addon-extras'
+        kv_m5f90       = 'https://www.gta5-mods.com/vehicles/bmw-m5-f90-2018-add-on-hq-template'
+        kv_vaz2114     = 'https://www.gta5-mods.com/vehicles/vaz-2114-lada-samara-2-add-on'
+        kv_uaz_dps     = 'https://www.gta5-mods.com/vehicles/uaz-patriot-police'
+        kv_octavia_dps = 'https://www.gta5-mods.com/vehicles/2017-skoda-octavia-add-on-replace-dirt-map'
+        kv_vaz2107     = 'https://www.gta5-mods.com/vehicles/vaz-2107-lada-riva-add-on-tuning'
+    }
+    if (-not $Cars -or $Cars.Count -eq 0) {
+        foreach ($name in $first) { Start-Process $direct[$name]; Start-Sleep -Milliseconds 500; Write-Host ("  {0,-16} {1}" -f $name, $direct[$name]) }
+        Write-Host ''
+        Write-Host "открыто страниц: $($first.Count). на каждой нажми Download, файлы оставь в «Загрузках», переименовывать не надо."
+        Write-Host 'потом напиши Claude: «скачал».'
+        return
+    }
+    $list = if ($Cars[0] -eq 'all') { @($query.Keys) } else { $Cars -split ',' | ForEach-Object { $_.Trim() } }
     New-Item -ItemType Directory -Force -Path 'C:\kavkaz\mods-inbox\cars' | Out-Null
     $opened = 0
     foreach ($name in $list) {

@@ -39,6 +39,21 @@
 Где лучше искать: **forum.cfx.re** (раздел Releases: моды сразу под FiveM, автор сам выкладывает для серверов),
 **gta5-mods.com** (много, но читать лицензию у каждого). libertycity и «слитые» паки — не берём.
 
+## Выбрано (10.11.2026, решение: берём моды, где автор не запрещает FiveM; без переписки с авторами)
+Страницы открывает `setup\open-mod-pages.ps1 -Cars`. Скачанные файлы остаются в «Загрузках», Claude забирает их сам.
+
+| имя спавна | мод | автор | вес архива | заметки |
+|---|---|---|---|---|
+| `kv_camry80` | [Toyota Camry 2022 GLE](https://www.gta5-mods.com/vehicles/toyota-camry-2022-gle-replace-unlocked-exrtas) | AboM7sn | 79 МБ | Camry 80 нигде нет — ставим Camry 70 2022; автор разрешает правки; ужать до 30 МБ |
+| `kv_priora` | [Lada Priora Hatchback](https://www.gta5-mods.com/vehicles/lada-priora-hatchback) | agen001 | 36 МБ | единственная хэтчбек, старая (2016), Replace — переделаем в Add-On; позже искать красивее |
+| `kv_lc300` | [Land Cruiser 300 2021](https://www.gta5-mods.com/vehicles/toyota-land-cruiser-300-2021-add-on) | GCM_mood_cars | 39 МБ | ужать текстуры |
+| `kv_g63` | [Mercedes G63 AMG 2019](https://www.gta5-mods.com/vehicles/mercedes-g63-amg-2019-addon-extras) | Solid Soup | 33 МБ | «free mod for everyone»; не брали Topcar (Forza) и RAZ3R (CSR2) |
+| `kv_m5f90` | [2018 BMW M5 F90](https://www.gta5-mods.com/vehicles/bmw-m5-f90-2018-add-on-hq-template) | S4MuEL | ? | 568 тыс. скачиваний |
+| `kv_vaz2114` | [VAZ-2114 Samara 2](https://www.gta5-mods.com/vehicles/vaz-2114-lada-samara-2-add-on) | Leopoldas (модель AKROM) | ? | |
+| `kv_uaz_dps` | [UAZ Patriot Police](https://www.gta5-mods.com/vehicles/uaz-patriot-police) | AKROM | ? | ливрею поменять на «ДПС Нагорье» |
+| `kv_octavia_dps` | [Skoda Octavia 2017](https://www.gta5-mods.com/vehicles/2017-skoda-octavia-add-on-replace-dirt-map) | mmods | ? | та же модель пойдёт на `kv_octavia`; ливрея ДПС — позже |
+| `kv_vaz2107` | [VAZ-2107 (Lada Riva)](https://www.gta5-mods.com/vehicles/vaz-2107-lada-riva-add-on-tuning) | DragoN777 | 62 МБ | лучшая «Семёрка»; ужать; запасной вариант 7,7 МБ — [Leopoldas/AKROM](https://www.gta5-mods.com/vehicles/vaz-2105-2107-lada-add-on-extras-tuning) |
+
 ## Первые 9 (картинки уже в лаунчере + «Семёрка» для новичков)
 | имя спавна | машина | запрос для gta5-mods.com | на что смотреть | handling |
 |---|---|---|---|---|
