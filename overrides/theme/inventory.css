@@ -1,0 +1,147 @@
+/* KAVKAZ RP — небесно-синяя тема ox_inventory.
+   исходник. собранный файл (со шрифтом внутри) лежит в
+   overrides/resources/[ox]/ox_inventory/web/build/assets/kavkaz-theme.css — пересобрать: python setup/build-theme.py
+   setup/apply-overrides.ps1 подключает его строкой <link> в web/build/index.html (код ox_inventory не меняем). */
+
+:root {
+  --kz-bg0: rgba(3, 16, 51, .92);
+  --kz-bg1: rgba(7, 26, 69, .88);
+  --kz-slot: rgba(10, 34, 82, .62);
+  --kz-slot-hover: rgba(24, 70, 140, .72);
+  --kz-line: rgba(127, 211, 255, .20);
+  --kz-line2: rgba(127, 211, 255, .45);
+  --kz-sky: #2ab4ff;
+  --kz-sky2: #7fd3ff;
+  --kz-sky3: #c9ecff;
+  --kz-text: #eef8ff;
+  --kz-muted: #a9c4e6;
+  --kz-font: "Onest", "Segoe UI", system-ui, sans-serif;
+}
+
+body, .app-wrapper, .app-wrapper *, p, input, button { font-family: var(--kz-font) !important; }
+
+/* фон за инвентарём — лёгкая синяя дымка */
+.inventory-wrapper {
+  background: radial-gradient(ellipse at 50% 40%, rgba(42, 180, 255, .14), rgba(3, 16, 51, .55) 70%);
+  gap: 26px;
+}
+
+/* сетки (свой инвентарь, багажник, магазин) */
+.inventory-grid-wrapper {
+  padding: 14px;
+  background: linear-gradient(180deg, var(--kz-bg1), var(--kz-bg0));
+  border: 1px solid var(--kz-line);
+  border-top: 3px solid var(--kz-sky);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0, 8, 30, .55);
+}
+.inventory-grid-header-wrapper p {
+  color: var(--kz-text);
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-size: 14px !important;
+}
+.inventory-grid-header-wrapper p:last-child { color: var(--kz-sky2); }
+.inventory-grid-container { gap: 4px; padding-right: 2px; }
+.inventory-grid-container::-webkit-scrollbar { width: 6px; }
+.inventory-grid-container::-webkit-scrollbar-thumb { background: rgba(127, 211, 255, .3); border-radius: 6px; }
+
+/* ячейки */
+.inventory-slot, .hotbar-item-slot, .item-notification-item-box {
+  background-color: var(--kz-slot);
+  border: 1px solid var(--kz-line) !important;
+  border-radius: 10px !important;
+  color: var(--kz-text);
+  transition: background-color .15s, border-color .15s, box-shadow .15s;
+}
+.inventory-slot:hover {
+  background-color: var(--kz-slot-hover);
+  border-color: var(--kz-line2) !important;
+  box-shadow: 0 0 0 1px rgba(42, 180, 255, .25), 0 6px 18px rgba(42, 180, 255, .18);
+}
+.inventory-slot-label-box {
+  background: linear-gradient(180deg, rgba(4, 18, 52, .2), rgba(4, 18, 52, .92));
+  color: var(--kz-text);
+  border-top: 1px solid var(--kz-line) !important;
+  border-radius: 0 0 9px 9px;
+}
+.inventory-slot-label-text { font-weight: 700; letter-spacing: .03em; font-size: 11px; }
+.inventory-slot-number {
+  min-width: 18px;
+  height: 18px !important;
+  padding: 0 5px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--kz-sky);
+  color: #02234f;
+  font-weight: 800;
+  border-radius: 9px 0 9px 0;
+}
+.item-slot-info-wrapper p, .item-slot-header-wrapper p { color: var(--kz-sky3); font-weight: 700; }
+.item-slot-currency-wrapper p, .item-slot-price-wrapper p { color: var(--kz-sky2); font-weight: 800; }
+
+/* полоски веса и прочности */
+.weight-bar {
+  height: 7px;
+  background: rgba(3, 16, 51, .8);
+  border: 1px solid var(--kz-line);
+  border-radius: 99px;
+}
+.durability-bar { background: rgba(3, 16, 51, .8); border-radius: 0 0 9px 9px; }
+
+/* центр: количество и кнопки */
+.inventory-control .inventory-control-input {
+  background: var(--kz-bg0);
+  border: 1px solid var(--kz-line2);
+  border-radius: 10px;
+  color: var(--kz-text);
+  font-weight: 800;
+}
+.inventory-control .inventory-control-input:focus-within { border-color: var(--kz-sky); box-shadow: 0 0 0 3px rgba(42, 180, 255, .25); }
+.inventory-control .inventory-control-button {
+  background: linear-gradient(180deg, rgba(11, 33, 82, .95), rgba(6, 22, 56, .95));
+  border: 1px solid var(--kz-line2);
+  border-radius: 10px;
+  color: var(--kz-sky3);
+  font-weight: 800;
+  letter-spacing: .1em;
+}
+.inventory-control .inventory-control-button:hover { background: var(--kz-sky); color: #02234f; border-color: transparent; }
+
+/* подсказка предмета и меню по ПКМ */
+.tooltip-wrapper, .context-menu-list {
+  background: linear-gradient(180deg, #0b2152, #061638);
+  border: 1px solid var(--kz-line2);
+  border-top: 2px solid var(--kz-sky);
+  border-radius: 12px;
+  color: var(--kz-text);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
+}
+.tooltip-header-wrapper p:first-child { color: #fff; font-weight: 800; font-size: 14px; }
+.tooltip-wrapper p { color: var(--kz-muted); }
+.divider { background: var(--kz-line) !important; }
+.context-menu-item { color: var(--kz-text); border-radius: 8px; font-weight: 700; }
+.context-menu-item:hover { background: rgba(42, 180, 255, .2); color: #fff; }
+
+/* быстрые слоты F1 и уведомления «получено / использовано» */
+.hotbar-container { gap: 6px; }
+.item-notification-action-box {
+  background: var(--kz-sky);
+  color: #02234f;
+  border-radius: 9px 9px 0 0;
+}
+.item-notification-action-box p { font-weight: 800; }
+
+/* окно «полезные клавиши» */
+.useful-controls-dialog {
+  background: linear-gradient(180deg, #0b2152, #061638) !important;
+  border: 1px solid var(--kz-line2);
+  border-top: 3px solid var(--kz-sky);
+  border-radius: 14px !important;
+  color: var(--kz-text);
+}
+.useful-controls-dialog-title { color: #fff; font-weight: 800; }
+.useful-controls-button, .useful-controls-exit-button { color: var(--kz-sky2) !important; }
+.item-drag-preview { filter: drop-shadow(0 8px 18px rgba(42, 180, 255, .35)); }

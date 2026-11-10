@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>МРЭО ГИБДД</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root {
+    --bg0: #031033; --bg1: #071a45; --panel: rgba(7, 24, 62, .94); --panel2: rgba(12, 38, 92, .55);
+    --line: rgba(127, 211, 255, .18); --line2: rgba(127, 211, 255, .38);
+    --sky: #2ab4ff; --sky2: #7fd3ff; --sky3: #c9ecff;
+    --text: #eef8ff; --muted: #a9c4e6;
+    --ok: #4ee0a6; --warn: #ffc857; --bad: #ff6b7d;
+    --f-logo: "Montserrat", "Arial Black", sans-serif;
+    --f-ui: "Onest", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+  body { font: 600 15px/1.4 var(--f-ui); color: var(--text); user-select: none; }
+  body.preview { background: linear-gradient(160deg, #1b3c6e, #0b1d3f 60%, #050c22); }
+  .hidden { display: none !important; }
+
+  .overlay { position: fixed; inset: 0; display: grid; place-items: center;
+    background: radial-gradient(ellipse at 50% 30%, rgba(42,180,255,.16), rgba(3,16,51,.72) 70%); }
+  .card { width: 1040px; max-width: calc(100vw - 40px); max-height: calc(100vh - 40px); display: flex; flex-direction: column;
+    background: linear-gradient(180deg, var(--panel), rgba(4, 16, 46, .96)); border: 1px solid var(--line);
+    border-top: 3px solid var(--sky); border-radius: 14px; box-shadow: 0 30px 80px rgba(0, 8, 30, .6), 0 0 0 1px rgba(42,180,255,.06) inset; overflow: hidden; }
+
+  header { display: flex; align-items: center; gap: 18px; padding: 22px 26px 18px; border-bottom: 1px solid var(--line);
+    background: linear-gradient(90deg, rgba(42,180,255,.14), transparent 60%); }
+  .badge { width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; flex: none;
+    background: radial-gradient(circle at 35% 30%, #bfeaff, var(--sky) 55%, #0b74d6); color: #03214d; font: italic 900 20px var(--f-logo); }
+  .title h1 { font: italic 900 24px/1 var(--f-logo); letter-spacing: -.01em; }
+  .title p { margin-top: 4px; color: var(--muted); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+  .spacer { flex: 1; }
+  .money { color: var(--muted); font-size: 13px; text-align: right; }
+  select, input { font: 700 14px var(--f-ui); color: var(--text); background: rgba(3, 16, 51, .7); border: 1px solid var(--line2);
+    border-radius: 9px; padding: 9px 12px; outline: none; }
+  select:focus, input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(42,180,255,.22); }
+  option { background: var(--bg1); }
+  .x { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--line2); background: transparent; color: var(--sky3);
+    font-size: 20px; cursor: pointer; }
+  .x:hover { background: rgba(42,180,255,.16); }
+
+  nav { display: flex; gap: 6px; padding: 14px 26px 0; }
+  nav button { padding: 10px 18px; border: 1px solid transparent; border-bottom: 0; border-radius: 10px 10px 0 0; background: transparent;
+    color: var(--muted); font: 800 13px var(--f-ui); letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
+  nav button.on { color: var(--text); background: var(--panel2); border-color: var(--line); }
+  nav button .n { margin-left: 6px; padding: 1px 7px; border-radius: 99px; background: rgba(42,180,255,.22); color: var(--sky3); font-size: 11px; }
+
+  main { flex: 1; overflow-y: auto; padding: 18px 26px 26px; background: var(--panel2); border-top: 1px solid var(--line); }
+  main::-webkit-scrollbar { width: 8px; } main::-webkit-scrollbar-thumb { background: rgba(127,211,255,.25); border-radius: 8px; }
+
+  .row { display: grid; grid-template-columns: 1fr 240px auto; align-items: center; gap: 18px; padding: 14px 16px; margin-bottom: 10px;
+    background: rgba(3, 16, 51, .55); border: 1px solid var(--line); border-radius: 12px; }
+  .row:hover { border-color: var(--line2); }
+  .row h3 { font: 800 17px var(--f-ui); }
+  .row .sub { margin-top: 3px; color: var(--muted); font-size: 13px; }
+  .chip { display: inline-block; margin-right: 6px; padding: 2px 9px; border-radius: 99px; font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+  .chip.ok { background: rgba(78,224,166,.14); color: var(--ok); }
+  .chip.warn { background: rgba(255,200,87,.14); color: var(--warn); }
+  .chip.bad { background: rgba(255,107,125,.14); color: var(--bad); }
+  .chip.sky { background: rgba(42,180,255,.16); color: var(--sky2); }
+  .actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 420px; }
+  .actions .btn { width: 100%; }
+  .actions .btn:only-child { grid-column: span 2; }
+  .row > .plate { justify-self: center; }
+
+  .btn { padding: 9px 10px; border-radius: 9px; border: 1px solid var(--line2); background: rgba(42,180,255,.1); color: var(--sky3);
+    font: 800 12px var(--f-ui); letter-spacing: .06em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+  .btn:hover { background: rgba(42,180,255,.22); border-color: var(--sky); color: #fff; }
+  .btn.main { background: linear-gradient(180deg, #49c2ff, #1597e8); border-color: transparent; color: #02234f; }
+  .btn.main:hover { filter: brightness(1.08); }
+  .btn small { opacity: .75; font-weight: 700; margin-left: 4px; }
+  .btn:disabled { opacity: .4; cursor: default; }
+
+  /* российский номер */
+  .plate { display: inline-flex; align-items: stretch; height: 46px; background: #fff; color: #0a0a0a; border: 2px solid #111;
+    border-radius: 7px; box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 0 0 2px #fff, inset 0 0 0 3px #111; font-family: var(--f-ui); }
+  .plate .pm { display: flex; align-items: flex-end; gap: 4px; padding: 0 10px 4px 12px; font-weight: 800; }
+  .plate .l { font-size: 27px; line-height: 1; }
+  .plate .d { font-size: 36px; line-height: .92; letter-spacing: .02em; }
+  .plate .pr { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 7px; border-left: 2px solid #111; min-width: 46px; }
+  .plate .pr b { font-size: 25px; line-height: .95; font-weight: 800; }
+  .plate .pr i { display: flex; align-items: center; gap: 3px; font: normal 800 9px var(--f-ui); letter-spacing: .05em; }
+  .plate .flag { width: 12px; height: 8px; border: 1px solid #333; background: linear-gradient(#fff 33%, #1c4fd1 33% 66%, #d72a2a 66%); }
+  .plate.transit { background: repeating-linear-gradient(-45deg, #fff8e1, #fff8e1 8px, #ffefc2 8px, #ffefc2 16px); border-style: dashed; }
+  .plate.transit .pm { align-items: center; padding: 0 14px; font-size: 22px; letter-spacing: .08em; }
+  .plate.transit .tag { font-size: 9px; font-weight: 800; letter-spacing: .1em; color: #8a5a00; margin-right: 8px; }
+
+  .empty { padding: 40px; text-align: center; color: var(--muted); border: 1px dashed var(--line2); border-radius: 12px; }
+  .price { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .price div { padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: rgba(3,16,51,.55); }
+  .price b { display: block; margin-top: 6px; font: italic 900 22px var(--f-logo); color: var(--sky2); }
+  .price p { margin-top: 4px; color: var(--muted); font-size: 13px; }
+  .hint { margin-top: 16px; color: var(--muted); font-size: 13px; }
+  .hint b { color: var(--sky3); }
+
+  /* модальное окно */
+  .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(2, 10, 32, .6); }
+  .box { width: 560px; padding: 22px 24px; background: linear-gradient(180deg, #0b2152, #061638); border: 1px solid var(--line2);
+    border-top: 3px solid var(--sky); border-radius: 14px; box-shadow: 0 30px 60px rgba(0,0,0,.5); }
+  .box h2 { font: italic 900 20px var(--f-logo); }
+  .box p.lead { margin-top: 6px; color: var(--muted); font-size: 13px; }
+  .box .body { margin: 16px 0; display: flex; flex-direction: column; gap: 10px; }
+  .box .foot { display: flex; justify-content: flex-end; gap: 8px; }
+  .pick { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid var(--line); border-radius: 11px; cursor: pointer; background: rgba(3,16,51,.5); }
+  .pick:hover, .pick.on { border-color: var(--sky); background: rgba(42,180,255,.12); }
+  .pick .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line2); }
+  .pick.on .dot { border-color: var(--sky); background: radial-gradient(circle, var(--sky) 45%, transparent 50%); }
+  label.f { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+
+  .toast { position: fixed; left: 50%; bottom: 34px; transform: translateX(-50%); padding: 12px 20px; border-radius: 11px; font-weight: 800;
+    background: #0b2152; border: 1px solid var(--line2); box-shadow: 0 14px 40px rgba(0,0,0,.45); }
+  .toast.ok { border-color: var(--ok); color: var(--ok); } .toast.err { border-color: var(--bad); color: var(--bad); }
+  .busy { cursor: progress; }
+</style>
+</head>
+<body>
+<div class="overlay hidden" id="app">
+  <div class="card">
+    <header>
+      <div class="badge">ГИ</div>
+      <div class="title"><h1>МРЭО ГИБДД</h1><p>Нагорск · регистрация номеров</p></div>
+      <div class="spacer"></div>
+      <label class="money">регион новых номеров<br><select id="region"></select></label>
+      <button class="x" id="close" title="Закрыть (ESC)">×</button>
+    </header>
+    <nav>
+      <button data-tab="cars" class="on">Мои машины <span class="n" id="nCars">0</span></button>
+      <button data-tab="plates">Мои номера <span class="n" id="nPlates">0</span></button>
+      <button data-tab="info">Услуги и цены</button>
+    </nav>
+    <main id="main"></main>
+  </div>
+</div>
+
+<div class="modal hidden" id="modal"><div class="box" id="box"></div></div>
+<div class="toast hidden" id="toast"></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const preview = location.search.includes('preview');
+let state = null, tab = 'cars', busy = false;
+
+const rub = (v) => Math.floor(v).toLocaleString('ru-RU').replace(/\s/g, ' ') + ' ₽';
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const resName = () => (window.GetParentResourceName ? GetParentResourceName() : 'kavkaz_plates');
+
+function plateHtml(pretty, raw) {
+  const m = /^(\S) (\d{3}) (\S{2}) (\d{2})$/.exec(pretty || '');
+  if (!m) return `<span class="plate transit"><span class="pm"><span class="tag">ТРАНЗИТ</span>${esc(raw || pretty)}</span></span>`;
+  return `<span class="plate"><span class="pm"><span class="l">${m[1]}</span><span class="d">${m[2]}</span><span class="l">${m[3]}</span></span>`
+    + `<span class="pr"><b>${m[4]}</b><i>RUS <span class="flag"></span></i></span></span>`;
+}
+
+const STATE = { 0: ['выгнана', 'sky'], 1: ['в гараже', 'sky'], 2: ['штрафстоянка', 'bad'] };
+
+function render() {
+  if (!state) return;
+  $('#nCars').textContent = state.vehicles.length;
+  $('#nPlates').textContent = state.plates.length;
+  document.querySelectorAll('nav button').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
+  const P = state.prices, main = $('#main');
+
+  if (tab === 'cars') {
+    if (!state.vehicles.length) { main.innerHTML = '<div class="empty">у тебя пока нет личных машин. купи в автосалоне — и приезжай за номером</div>'; return; }
+    const pocket = state.plates.filter((p) => !p.vehicle_id);
+    main.innerHTML = state.vehicles.map((v) => {
+      const st = STATE[v.state] || ['?', 'sky'];
+      return `<div class="row">
+        <div><h3>${esc(v.label)}</h3><div class="sub">
+          <span class="chip ${v.registered ? 'ok' : 'warn'}">${v.registered ? 'на учёте' : 'не на учёте'}</span>
+          <span class="chip ${st[1]}">${st[0]}</span></div></div>
+        ${plateHtml(v.pretty, v.plate)}
+        <div class="actions">
+          <button class="btn main" data-do="buy" data-v="${v.id}">Новый номер<small>${rub(P.window)}</small></button>
+          <button class="btn" data-do="choose" data-v="${v.id}">Выбрать из 5<small>${rub(P.choose)}</small></button>
+          ${pocket.length ? `<button class="btn" data-do="attachTo" data-v="${v.id}">Свой из кармана<small>${rub(P.swap)}</small></button>` : ''}
+          ${v.registered ? `<button class="btn" data-do="detach" data-v="${v.id}">Снять в карман</button>` : ''}
+        </div></div>`;
+    }).join('');
+  } else if (tab === 'plates') {
+    const pocketBuy = `<div class="hint">нужен номер про запас? <button class="btn" data-do="buyPocket">Купить в карман<small>${rub(P.window)}</small></button>
+      <button class="btn" data-do="choose">Выбрать из 5<small>${rub(P.choose)}</small></button></div>`;
+    if (!state.plates.length) { main.innerHTML = '<div class="empty">номеров пока нет</div>' + pocketBuy; return; }
+    const byId = Object.fromEntries(state.vehicles.map((v) => [v.id, v]));
+    main.innerHTML = state.plates.map((p) => {
+      const car = p.vehicle_id && byId[p.vehicle_id];
+      return `<div class="row">
+        <div><h3>${car ? esc(car.label) : 'в кармане'}</h3><div class="sub">
+          ${p.tierLabel ? `<span class="chip sky">★ ${esc(p.tierLabel)}</span>` : ''}
+          <span class="chip ${car ? 'ok' : 'sky'}">${car ? 'висит на машине' : 'не используется'}</span></div></div>
+        ${plateHtml(p.pretty, p.plate)}
+        <div class="actions">
+          <button class="btn main" data-do="attachPlate" data-p="${p.plate}">Повесить<small>${rub(P.swap)}</small></button>
+          ${car ? `<button class="btn" data-do="detach" data-v="${car.id}">Снять в карман</button>`
+                : `<button class="btn" data-do="sell" data-p="${p.plate}">Продать игроку</button>`}
+        </div></div>`;
+    }).join('') + pocketBuy;
+  } else {
+    main.innerHTML = `<div class="price">
+      <div>Случайный номер<b>${rub(P.window)}</b><p>в этом окне, сразу на машину или в карман</p></div>
+      <div>Выбор из 5 вариантов<b>${rub(P.choose)}</b><p>показываем пять свободных — берёшь понравившийся</p></div>
+      <div>У инспектора ДПС<b>${rub(P.dps)}</b><p>на посту, машина должна быть с тобой. инспектор получает ${rub(P.dpsShare)}</p></div>
+      <div>Перевесить номер<b>${rub(P.swap)}</b><p>с одной своей машины на другую или из кармана</p></div>
+      <div>Снять в карман<b>бесплатно</b><p>машина уезжает на транзитном номере</p></div>
+      <div>Продажа игроку<b>−${Math.round(P.commission * 100)}%</b><p>комиссия МРЭО с продавца, оба стоят у окна</p></div>
+    </div>
+    <p class="hint">Формат: <b>А 777 АА 95</b> — только буквы <b>А В Е К М Н О Р С Т У Х</b>. Красивые номера (тройки, «нулевые» 001–009, одинаковые буквы, «095»)
+      случайно не выпадают: только <b>аукцион</b> по субботам, ивенты и призы. Машину перерегистрируем, если она <b>в гараже</b> или <b>стоит у МРЭО</b>.</p>`;
+  }
+}
+
+function modal(html) { $('#box').innerHTML = html; $('#modal').classList.remove('hidden'); }
+function closeModal() { $('#modal').classList.add('hidden'); }
+
+let toastTimer;
+function toast(text, ok) {
+  const t = $('#toast'); t.textContent = text; t.className = 'toast ' + (ok ? 'ok' : 'err');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add('hidden'), 3500);
+}
+
+async function post(name, body) {
+  if (preview) return mock(name, body);
+  const r = await fetch(`https://${resName()}/${name}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+  return r.json();
+}
+
+async function act(name, args) {
+  if (busy) return; busy = true; document.body.classList.add('busy');
+  try {
+    const res = await post('action', { name, args });
+    if (res.error) toast(res.error, false);
+    else { if (res.data) state = res.data; if (res.ok) toast(res.ok, true); closeModal(); render(); }
+    return res;
+  } finally { busy = false; document.body.classList.remove('busy'); }
+}
+
+// выбор машины (или кармана) для номера
+function pickVehicle(title, lead, allowPocket, onPick) {
+  const opts = state.vehicles.map((v) => `<div class="pick" data-v="${v.id}"><span><b>${esc(v.label)}</b><br><small style="color:var(--muted)">${esc(v.pretty)}</small></span><span class="dot"></span></div>`);
+  if (allowPocket) opts.unshift('<div class="pick" data-v=""><span><b>В карман</b><br><small style="color:var(--muted)">повешу позже</small></span><span class="dot"></span></div>');
+  modal(`<h2>${title}</h2><p class="lead">${lead}</p><div class="body">${opts.join('')}</div>
+    <div class="foot"><button class="btn" data-m="cancel">Отмена</button><button class="btn main" data-m="ok" disabled>Оформить</button></div>`);
+  let chosen = null;
+  $('#box').onclick = (e) => {
+    const p = e.target.closest('.pick');
+    if (p) { document.querySelectorAll('.pick').forEach((x) => x.classList.remove('on')); p.classList.add('on'); chosen = p.dataset.v; $('[data-m=ok]').disabled = false; }
+    const m = e.target.closest('[data-m]');
+    if (m?.dataset.m === 'cancel') closeModal();
+    if (m?.dataset.m === 'ok' && chosen !== null) onPick(chosen === '' ? null : Number(chosen));
+  };
+}
+
+async function openChoices(vehicleId) {
+  const res = await act('choices', { region: $('#region').value });
+  if (!res || res.error) return;
+  const list = res.list;
+  modal(`<h2>Выбери номер</h2><p class="lead">5 свободных номеров, регион ${esc($('#region').value)}. Варианты держатся 5 минут. Стоимость ${rub(state.prices.choose)}.</p>
+    <div class="body">${list.map((p, i) => `<div class="pick" data-i="${i + 1}">${plateHtml(p.pretty, p.plate)}<span class="dot"></span></div>`).join('')}</div>
+    <div class="foot"><button class="btn" data-m="again">Другие варианты</button><span class="spacer"></span><button class="btn" data-m="cancel">Отмена</button><button class="btn main" data-m="ok" disabled>Беру</button></div>`);
+  let idx = null;
+  $('#box').onclick = (e) => {
+    const p = e.target.closest('.pick');
+    if (p) { document.querySelectorAll('.pick').forEach((x) => x.classList.remove('on')); p.classList.add('on'); idx = Number(p.dataset.i); $('[data-m=ok]').disabled = false; }
+    const m = e.target.closest('[data-m]'); if (!m) return;
+    if (m.dataset.m === 'cancel') closeModal();
+    if (m.dataset.m === 'again') openChoices(vehicleId);
+    if (m.dataset.m === 'ok' && idx) {
+      if (vehicleId !== undefined) act('pickChoice', { index: idx, vehicleId });
+      else pickVehicle('Куда повесить?', 'на машину или оставить в кармане', true, (v) => act('pickChoice', { index: idx, vehicleId: v }));
+    }
+  };
+}
+
+function sellDialog(plate) {
+  const p = state.plates.find((x) => x.plate === plate);
+  modal(`<h2>Продать номер</h2><p class="lead">${plateHtml(p.pretty, p.plate)}</p>
+    <div class="body"><label class="f">ID покупателя (стоит рядом у окна)<input id="sTarget" type="number" min="1"></label>
+    <label class="f">цена, ₽<input id="sPrice" type="number" min="0" step="1000" value="100000"></label>
+    <p class="lead" id="sNet"></p></div>
+    <div class="foot"><button class="btn" data-m="cancel">Отмена</button><button class="btn main" data-m="ok">Предложить</button></div>`);
+  const upd = () => { $('#sNet').textContent = `тебе на карту: ${rub((Number($('#sPrice').value) || 0) * (1 - state.prices.commission))} (комиссия ${Math.round(state.prices.commission * 100)}%)`; };
+  $('#sPrice').oninput = upd; upd();
+  $('#box').onclick = (e) => {
+    const m = e.target.closest('[data-m]'); if (!m) return;
+    if (m.dataset.m === 'cancel') closeModal();
+    if (m.dataset.m === 'ok') act('sell', { plate, target: Number($('#sTarget').value), price: Number($('#sPrice').value) });
+  };
+}
+
+$('#main').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-do]'); if (!b) return;
+  const v = b.dataset.v ? Number(b.dataset.v) : undefined, plate = b.dataset.p, region = $('#region').value;
+  switch (b.dataset.do) {
+    case 'buy': return act('buyRandom', { vehicleId: v, region });
+    case 'buyPocket': return act('buyRandom', { region });
+    case 'choose': return openChoices(v);
+    case 'detach': return act('detach', { vehicleId: v });
+    case 'sell': return sellDialog(plate);
+    case 'attachPlate': return pickVehicle('Повесить номер', 'на какую машину', false, (veh) => act('attach', { plate, vehicleId: veh }));
+    case 'attachTo': {
+      const pocket = state.plates.filter((p) => !p.vehicle_id);
+      modal(`<h2>Номер из кармана</h2><p class="lead">какой повесить</p><div class="body">${pocket.map((p) => `<div class="pick" data-p="${p.plate}">${plateHtml(p.pretty, p.plate)}<span class="dot"></span></div>`).join('')}</div>
+        <div class="foot"><button class="btn" data-m="cancel">Отмена</button><button class="btn main" data-m="ok" disabled>Повесить · ${rub(state.prices.swap)}</button></div>`);
+      let chosen = null;
+      $('#box').onclick = (ev) => {
+        const p = ev.target.closest('.pick');
+        if (p) { document.querySelectorAll('.pick').forEach((x) => x.classList.remove('on')); p.classList.add('on'); chosen = p.dataset.p; $('[data-m=ok]').disabled = false; }
+        const m = ev.target.closest('[data-m]');
+        if (m?.dataset.m === 'cancel') closeModal();
+        if (m?.dataset.m === 'ok' && chosen) act('attach', { plate: chosen, vehicleId: v });
+      };
+    }
+  }
+});
+
+document.querySelectorAll('nav button').forEach((b) => b.onclick = () => { tab = b.dataset.tab; render(); });
+$('#close').onclick = () => close();
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!$('#modal').classList.contains('hidden')) closeModal(); else close(); } });
+
+function close() { $('#app').classList.add('hidden'); closeModal(); if (!preview) post('close'); }
+function open(data) {
+  state = data;
+  $('#region').innerHTML = data.regions.map((r) => `<option value="${r.code}" ${r.code === data.region ? 'selected' : ''}>${esc(r.label)}</option>`).join('');
+  $('#app').classList.remove('hidden'); render();
+}
+
+window.addEventListener('message', (e) => {
+  const { action, data } = e.data || {};
+  if (action === 'open') open(data);
+  if (action === 'close') { $('#app').classList.add('hidden'); closeModal(); }
+});
+
+// предпросмотр в браузере: html/index.html?preview
+function mock(name, body) {
+  if (body?.name === 'choices') return { list: ['К319ВМ95', 'М052ТР95', 'Е744ХС95', 'В610АО95', 'Т238КН95'].map((p) => ({ plate: p, pretty: `${p[0]} ${p.slice(1, 4)} ${p.slice(4, 6)} ${p.slice(6)}` })) };
+  return { ok: 'готово (предпросмотр)', data: state };
+}
+if (preview) {
+  document.body.classList.add('preview');
+  open({
+    region: '95', regions: [{ code: '95', label: '95 — Нагорск' }, { code: '20', label: '20 — «старые»' }, { code: '05', label: '05 — соседняя республика' }],
+    prices: { window: 7000, choose: 25000, dps: 3000, dpsShare: 1000, swap: 2000, commission: 0.05 },
+    vehicles: [
+      { id: 1, label: 'Лада Приора', plate: 'A777AA95', pretty: 'А 777 АА 95', registered: true, state: 1 },
+      { id: 2, label: 'Toyota Camry 70', plate: 'TR482113', pretty: 'TR482113', registered: false, state: 0 },
+      { id: 3, label: 'Mercedes G63', plate: 'K095KK95', pretty: 'К 095 КК 95', registered: true, state: 2 },
+    ],
+    plates: [
+      { plate: 'A777AA95', pretty: 'А 777 АА 95', vehicle_id: 1, tier: 'blat', tierLabel: 'полный блат' },
+      { plate: 'K095KK95', pretty: 'К 095 КК 95', vehicle_id: 3, tier: 'region', tierLabel: 'регион «095»' },
+      { plate: 'E512MH05', pretty: 'Е 512 МН 05', vehicle_id: null },
+    ],
+  });
+}
+</script>
+</body>
+</html>

@@ -3,7 +3,8 @@
 #   1) копирует overrides\resources\... поверх ресурсов сервера (переводы ru.json, конфиги);
 #   2) копирует наши ресурсы resources\[kavkaz]\... ;
 #   3) кладёт overrides\kavkaz.cfg рядом с server.cfg и добавляет в конец server.cfg строку "exec kavkaz.cfg";
-#   4) включает русский язык в ox.cfg.
+#   4) включает русский язык в ox.cfg;
+#   5) подключает небесно-синюю тему ox_inventory (строка <link> в его web/build/index.html).
 # заменённые файлы сохраняются в C:\kavkaz\backup-overrides\<дата>\ — ничего не теряется.
 # запуск: powershell -ExecutionPolicy Bypass -File setup\apply-overrides.ps1 [-Base "C:\kavkaz\txData\Qbox_XXXX.base"]
 param([string]$Base)
@@ -74,6 +75,33 @@ if (Test-Path -LiteralPath $oxCfg) {
         [IO.File]::WriteAllText($oxCfg, $new, (New-Object Text.UTF8Encoding($false)))
         Write-Host '  + ox.cfg: ox:locale = ru'
     }
+}
+
+Write-Host '5) тема ox_inventory (небесно-синяя)'
+$invHtml = Join-Path $Base 'resources\[ox]\ox_inventory\web\build\index.html'
+if (-not (Test-Path -LiteralPath $invHtml)) {
+    $found = Get-ChildItem -LiteralPath (Join-Path $Base 'resources') -Recurse -Filter 'index.html' -ErrorAction SilentlyContinue |
+        Where-Object { $_.FullName -like '*\ox_inventory\web\build\index.html' } | Select-Object -First 1
+    if ($found) { $invHtml = $found.FullName }
+}
+if (Test-Path -LiteralPath $invHtml) {
+    $themeDst = Join-Path (Split-Path -Parent $invHtml) 'assets\kavkaz-theme.css'
+    if (-not (Test-Path -LiteralPath $themeDst)) {
+        # ox_inventory лежит не в [ox] — копируем тему рядом с его index.html
+        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $themeDst) | Out-Null
+        Copy-Item -LiteralPath (Join-Path $repo 'overrides\resources\[ox]\ox_inventory\web\build\assets\kavkaz-theme.css') -Destination $themeDst -Force
+    }
+    $html = [IO.File]::ReadAllText($invHtml)
+    if ($html -notmatch 'kavkaz-theme\.css') {
+        New-Item -ItemType Directory -Force -Path $backup | Out-Null
+        Copy-Item -LiteralPath $invHtml -Destination (Join-Path $backup 'ox_inventory-index.html') -Force
+        # KAVKAZ: подключаем свою тему последней, чтобы она перекрывала стили ox_inventory
+        $html = $html -replace '</head>', '<link rel="stylesheet" href="./assets/kavkaz-theme.css"></head>'
+        [IO.File]::WriteAllText($invHtml, $html, (New-Object Text.UTF8Encoding($false)))
+        Write-Host '  + ox_inventory/web/build/index.html: подключена kavkaz-theme.css'
+    }
+} else {
+    Write-Host '  ! ox_inventory не найден, тему пропускаю'
 }
 
 Write-Host ''
