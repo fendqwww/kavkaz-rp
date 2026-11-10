@@ -17,6 +17,7 @@ files {
     'html/style.css',
     'html/app.js',
     'html/golos-text.woff2',
-    'html/manrope-cyrillic.woff2',
-    'html/manrope-latin.woff2',
+    'html/saira-italic-latin.woff2',
+    'html/unbounded-cyrillic.woff2',
+    'html/unbounded-latin.woff2',
 }

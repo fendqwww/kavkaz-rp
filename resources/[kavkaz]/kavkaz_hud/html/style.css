@@ -1,20 +1,21 @@
-/* KAVKAZ RP — HUD по образцу крупных RP-проектов: тонкий круглый спидометр, инфо у миникарты, подсказки клавиш справа.
-   цвета: изумруд #2FBF8A, золото #E3B341, опасное #E5534B. фон панелей почти не нужен — текст с тенью поверх игры. */
-/* KAVKAZ RP: единый шрифт интерфейса — Manrope (SIL OFL 1.1, близок к Gilroy). «Montserrat» и «Golos Text» — псевдонимы, чтобы старые стили взяли Manrope */
-@font-face{font-family:'Montserrat';font-style:normal;font-weight:100 900;font-display:block;src:url(manrope-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;}
-@font-face{font-family:'Montserrat';font-style:normal;font-weight:100 900;font-display:block;src:url(manrope-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD, U+20BD;}
-@font-face{font-family:'Montserrat';font-style:italic;font-weight:100 900;font-display:block;src:url(manrope-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;}
-@font-face{font-family:'Montserrat';font-style:italic;font-weight:100 900;font-display:block;src:url(manrope-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD, U+20BD;}
-@font-face{font-family:'Golos Text';font-style:normal;font-weight:100 900;font-display:block;src:url(manrope-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;}
-@font-face{font-family:'Golos Text';font-style:normal;font-weight:100 900;font-display:block;src:url(manrope-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD, U+20BD;}
+/* KAVKAZ RP — HUD. стиль: .claude/skills/kavkaz-ui (без панелей, текст с тенью поверх игры, один акцент).
+   шрифты: Golos Text — текст, Unbounded — подписи капсом, Saira Italic — цифры. все OFL, лежат рядом. */
+@font-face { font-family: 'Golos Text'; font-weight: 400 900; font-display: block; src: url(golos-text.woff2) format('woff2'); }
+@font-face { font-family: 'Unbounded'; font-weight: 400 900; font-display: block; src: url(unbounded-cyrillic.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Unbounded'; font-weight: 400 900; font-display: block; src: url(unbounded-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+2000-206F; }
+@font-face { font-family: 'Saira'; font-style: italic; font-weight: 300 900; font-display: block; src: url(saira-italic-latin.woff2) format('woff2');
+  unicode-range: U+0020-007E; }
 
 :root {
-  --text: #f4f7f5;
-  --muted: rgba(244, 247, 245, 0.62);
-  --em: #2fbf8a;
+  --text: #f2f3f5;
+  --muted: rgba(242, 243, 245, 0.62);
+  --dim: rgba(242, 243, 245, 0.28);
+  --acc: #2fbf8a;
   --gold: #e3b341;
   --red: #e5534b;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.85), 0 0 6px rgba(0, 0, 0, 0.35);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 0, 0, 0.5);
   --mm-left: 1.5vw;
   --mm-bottom: 2.5vh;
   --mm-w: 14vw;
@@ -22,133 +23,131 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { font-size: 1.48vh; }
+html { font-size: 1.48vh; } /* 1rem ≈ 16 px на 1080p */
 html, body {
   width: 100%; height: 100%; overflow: hidden; background: transparent;
   font-family: 'Golos Text', 'Segoe UI', sans-serif; color: var(--text);
   user-select: none; -webkit-font-smoothing: antialiased;
 }
 svg { fill: currentColor; }
+.num { font-family: 'Saira', 'Golos Text', sans-serif; font-style: italic; font-variant-numeric: tabular-nums; }
 #hud { transition: opacity 0.25s; text-shadow: var(--shadow); }
 #hud.off { opacity: 0; }
 
 /* ===== справа сверху ===== */
-#brand { position: absolute; top: 2vh; right: 1.4vw; text-align: right; }
-.logo svg { width: 14rem; height: auto; display: block; margin-left: auto; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6)); }
-.meta { margin-top: 0.3rem; font-size: 0.85rem; font-weight: 600; color: var(--muted); }
-.meta b { color: var(--text); }
-.meta i { display: inline-block; width: 0.25rem; height: 0.25rem; border-radius: 50%; background: var(--em); margin: 0 0.5rem; vertical-align: 0.15rem; }
+#brand { position: absolute; top: 2.2vh; right: 1.5vw; text-align: right; }
+.logo { display: flex; align-items: center; justify-content: flex-end; gap: 0.45rem; }
+.logo .word { font: 800 1.75rem/1 'Unbounded', sans-serif; letter-spacing: 0.04em; }
+.logo .rp { font: 800 0.75rem/1 'Unbounded', sans-serif; letter-spacing: 0.06em; color: #0d0e0f; background: var(--acc);
+  padding: 0.3rem 0.35rem; border-radius: 0.25rem; text-shadow: none; }
+.meta { margin-top: 0.45rem; font-size: 0.95rem; font-weight: 500; color: var(--muted); }
+.meta b { color: var(--text); font-weight: 700; }
+.meta .sl { color: var(--dim); margin-left: 0.15rem; }
+.meta i { display: inline-block; width: 0.3rem; height: 0.3rem; border-radius: 50%; background: var(--acc); margin: 0 0.6rem; vertical-align: 0.18rem; }
 
-/* ===== подсказки клавиш ===== */
+/* ===== подсказки клавиш: буква жирно, действие обычным, без рамок ===== */
 #hints {
-  position: absolute; right: 1.4vw; top: 34vh;
-  display: flex; flex-direction: column; gap: 0.32rem; align-items: flex-start;
+  position: absolute; right: 1.5vw; top: 33vh;
+  display: grid; grid-template-columns: auto auto; column-gap: 0.8rem; row-gap: 0.42rem; justify-items: end;
   transition: opacity 0.25s;
 }
 #hints.off { opacity: 0; }
-#hints .h { display: flex; align-items: center; gap: 0.55rem; font-size: 0.82rem; font-weight: 600; }
-#hints kbd {
-  min-width: 2.3rem; height: 1.45rem; padding: 0 0.35rem; border-radius: 0.3rem;
-  display: inline-flex; align-items: center; justify-content: center;
-  background: rgba(15, 20, 18, 0.72); border: 1px solid rgba(255, 255, 255, 0.16);
-  font-family: inherit; font-size: 0.7rem; font-weight: 800; text-shadow: none;
-}
+#hints .h { display: contents; }
+#hints kbd { font: 700 0.95rem 'Golos Text', sans-serif; color: var(--text); justify-self: end; }
+#hints span { font-size: 0.95rem; font-weight: 500; color: rgba(242, 243, 245, 0.82); justify-self: start; }
 
 /* ===== у миникарты ===== */
 #info {
   position: absolute;
-  left: calc(var(--mm-left) + var(--mm-w) + 0.9vw);
+  left: calc(var(--mm-left) + var(--mm-w) + 1vw);
   bottom: var(--mm-bottom);
-  display: flex; flex-direction: column; gap: 0.12rem;
+  display: flex; flex-direction: column; gap: 0.1rem;
   white-space: nowrap;
 }
-.status { display: flex; gap: 0.35rem; margin-bottom: 0.45rem; }
-.st {
-  --p: 100; --c: var(--em);
-  position: relative; width: 2.05rem; height: 2.05rem; border-radius: 50%;
-  background: rgba(15, 20, 18, 0.6);
-  display: flex; align-items: center; justify-content: center;
-}
-.st::before {
-  content: ''; position: absolute; inset: 0; border-radius: 50%;
-  background: conic-gradient(var(--c) calc(var(--p) * 1%), rgba(255, 255, 255, 0.12) 0);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 0.18rem), #000 calc(100% - 0.16rem));
-}
-.st svg { width: 0.95rem; height: 0.95rem; color: var(--c); position: relative; }
-.st.hp { --c: #ef6a62; } .st.armor { --c: #c9d4ce; } .st.hunger { --c: var(--gold); }
+.status { display: flex; gap: 0.9rem; margin-bottom: 0.55rem; align-items: center; }
+.st { --p: 100; --c: var(--text); display: flex; align-items: center; gap: 0.3rem; color: var(--c); }
+.st svg { width: 1.05rem; height: 1.05rem; }
+.st b { font: italic 700 1rem 'Saira', sans-serif; font-variant-numeric: tabular-nums; color: var(--text); }
+.st.hp { --c: #ef6a62; } .st.armor { --c: #b9c4cf; } .st.hunger { --c: var(--gold); }
 .st.thirst { --c: #5cc8d0; } .st.stress { --c: #b48cf2; } .st.oxygen { --c: #9fe3d0; }
 .st.hide, .radio.hide { display: none; }
-.st.low { animation: low 1s infinite; }
-.st.low svg { color: var(--red); }
-@keyframes low { 50% { transform: scale(1.1); } }
-.voice, .radio {
-  width: 2.05rem; height: 2.05rem; border-radius: 50%; background: rgba(15, 20, 18, 0.6);
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.08rem; color: var(--muted);
-}
-.voice svg { width: 0.85rem; height: 0.85rem; }
-.voice .bars { display: flex; gap: 0.1rem; }
-.voice .bars i { width: 0.18rem; height: 0.18rem; border-radius: 50%; background: rgba(255, 255, 255, 0.2); }
-.voice[data-r="1"] .bars i:nth-child(-n+1), .voice[data-r="2"] .bars i:nth-child(-n+2), .voice[data-r="3"] .bars i:nth-child(-n+3) { background: currentColor; }
-.voice.talk { color: var(--em); box-shadow: 0 0 0 0.14rem rgba(47, 191, 138, 0.35); }
+.st.low b { color: var(--red); animation: low 1s steps(2) infinite; }
+@keyframes low { 50% { opacity: 0.35; } }
+.voice, .radio { display: flex; align-items: center; gap: 0.25rem; color: var(--dim); }
+.voice svg, .radio svg { width: 1.05rem; height: 1.05rem; }
+.voice .bars { display: flex; gap: 0.12rem; align-items: flex-end; }
+.voice .bars i { width: 0.2rem; background: var(--dim); border-radius: 1px; }
+.voice .bars i:nth-child(1) { height: 0.35rem; } .voice .bars i:nth-child(2) { height: 0.55rem; } .voice .bars i:nth-child(3) { height: 0.75rem; }
+.voice[data-r="1"] .bars i:nth-child(-n+1), .voice[data-r="2"] .bars i:nth-child(-n+2), .voice[data-r="3"] .bars i:nth-child(-n+3) { background: var(--text); }
+.voice.talk { color: var(--acc); }
+.voice.talk .bars i { background: var(--acc) !important; }
 .radio { color: var(--gold); }
-.radio svg { width: 0.8rem; height: 0.8rem; }
-.radio b { font-size: 0.55rem; line-height: 1; }
+.radio b { font: italic 700 0.95rem 'Saira', sans-serif; }
 
-.when { display: flex; align-items: baseline; gap: 0.55rem; }
-.when b { font-size: 1.45rem; font-weight: 800; letter-spacing: 0.01em; }
-.when span { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
-.day { display: flex; align-items: center; gap: 0.6rem; font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: capitalize; }
-.weather { display: inline-flex; align-items: center; gap: 0.25rem; text-transform: none; }
-.weather svg { width: 0.9rem; height: 0.9rem; }
-.place { margin-top: 0.3rem; display: flex; align-items: baseline; gap: 0.5rem; }
-.place b { font-size: 1.05rem; font-weight: 800; }
-.place span { font-size: 0.75rem; font-weight: 800; color: var(--em); }
-.money { margin-top: 0.3rem; display: flex; flex-direction: column; gap: 0.05rem; font-variant-numeric: tabular-nums; }
-.money div { display: flex; align-items: center; gap: 0.4rem; font-weight: 800; }
-.money svg { width: 0.95rem; height: 0.95rem; }
-.money .cash { color: var(--gold); font-size: 1.1rem; }
-.money .bank { color: var(--text); font-size: 0.9rem; }
-.money .bank svg { color: var(--em); }
+.when { display: flex; align-items: baseline; gap: 0.6rem; }
+.when b { font-size: 1.9rem; font-weight: 700; line-height: 1.05; }
+.when span { font-size: 1rem; font-weight: 500; color: var(--muted); }
+.day { display: flex; align-items: center; gap: 0.5rem; font-size: 1rem; font-weight: 500; color: var(--muted); }
+.day .dot { width: 0.22rem; height: 0.22rem; border-radius: 50%; background: var(--dim); }
+.place { margin-top: 0.35rem; display: flex; align-items: baseline; gap: 0.55rem; }
+.place b { font-size: 1.2rem; font-weight: 700; }
+.place span { font: 700 0.8rem 'Unbounded', sans-serif; color: var(--muted); }
+.money { margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.05rem; }
+.money div { display: flex; align-items: baseline; gap: 0.4rem; }
+.money svg { width: 1.05rem; height: 1.05rem; align-self: center; }
+.money b { font-weight: 700; }
+.money .rub { font-weight: 600; }
+.money .cash { color: var(--gold); font-size: 1.35rem; }
+.money .bank { color: var(--text); font-size: 1.05rem; }
+.money .bank svg { color: var(--muted); }
 
-#pops { position: absolute; left: 0; bottom: 100%; margin-bottom: 0.4rem; display: flex; flex-direction: column-reverse; gap: 0.15rem; }
-.pop { font-size: 0.95rem; font-weight: 800; animation: pop 3.2s ease forwards; }
-.pop.plus { color: var(--em); } .pop.minus { color: var(--red); }
-.pop small { color: var(--muted); font-weight: 600; font-size: 0.72rem; margin-left: 0.3rem; }
+#pops { display: flex; flex-direction: column-reverse; gap: 0.1rem; margin-bottom: 0.35rem; }
+.pop { font: italic 700 1.15rem 'Saira', sans-serif; animation: pop 3.2s ease forwards; }
+.pop.plus { color: var(--acc); } .pop.minus { color: var(--red); }
+.pop small { font: 500 0.85rem 'Golos Text', sans-serif; color: var(--muted); margin-left: 0.35rem; }
 @keyframes pop { 0% { opacity: 0; transform: translateY(0.4rem); } 10% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; } }
 
-/* ===== спидометр ===== */
+/* ===== спидометр «А» ===== */
 #speedo {
-  position: absolute; right: 1.6vw; bottom: 2.4vh; width: 11.5rem;
-  display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
-  transition: opacity 0.25s, transform 0.25s;
+  position: absolute; right: 1.4vw; bottom: 2.2vh; width: 23.5rem; height: 18.5rem;
+  transition: opacity 0.3s, transform 0.3s;
 }
-#speedo.off { opacity: 0; transform: translateY(1rem); }
-.gauge { position: relative; width: 11.5rem; height: 11.5rem; }
-.dial { width: 100%; height: 100%; overflow: visible; }
-.dial path { fill: none; stroke-linecap: round; }
-.dial .track { stroke: rgba(255, 255, 255, 0.22); stroke-width: 3.5; }
-.dial .fill { stroke: #ffffff; stroke-width: 3.5; stroke-dasharray: 0 100; transition: stroke-dasharray 0.1s linear; filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.7)); }
-.dial .rpmtrack { stroke: rgba(255, 255, 255, 0.08); stroke-width: 2; }
-.dial .rpm { stroke: var(--em); stroke-width: 2; stroke-dasharray: 0 100; transition: stroke-dasharray 0.08s linear; }
+#speedo.off { opacity: 0; transform: translateY(1.2rem); }
+.dial { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.75)); }
+.dial path { fill: none; }
+.dial .track { stroke: rgba(255, 255, 255, 0.2); stroke-width: 3; }
+.dial .red { stroke: var(--red); stroke-width: 3; }
+.dial .fill { stroke: #fff; stroke-width: 3.5; stroke-linecap: round; }
+.dial .rpm { stroke: var(--acc); stroke-width: 3; stroke-linecap: round; opacity: 0.95; }
 .dial .rpm.hot { stroke: var(--red); }
-.dial #ticks line { stroke: rgba(255, 255, 255, 0.55); stroke-width: 1.4; }
-.dial #ticks text { fill: rgba(255, 255, 255, 0.7); font-size: 8.5px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; font-family: 'Golos Text', sans-serif; }
+.dial line { stroke: rgba(255, 255, 255, 0.5); stroke-width: 2; }
+.dial line.big { stroke: #fff; stroke-width: 3; }
+.dial text { fill: rgba(255, 255, 255, 0.8); font: italic 600 14px 'Saira', sans-serif; text-anchor: middle; dominant-baseline: middle; }
 
-.center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 0.4rem; }
-.speed { font-size: 3.3rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
-.unit { font-size: 0.75rem; font-weight: 700; color: var(--muted); letter-spacing: 0.06em; }
-.bottom { position: absolute; left: 0; right: 0; bottom: 0.9rem; display: flex; justify-content: center; align-items: center; gap: 0.7rem; }
-.gear { font-size: 1.1rem; font-weight: 900; color: var(--gold); min-width: 1rem; text-align: center; }
-.gear.n { color: var(--text); } .gear.r { color: var(--red); } .gear.hide { display: none; }
-.fuel { display: inline-flex; align-items: center; gap: 0.2rem; font-size: 0.8rem; font-weight: 800; }
-.fuel svg { width: 0.85rem; height: 0.85rem; color: var(--gold); }
-.fuel.low, .fuel.low svg { color: var(--red); }
-.fuel.hide { display: none; }
+.mid { position: absolute; left: 0; right: 0; top: 7rem; display: flex; justify-content: center; align-items: center; gap: 0.7rem; }
+.gear { width: 1.9rem; height: 2.5rem; border-radius: 0.3rem; background: #fff; color: #0d0e0f; text-shadow: none;
+  display: grid; place-items: center; font: italic 800 1.6rem 'Saira', sans-serif; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5); }
+.gear.n { background: rgba(255, 255, 255, 0.85); }
+.gear.r { background: var(--red); color: #fff; }
+.gear.hide { visibility: hidden; }
+.reel { display: flex; height: 5.6rem; font: italic 800 5.6rem/5.6rem 'Saira', sans-serif; letter-spacing: -0.02em;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7)); text-shadow: none; }
+.reel .col { width: 3.35rem; height: 5.6rem; clip-path: inset(0 -3rem); }
+.reel .strip { will-change: transform; }
+.reel .strip span { display: block; height: 5.6rem; text-align: center; }
+.reel .col.lead { color: transparent; -webkit-text-stroke: 0.12rem rgba(255, 255, 255, 0.38); }
+.unit { position: absolute; left: 0; right: 0; top: 13rem; text-align: center; font: 700 0.85rem 'Unbounded', sans-serif; letter-spacing: 0.3em; color: var(--muted); }
 
-.icons { display: flex; gap: 0.55rem; }
-.icons span { color: rgba(255, 255, 255, 0.28); }
-.icons svg { width: 1.05rem; height: 1.05rem; }
-.icons .on { color: var(--em); } .icons .warn { color: var(--gold); } .icons .bad { color: var(--red); }
-.icons .blink { animation: blink 0.8s steps(2) infinite; }
-.icons .hide { display: none; }
-@keyframes blink { 50% { color: rgba(255, 255, 255, 0.2); } }
+.row { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; align-items: center; gap: 0.85rem; color: var(--dim); }
+.row > span { display: inline-flex; align-items: center; }
+.row svg { width: 1.15rem; height: 1.15rem; }
+.row .on { color: var(--acc); } .row .warn { color: var(--gold); } .row .bad { color: var(--red); }
+.row .blink { animation: blink 0.8s steps(2) infinite; }
+.row .hide { display: none; }
+@keyframes blink { 50% { opacity: 0.25; } }
+.fuel { gap: 0.4rem; color: var(--gold); }
+.fuel i { width: 4.2rem; height: 0.28rem; border-radius: 2px; background: rgba(255, 255, 255, 0.18); overflow: hidden; display: block; }
+.fuel s { display: block; height: 100%; width: 100%; background: currentColor; transition: width 0.4s; }
+.fuel b { font-size: 1rem; font-weight: 700; color: var(--text); min-width: 2.6rem; }
+.fuel.low { color: var(--red); }
+.fuel.hide { display: none !important; }
