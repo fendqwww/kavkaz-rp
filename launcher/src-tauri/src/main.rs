@@ -268,13 +268,26 @@ fn open_external(url: &str) -> Result<(), String> {
     }
 }
 
+/// FiveM со ссылкой fivem:// запускается только из проводника или браузера:
+/// через `cmd /C start` он пишет «should be launched directly from the shell». поэтому отдаём ссылку explorer.exe.
+fn open_fivem(url: &str) -> Result<(), String> {
+    #[cfg(windows)]
+    {
+        std::process::Command::new("explorer").arg(url).spawn().map(|_| ()).map_err(|e| e.to_string())
+    }
+    #[cfg(not(windows))]
+    {
+        open_external(url)
+    }
+}
+
 #[tauri::command]
 fn play(app: tauri::AppHandle, address: String) -> Result<(), String> {
     let a = with_port(&address);
     if !valid_address(&a) {
         return Err("адрес сервера ещё не задан".into());
     }
-    open_external(&format!("fivem://connect/{a}"))?;
+    open_fivem(&format!("fivem://connect/{a}"))?;
     if read_settings().close_on_play {
         std::thread::spawn(move || {
             std::thread::sleep(Duration::from_secs(4));

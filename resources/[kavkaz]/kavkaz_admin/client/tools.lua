@@ -98,9 +98,23 @@ local function setNoclip(state)
     end)
 end
 
+-- пока ждём ответа сервера, повторное нажатие игнорируем: иначе два быстрых нажатия
+-- оба проходят проверку, пишут в лог «включил» дважды, и второе сразу выключает noclip
+local busy = {}
+local function guarded(key, fn)
+    if busy[key] then return end
+    busy[key] = true
+    local ok, err = pcall(fn)
+    busy[key] = nil
+    if not ok then error(err, 0) end
+end
+
 local function toggleNoclip()
-    if not noclip and not Allowed('noclip', 'включил') then return end
-    setNoclip(not noclip)
+    guarded('noclip', function()
+        if noclip then return setNoclip(false) end
+        if not Allowed('noclip', 'включил') or noclip then return end
+        setNoclip(true)
+    end)
 end
 RegisterCommand('noclip', toggleNoclip, false)
 
@@ -180,9 +194,11 @@ local function setInvisible(state)
 end
 
 RegisterCommand('invis', function()
-    if not invisible and not Allowed('invis', 'включил') then return end
-    setInvisible(not invisible)
-    lib.notify({ description = invisible and 'ты невидим' or 'ты снова видим', type = 'inform' })
+    guarded('invis', function()
+        if not invisible and (not Allowed('invis', 'включил') or invisible) then return end
+        setInvisible(not invisible)
+        lib.notify({ description = invisible and 'ты невидим' or 'ты снова видим', type = 'inform' })
+    end)
 end, false)
 
 ---------------------------------------------------------------------------

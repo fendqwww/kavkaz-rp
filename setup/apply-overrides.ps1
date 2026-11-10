@@ -63,6 +63,22 @@ if ($text -notmatch '(?m)^\s*exec\s+kavkaz\.cfg\s*$') {
     [IO.File]::WriteAllText($serverCfg, $text, (New-Object Text.UTF8Encoding($false)))
     Write-Host '  + server.cfg: добавлена строка exec kavkaz.cfg'
 }
+# автопарк kavkaz_cars должен стартовать раньше qbx_core: qbx_core при старте читает kavkaz_cars/cars.lua (названия, цены)
+$text = [IO.File]::ReadAllText($serverCfg)
+if ($text -notmatch '(?m)^\s*ensure\s+kavkaz_cars\s*$') {
+    $nl = if ($text -match "`r`n") { "`r`n" } else { "`n" }
+    $m = [regex]::Match($text, '(?m)^\s*ensure\s+qbx_core\s*$')
+    if ($m.Success) {
+        $bak = Join-Path $backup 'server.cfg'
+        New-Item -ItemType Directory -Force -Path $backup | Out-Null
+        if (-not (Test-Path -LiteralPath $bak)) { Copy-Item -LiteralPath $serverCfg -Destination $bak -Force }
+        $text = $text.Insert($m.Index, "## KAVKAZ RP: автопарк — раньше qbx_core (setup/apply-overrides)${nl}ensure kavkaz_cars${nl}")
+        [IO.File]::WriteAllText($serverCfg, $text, (New-Object Text.UTF8Encoding($false)))
+        Write-Host '  + server.cfg: ensure kavkaz_cars перед ensure qbx_core'
+    } else {
+        Write-Host '  ! в server.cfg нет строки ensure qbx_core — поставь ensure kavkaz_cars перед ней вручную'
+    }
+}
 
 Write-Host '4) язык в ox.cfg'
 $oxCfg = Join-Path $Base 'ox.cfg'

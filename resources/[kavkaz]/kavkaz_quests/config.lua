@@ -9,7 +9,7 @@ Config.Npcs = {
     islam   = { name = 'Ислам', model = 'a_m_y_soucent_01', coords = vec4(193.0, -929.0, 30.69, 200.0),           scenario = 'WORLD_HUMAN_STAND_MOBILE', blip = { sprite = 280, color = 3, label = 'Ислам: помощь новичкам' } },
     isa     = { name = 'Иса Медович', model = 's_m_m_scientist_01', coords = vec4(-1637.0, 182.0, 61.76, 300.0),   scenario = 'WORLD_HUMAN_CLIPBOARD', blip = { sprite = 499, color = 2, label = 'Лаборатория Исы Медовича' } },
     zarema  = { name = 'Зарема Поворотовна', model = 'a_f_y_business_04', coords = vec4(-549.5, -199.5, 38.22, 210.0), scenario = 'WORLD_HUMAN_CLIPBOARD', blip = { sprite = 545, color = 3, label = 'Автошкола' } },
-    zaur    = { name = 'Заур (прокат скутеров)', model = 'a_m_y_business_02', coords = vec4(213.5, -926.0, 30.69, 230.0), scenario = 'WORLD_HUMAN_STAND_MOBILE', blip = { sprite = 348, color = 3, label = 'Прокат скутеров у Заура' } },
+    zaur    = { name = 'Заур (прокат скутеров)', model = 'a_m_y_business_02', coords = vec4(200.5, -936.0, 30.69, 70.0), scenario = 'WORLD_HUMAN_STAND_MOBILE', blip = { sprite = 348, color = 3, label = 'Прокат скутеров у Заура' } },
     -- линия «Закон»
     ruslan  = { name = 'Участковый Руслан Протоколович', model = 's_m_y_cop_01', coords = vec4(441.0, -982.0, 30.69, 90.0), scenario = 'WORLD_HUMAN_COP_IDLES',
                 idle = 'Порядок на участке — порядок в голове. Вопросы — заходи.' },
@@ -41,7 +41,7 @@ Config.Npcs = {
 
 -- места
 Config.Places = {
-    scooter = vec4(218.0, -919.0, 30.0, 150.0), -- где Заур ставит скутер
+    scooter = vec4(204.0, -939.5, 30.0, 70.0), -- где Заур ставит скутер (рядом с ним, на площадке)
 }
 
 -- машины (модели GTA, пока нет своих: «Семёрка» — когда поставим мод)
@@ -49,6 +49,10 @@ Config.Cars = {
     scooter = 'faggio', -- прокатный скутер
     school = 'asea',    -- учебная машина автошколы
 }
+
+-- первая машина новичка: старая «Семёрка» Румисы (kavkaz_cars/cars.lua, kv_vaz2107 — не продаётся в салоне).
+-- один раз на персонажа: нужны права (driver_license) и доверие Румисы. машина кладётся в гараж мотеля.
+Config.StarterCar = { car = 'kv_vaz2107', trust = 5, garage = 'motelgarage' }
 
 -- линия «Порог»
 -- старт: приехал на родину с этой суммой (один раз, новому персонажу). на что её хватает — Config.Budget

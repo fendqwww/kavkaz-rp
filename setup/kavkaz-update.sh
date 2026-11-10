@@ -160,6 +160,40 @@ if [ $need_kavkaz = 1 ] || [ $need_secrets = 1 ]; then
   fi
 fi
 
+# автопарк kavkaz_cars должен стартовать раньше qbx_core: qbx_core при старте читает kavkaz_cars/cars.lua (названия, цены)
+if [ -d "$SRC/resources/[kavkaz]/kavkaz_cars" ] && ! grep -Eq '^[[:space:]]*ensure[[:space:]]+kavkaz_cars[[:space:]]*\r?$' "$CFG"; then
+  if grep -Eq '^[[:space:]]*ensure[[:space:]]+qbx_core[[:space:]]*\r?$' "$CFG"; then
+    [ -f "$BACKUP/server.cfg" ] || backup "$CFG"
+    n=$(grep -En '^[[:space:]]*ensure[[:space:]]+qbx_core[[:space:]]*\r?$' "$CFG" | head -n1 | cut -d: -f1)
+    sed -i "${n}i ## KAVKAZ RP: автопарк — раньше qbx_core (setup/kavkaz-update.sh)\nensure kavkaz_cars" "$CFG"
+    say '  + server.cfg: ensure kavkaz_cars перед ensure qbx_core'
+  else
+    warn 'в server.cfg нет строки ensure qbx_core — поставь ensure kavkaz_cars перед ней вручную'
+  fi
+fi
+
+step '3.5) машины [cars]'
+# модели в git не идут: их кладут на VPS в resources/[cars] сервера (scp / WinSCP). здесь — только cars.cfg (аналог install-cars.ps1)
+CARS="$BASE/resources/[cars]"
+if [ -d "$CARS" ]; then
+  {
+    printf '## KAVKAZ RP: машины — файл пишет setup/kavkaz-update.sh, руками не править\n'
+    for d in "$CARS"/*/; do
+      [ -f "$d/fxmanifest.lua" ] && printf 'ensure %s\n' "$(basename "$d")"
+    done | sort
+  } > "$BASE/cars.cfg.new"
+  if cmp -s "$BASE/cars.cfg.new" "$BASE/cars.cfg" 2>/dev/null; then rm -f "$BASE/cars.cfg.new"; else mv "$BASE/cars.cfg.new" "$BASE/cars.cfg"; say "  + cars.cfg"; fi
+  if ! grep -Eq '^[[:space:]]*exec[[:space:]]+cars\.cfg[[:space:]]*\r?$' "$CFG"; then
+    [ -f "$BACKUP/server.cfg" ] || backup "$CFG"
+    printf '\n## KAVKAZ RP: машины (setup/kavkaz-update.sh)\nexec cars.cfg\n' >> "$CFG"
+    say '  + server.cfg: exec cars.cfg'
+  fi
+  mb=$(du -smc "$CARS"/*/stream 2>/dev/null | tail -n1 | cut -f1)
+  say "  машин: $(grep -c '^ensure ' "$BASE/cars.cfg" || true), стрим ${mb:-0} МБ"
+else
+  say "  моделей машин на сервере нет ($CARS) — пропускаю"
+fi
+
 step '4) язык в ox.cfg'
 OX=$BASE/ox.cfg
 if [ -f "$OX" ] && grep -Eq '^setr ox:locale "[a-z-]+"' "$OX" && ! grep -q '^setr ox:locale "ru"' "$OX"; then

@@ -73,7 +73,7 @@ RegisterCommand('mypos', function()
     print(text)
     lib.notify({ title = 'Координаты скопированы', description = text .. '\nзона: ' .. GetNameOfZone(c.x, c.y, c.z), type = 'inform', duration = 8000 })
 end, false)
-TriggerEvent('chat:addSuggestion', '/mypos', 'Скопировать свои координаты (для конфига карты)')
+-- подсказка в чате — в kavkaz_help/config.lua (видна админам на смене)
 
 AddEventHandler('onResourceStop', function(res)
     if res ~= GetCurrentResourceName() then return end

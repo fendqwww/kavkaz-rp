@@ -32,6 +32,13 @@ kavkaz-update --restart
 | `[qbx]/qbx_properties/config/shared.lua` | стартовые квартиры на русском («Морской берег», «Сити-Тауэр» …) |
 | `*/locales/ru.json` | переводы: qbx_spawn, qbx_properties, qbx_cityhall, qbx_hud, qbx_seatbelt, ox_target |
 | `[ox]/ox_inventory/.../kavkaz-theme.css`, `[ox]/ox_lib/web/build/kavkaz-theme.css` | темы инвентаря и меню ox_lib: шрифт Golos Text, плоский спокойный стиль. исходники — `overrides/theme/*.css`, пересборка — `python setup/build-theme.py`. `apply-overrides` сам подключает их строкой `<link>` в `web/build/index.html` |
+| `[qbx]/qbx_hud/config/shared.lua` | миникарта видна и пешком (`isOutMapChecked = true`) |
+| `[qbx]/qbx_core/shared/main.lua` | подмешивает автопарк из `kavkaz_cars/cars.lua` (русские названия, цены, разделы) в список машин сервера. строки `-- KAVKAZ:` |
+| `[qbx]/qbx_vehicleshop/config/shared.lua` | салон «Нагорье Моторс»: только наши машины, русские разделы, витрина; лодки и авиация как были |
+| `[qbx]/qbx_vehicleshop/config/server.lua` | `giveKeys` — номер от kavkaz_plates вместо случайного; `removePlayerFunds` — лимит редких машин |
+| `[qbx]/qbx_vehicleshop/locales/ru.json` | перевод салона, цены в ₽ |
+| `[qbx]/qbx_police/config/client.lua`, `[qbx]/qbx_ambulancejob/config/client.lua` | служебные гаражи берут машины из `cars.lua` (`sale = 'org'`) |
+| `server.cfg` (правит скрипт) | строка `ensure kavkaz_cars` перед `ensure qbx_core` |
 | `[standalone]/illenium-appearance/locales/ru.lua` + `fxmanifest.lua` | русский редактор внешности (в манифест добавлена строка `-- KAVKAZ:`) |
 
 если txAdmin обновит ресурс Qbox, просто запусти скрипт ещё раз. если у обновлённого ресурса

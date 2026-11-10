@@ -101,3 +101,24 @@ Config.AdminLevel = 4
 
 -- сколько минут держатся 5 предложенных вариантов
 Config.ChoiceMinutes = 5
+
+-- номер новой машины (покупка в салоне, «Семёрка» от Румисы, /agivecar, призы):
+--   'transit'  — транзит TR123456, номер игрок оформляет сам в МРЭО (7 000 ₽) или у ДПС (3 000 ₽);
+--   'register' — сразу случайный номер «А 123 ВС 95» на учёте, без МРЭО.
+Config.NewVehiclePlate = 'transit'
+
+-- служебные машины из гаража полиции: qbx_police вешает номер с этим префиксом (qbx_police/config/shared.lua → policePlatePrefix),
+-- мы меняем его на номер вида из kavkaz_cars/cars.lua (поле plate, например синий ru_police «А 1234 95»)
+Config.ServicePlatePrefix = 'LSPD'
+
+-- тонировка при пробивке (индекс тонировки GTA -> что это и какая статья kavkaz_fines)
+Config.Tint = {
+    [-1] = { label = 'без тонировки' },
+    [0]  = { label = 'без тонировки' },
+    [4]  = { label = 'заводская' },
+    [3]  = { label = '75% (лёгкая)' },
+    [6]  = { label = '75% (зелёная)' },
+    [2]  = { label = '50%' },
+    [5]  = { label = '25% по кругу', article = 'tint3' },
+    [1]  = { label = '«в ноль»', article = 'tint4' },
+}

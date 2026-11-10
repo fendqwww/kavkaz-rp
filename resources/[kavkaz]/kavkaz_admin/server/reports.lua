@@ -26,7 +26,7 @@ lib.addCommand('report', {
 
     local admins = Admin.onDutyList(1)
     for _, id in ipairs(admins) do
-        Admin.chat(id, ('РЕПОРТ %s  ·  /reports'):format(reportLine(r)), { 255, 90, 90 })
+        Admin.chat(id, ('РЕПОРТ %s  ·  F10 → Репорты'):format(reportLine(r)), { 255, 90, 90 })
         TriggerClientEvent('kavkaz_admin:client:newReport', id, r.id, GetPlayerName(src), r.text)
     end
     Admin.notify(src, #admins > 0 and ('репорт №%d отправлен, админов на смене: %d'):format(r.id, #admins)

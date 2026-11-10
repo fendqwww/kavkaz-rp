@@ -167,7 +167,11 @@ cmd('aveh', 'aveh', 'Заспавнить машину', { { name = 'model', typ
     local ped = GetPlayerPed(src)
     local old = GetVehiclePedIsIn(ped, false)
     if old ~= 0 then DeleteEntity(old) end
-    local ok, netId, vehicle = pcall(qbx.spawnVehicle, { model = args.model, spawnSource = ped, warp = true, bucket = GetPlayerRoutingBucket(src) })
+    -- имя из автопарка (kv_camry80) -> модель, которая сейчас ездит (заглушка GTA или настоящая)
+    local model = args.model:lower()
+    local car = GetResourceState('kavkaz_cars') == 'started' and exports.kavkaz_cars:GetCar(model) or nil
+    if car then model = car.current end
+    local ok, netId, vehicle = pcall(qbx.spawnVehicle, { model = model, spawnSource = ped, warp = true, bucket = GetPlayerRoutingBucket(src) })
     if not ok or not vehicle or vehicle == 0 then
         return Admin.notify(src, 'не удалось: проверь название модели', 'error')
     end
@@ -298,10 +302,15 @@ cmd('agivecar', 'givecar', 'Выдать машину в гараж', {
     local player = exports.qbx_core:GetPlayer(args.target)
     if not player then return Admin.notify(src, 'игрок ещё не выбрал персонажа', 'error') end
     local model = args.model:lower()
+    -- машина из автопарка (kavkaz_cars/cars.lua): можно писать имя спавна kv_camry80 — выдастся текущая модель (заглушка или настоящая)
+    local car = GetResourceState('kavkaz_cars') == 'started' and exports.kavkaz_cars:GetCar(model) or nil
+    if car then model = car.current end
     local known = exports.qbx_core:GetVehiclesByName()
-    if known and not known[model] then return Admin.notify(src, 'модели нет в списке машин сервера (qbx_core/shared/vehicles.lua)', 'error') end
+    if known and not known[model] then return Admin.notify(src, 'модели нет в списке машин сервера (kavkaz_cars/cars.lua или qbx_core)', 'error') end
     local id, err = exports.qbx_vehicles:CreatePlayerVehicle({ model = model, citizenid = player.PlayerData.citizenid, garage = Config.GiveCarGarage })
     if not id then return Admin.notify(src, 'не удалось: ' .. (err and err.message or '?'), 'error') end
+    -- номер от kavkaz_plates (транзит или сразу на учёт), а не случайный qbx
+    if GetResourceState('kavkaz_plates') == 'started' then pcall(function() exports.kavkaz_plates:AssignNew(id, 'admin') end) end
     Admin.notify(src, 'машина в гараже игрока', 'success')
     Admin.notify(args.target, ('тебе выдана машина %s — она в гараже'):format(model), 'success')
     Admin.log(src, 'givecar', args.target, ('%s (id %s): %s'):format(model, id, args.reason))
