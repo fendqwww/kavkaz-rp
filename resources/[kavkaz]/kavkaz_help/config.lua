@@ -52,7 +52,7 @@ C{ tab = 'chats', cmd = 'gov', p = { { 'текст', '' } }, ex = '/gov Откр
 
 -- работа и штрафы
 C{ tab = 'work', cmd = 'fines', side = 'client', ex = '/fines', desc = 'мои неоплаченные штрафы, оплата с карты' }
-C{ tab = 'work', cmd = 'fine', side = 'client', p = { { '[ID]', 'нарушитель, пусто — ближайший' } }, ex = '/fine 12', desc = 'полиция и ДПС на смене: выписать штраф (до 6 м)' }
+C{ tab = 'work', cmd = 'fine', side = 'client', p = { { '[ID]', 'нарушитель, пусто — ближайший' }, { '[статья]', 'tint4, fake… — подставляет пробивка номера' } }, ex = '/fine 12', desc = 'полиция и ДПС на смене: выписать штраф (до 6 м)' }
 C{ tab = 'work', cmd = 'checkplate', side = 'client', ex = '/checkplate', desc = 'полиция и ДПС: пробить номер ближайшей машины' }
 
 -- номера
@@ -94,12 +94,14 @@ C{ tab = 'admin', key = 'F3', cmd = 'clicktp', perm = 'clicktp', side = 'client'
 C{ tab = 'admin', cmd = 'invis', perm = 'invis', side = 'client', ex = '/invis', desc = 'невидимость вкл/выкл' }
 C{ tab = 'admin', cmd = 'atpm', perm = 'atpm', side = 'client', ex = '/atpm', desc = 'телепорт на метку на карте' }
 C{ tab = 'admin', cmd = 'tpc', perm = 'tpc', side = 'client', p = { { 'x', '' }, { 'y', '' }, { 'z', '' } }, ex = '/tpc 215.7 -810.1 30.7', desc = 'телепорт по координатам' }
-C{ tab = 'admin', cmd = 'aveh', perm = 'aveh', p = { { 'модель', 'например sultan' } }, ex = '/aveh sultan', desc = 'заспавнить машину' }
+C{ tab = 'admin', cmd = 'aveh', perm = 'aveh', p = { { 'модель', 'kv_camry80 (автопарк) или модель GTA' } }, ex = '/aveh kv_g63', desc = 'заспавнить машину' }
 C{ tab = 'admin', cmd = 'disarm', perm = 'disarm', p = { { 'ID', '' }, { 'причина', '' } }, ex = '/disarm 12 оружие в мэрии', desc = 'забрать всё оружие' }
 -- уровень 4
 C{ tab = 'admin', cmd = 'unban', perm = 'unban', p = { { 'номер или ник', '' } }, ex = '/unban 17', desc = 'разбанить по номеру бана или нику' }
 C{ tab = 'admin', cmd = 'agiveitem', perm = 'giveitem', p = { { 'ID', '' }, { 'предмет', 'например water' }, { 'число', '' }, { 'причина', '' } }, ex = '/agiveitem 12 water 2 компенсация', desc = 'выдать предмет' }
-C{ tab = 'admin', cmd = 'agivecar', perm = 'givecar', p = { { 'ID', '' }, { 'модель', '' }, { 'причина', '' } }, ex = '/agivecar 12 sultan компенсация', desc = 'выдать машину в гараж' }
+C{ tab = 'admin', cmd = 'agivecar', perm = 'givecar', p = { { 'ID', '' }, { 'модель', '' }, { 'причина', '' } }, ex = '/agivecar 12 kv_priora компенсация', desc = 'выдать машину в гараж (номер — транзит от kavkaz_plates)' }
+C{ tab = 'admin', cmd = 'kavkaz_cars', ace = 'command.kavkaz_cars', ex = 'kavkaz_cars', desc = 'консоль сервера: автопарк — какие машины настоящие, какие на заглушках, вес' }
+C{ tab = 'admin', cmd = 'kavkaz_cars_migrate', ace = 'command.kavkaz_cars_migrate', p = { { '[apply]', 'без apply — только показать' } }, ex = 'kavkaz_cars_migrate apply', desc = 'консоль: перевести купленные машины с заглушки на настоящую модель' }
 C{ tab = 'admin', cmd = 'asetjob', perm = 'setjob', p = { { 'ID', '' }, { 'работа', 'например police' }, { 'ранг', '' }, { 'причина', '' } }, ex = '/asetjob 12 police 0 набор', desc = 'назначить работу и ранг' }
 C{ tab = 'admin', cmd = 'asetgang', perm = 'setgang', p = { { 'ID', '' }, { 'банда', '' }, { 'ранг', '' }, { 'причина', '' } }, ex = '/asetgang 12 ballas 0 заявка', desc = 'назначить банду и ранг' }
 C{ tab = 'admin', cmd = 'setleader', perm = 'setleader', p = { { 'ID', '' }, { 'организация', 'работа или банда' }, { 'причина', '' } }, ex = '/setleader 12 police выборы', desc = 'назначить лидера организации' }
