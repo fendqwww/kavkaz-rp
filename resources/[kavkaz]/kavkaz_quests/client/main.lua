@@ -183,3 +183,29 @@ AddEventHandler('onResourceStop', function(res)
     clearObjective()
     if open then SetNuiFocus(false, false) end
 end)
+
+-- KAVKAZ: разговор по [E], когда подошёл к NPC (как в RP-проектах). ox_target (Alt) тоже работает
+CreateThread(function()
+    local shown
+    while true do
+        local sleep = 250
+        local near
+        if not open and not cache.vehicle then
+            local pos = GetEntityCoords(cache.ped)
+            for id, ped in pairs(peds) do
+                if DoesEntityExist(ped) and #(pos - GetEntityCoords(ped)) < 2.2 then near = id break end
+            end
+        end
+        if near then
+            sleep = 0
+            if shown ~= near then lib.showTextUI(('[E] Поговорить: %s'):format(Config.Npcs[near].name)); shown = near end
+            if IsControlJustReleased(0, 38) then
+                lib.hideTextUI(); shown = nil
+                talk(near)
+            end
+        elseif shown then
+            lib.hideTextUI(); shown = nil
+        end
+        Wait(sleep)
+    end
+end)
