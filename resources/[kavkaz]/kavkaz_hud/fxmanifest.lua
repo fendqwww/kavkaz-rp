@@ -17,4 +17,8 @@ files {
     'html/style.css',
     'html/app.js',
     'html/golos-text.woff2',
+    'html/montserrat-cyrillic.woff2',
+    'html/montserrat-latin.woff2',
+    'html/montserrat-cyrillic-italic.woff2',
+    'html/montserrat-latin-italic.woff2',
 }

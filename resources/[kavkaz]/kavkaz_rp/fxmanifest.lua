@@ -17,4 +17,7 @@ client_script 'client.lua'
 dependencies {
     'ox_lib',
     'qbx_core',
+    'ox_target',
+    'ox_inventory',
+    'qbx_medical',
 }
