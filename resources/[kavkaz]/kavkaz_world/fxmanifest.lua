@@ -9,12 +9,15 @@ version '0.1.0'
 shared_scripts {
     '@ox_lib/init.lua',
     'config.lua',
+    'retex_list.lua',
 }
 
 client_script 'client.lua'
 
 files {
     'images/*.png',
+    'images/retex/*.png',
+    'images/local/*.png', -- куски текстур игры с нашими вывесками: не в git, копируются на сервер скриптом
 }
 
 dependencies {

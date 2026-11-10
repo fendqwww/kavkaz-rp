@@ -9,6 +9,8 @@ Config = {}
 -- имена txd/txn берутся из файлов игры: CodeWalker (RPF Explorer → поиск по «sign»/«billboard»)
 -- или setup/cars/ytdinfo.py на вытащенном .ytd. пока список пустой — в игре ничего не меняется.
 -- пример строки: { txd = 'prop_sign_road_01a', txn = 'prop_sign_road_01a_d', image = 'city_nagorsk' },
+-- вывески зданий (МВД, ФСБ, магазины…) — image из Config.RetexImages (retex_list.lua), например image = 'facade_police'.
+-- как найти txd/txn здания и подогнать картинку по размеру — docs/tasks/2026-11-11-retex-mvd.md
 ---------------------------------------------------------------------------
 Config.Textures = {
 }

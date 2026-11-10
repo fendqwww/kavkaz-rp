@@ -8,19 +8,33 @@ local RES = GetCurrentResourceName()
 local txdName = 'kavkaz_world'
 local txd
 
+-- в память видеокарты грузим только картинки, которые реально подставлены в Config.Textures (у игроков слабые видеокарты)
+local loaded = {}
+local retex = {}
+for _, n in ipairs(Config.RetexImages or {}) do retex[n] = true end
+local function ensureImage(name)
+    if loaded[name] then return true end
+    -- 'local/имя' — вывеска, собранная из текстуры игры (images/local, не в git); retex — наша; иначе images/
+    local path = retex[name] and ('images/retex/' .. name .. '.png') or ('images/' .. name .. '.png')
+    loaded[name] = CreateRuntimeTextureFromImage(txd, name, path) ~= 0
+    return loaded[name]
+end
+
 CreateThread(function()
     txd = CreateRuntimeTxd(txdName)
-    for _, name in ipairs(Config.Images) do
-        CreateRuntimeTextureFromImage(txd, name, 'images/' .. name .. '.png')
-    end
     for _, r in ipairs(Config.Textures) do
-        AddReplaceTexture(r.txd, r.txn, txdName, r.image)
+        if ensureImage(r.image) then
+            AddReplaceTexture(r.txd, r.txn, txdName, r.image)
+        else
+            print(('[kavkaz_world] нет картинки %s для %s/%s'):format(r.image, r.txd, r.txn))
+        end
     end
 end)
 
 -- /kvsign имя — показать нашу картинку на экране на 5 секунд (проверить, что она загрузилась)
 RegisterCommand('kvsign', function(_, args)
     local name = args[1] or Config.Images[1]
+    if not ensureImage(name) then return print('нет такой картинки: ' .. name) end
     local untilT = GetGameTimer() + 5000
     CreateThread(function()
         while GetGameTimer() < untilT do
