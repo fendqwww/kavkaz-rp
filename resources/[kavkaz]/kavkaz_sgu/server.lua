@@ -237,4 +237,18 @@ exports('Install', function(target, model)
     return true, 'поставлено: ' .. m.label
 end)
 
+-- поставить СГУ по id машины из гаража (без игрока за рулём): exports.kavkaz_sgu:SetById(id, 'pro'|'off')
+exports('SetById', function(vehicleId, model, citizenid)
+    local key = 'id:' .. tostring(vehicleId)
+    if model == 'off' then
+        MySQL.query.await('DELETE FROM kavkaz_sgu WHERE vkey = ?', { key })
+        installed[key] = nil
+        return true
+    end
+    if not Config.Models[model] then return false end
+    MySQL.query.await('REPLACE INTO kavkaz_sgu (vkey, model, citizenid) VALUES (?, ?, ?)', { key, model, citizenid })
+    installed[key] = model
+    return true
+end)
+
 AddEventHandler('playerDropped', function() lastQuack[source] = nil end)
