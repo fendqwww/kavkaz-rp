@@ -187,6 +187,26 @@ local function modelLabel(model)
     return model
 end
 
+-- служебные машины (kavkaz_cars/cars.lua, sale = 'org', поле plate): какой вид номера им положен
+local SERVICE = {} -- хэш модели (mod 2^32) -> { style, label }
+do
+    local code = LoadResourceFile('kavkaz_cars', 'cars.lua')
+    local chunk = code and load(code, '@@kavkaz_cars/cars.lua', 't', {})
+    local ok, cars = false, nil
+    if chunk then ok, cars = pcall(chunk) end
+    if ok and type(cars) == 'table' then
+        for _, car in ipairs(cars.List) do
+            if car.sale == 'org' and car.plate then
+                SERVICE[joaat(cars.current(car)) % 4294967296] = { style = car.plate, label = ('%s %s'):format(car.brand, car.name) }
+            end
+        end
+    end
+end
+
+local function serviceOf(entity)
+    return SERVICE[GetEntityModel(entity) % 4294967296]
+end
+
 ---------------------------------------------------------------------------
 -- данные для окна МРЭО
 ---------------------------------------------------------------------------
@@ -540,6 +560,11 @@ lib.callback.register('kavkaz_plates:check', function(src, netId)
             res.status = 'transit'
             res.owner = ci.firstname and ('%s %s'):format(ci.firstname, ci.lastname) or '?'
             res.model = modelLabel(veh.vehicle)
+        elseif serviceOf(entity) and Plates.detect(plate) == serviceOf(entity).style then
+            -- служебная машина из гаража организации (номер выдан при выезде, в базу личных машин не пишется)
+            local svc = serviceOf(entity)
+            res.status, res.style, res.model = 'service', svc.style, svc.label
+            res.pretty = Plates.pretty(plate, svc.style)
         else
             res.status = 'unknown'
         end
@@ -623,4 +648,71 @@ exports('Give', function(cid, plate, sourceKind, style)
     if not plate or plateTaken(plate) then return false end
     create(cid, plate, sourceKind or 'event', style or 'ru')
     return true
+end)
+
+---------------------------------------------------------------------------
+-- номер новой машины: салон, квест, /agivecar, призы (Config.NewVehiclePlate)
+-- вместо случайного номера qbx — транзит TR123456 или сразу наш номер на учёте
+---------------------------------------------------------------------------
+
+local function isTransit(plate) return plate and plate:match('^TR%d%d%d%d%d%d$') ~= nil end
+
+-- vehicleId — id в player_vehicles. возвращает номер и вид ('transit' | 'ru')
+local function assignNew(vehicleId, sourceKind)
+    local row = MySQL.single.await('SELECT id, citizenid, vehicle, plate, state FROM player_vehicles WHERE id = ?', { tonumber(vehicleId) })
+    if not row then return nil end
+    if MySQL.scalar.await('SELECT 1 FROM kavkaz_plates WHERE vehicle_id = ?', { row.id }) then return row.plate, 'ru' end
+    if Config.NewVehiclePlate == 'register' then
+        local plate = freeRandom(Config.DefaultRegion)
+        if plate then
+            create(row.citizenid, plate, (sourceKind or 'shop'):sub(1, 16))
+            attach(row.citizenid, plate, row)
+            return plate, 'ru'
+        end
+    end
+    if not isTransit(row.plate) then
+        local transit = freeTransit()
+        if transit then setVehiclePlate(row, transit) end
+    end
+    return row.plate, 'transit'
+end
+exports('AssignNew', assignNew)
+
+-- вызывает qbx_vehicleshop (overrides: config/server.lua → giveKeys) сразу после выдачи купленной машины
+exports('OnShopVehicle', function(src, entity)
+    if not entity or not DoesEntityExist(entity) then return end
+    local vehicleId = Entity(entity).state.vehicleid
+    if not vehicleId then return end -- тест-драйв
+    local plate, kind = assignNew(vehicleId, 'shop')
+    if not plate then return end
+    if kind == 'transit' then
+        notify(src, ('машина на транзите (%s). номер «А 123 ВС 95» — в МРЭО ГИБДД у мэрии, нужен паспорт'):format(plate), 'inform')
+    else
+        notify(src, ('машина сразу на учёте: %s'):format(Plates.pretty(plate)), 'success')
+    end
+end)
+
+---------------------------------------------------------------------------
+-- служебные машины (kavkaz_cars/cars.lua, sale = 'org', поле plate): номер нужного вида вместо LSPD1234
+---------------------------------------------------------------------------
+
+AddEventHandler('entityCreated', function(entity)
+    if not DoesEntityExist(entity) or GetEntityType(entity) ~= 2 or not serviceOf(entity) then return end
+    local svc = serviceOf(entity)
+    local prefix = Config.ServicePlatePrefix
+    CreateThread(function()
+        for _ = 1, 40 do -- qbx_police ставит номер в течение пары секунд после появления машины
+            Wait(250)
+            if not DoesEntityExist(entity) then return end
+            local plate = trim(GetVehicleNumberPlateText(entity))
+            if plate:sub(1, #prefix) == prefix then
+                local new = freeRandom(Config.DefaultRegion, svc.style)
+                if new then
+                    SetVehicleNumberPlateText(entity, new)
+                    SetVehicleNumberPlateTextIndex(entity, (STYLE[svc.style] or STYLE.ru).index or 0)
+                end
+                return
+            end
+        end
+    end)
 end)

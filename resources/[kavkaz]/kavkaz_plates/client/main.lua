@@ -77,7 +77,17 @@ local STATUS = {
     other_car = '🚨 номер от другой машины',
     stolen_plate = '🚨 номер числится снятым — подделка или чужой номер',
     unknown = '🚨 номер не найден в базе (липовый или угнанная машина NPC)',
+    service = '🔵 служебная машина организации',
 }
+
+-- какая статья kavkaz_fines подходит к результату пробивки (инспектор всё равно решает сам)
+local STATUS_ARTICLE = { other_car = 'fake', stolen_plate = 'fake' }
+
+local function driverServerId(vehicle)
+    local ped = GetPedInVehicleSeat(vehicle, -1)
+    if ped == 0 or not IsPedAPlayer(ped) then return nil end
+    return GetPlayerServerId(NetworkGetPlayerIndexFromPed(ped))
+end
 
 local function checkVehicle(vehicle)
     local res = lib.callback.await('kavkaz_plates:check', false, NetworkGetNetworkIdFromEntity(vehicle))
@@ -89,7 +99,20 @@ local function checkVehicle(vehicle)
     if res.model then lines[#lines + 1] = 'Машина по базе: ' .. res.model end
     if res.registeredModel then lines[#lines + 1] = ('Номер выдан на: %s, а перед тобой — %s'):format(res.registeredModel,
         GetDisplayNameFromVehicleModel(GetEntityModel(vehicle))) end
-    lib.alertDialog({ header = 'База ГИБДД', content = table.concat(lines, '  \n'), centered = true })
+
+    -- тонировка: тауметр пока не предмет, замер встроен в пробивку (Config.Tint)
+    local tint = Config.Tint[GetVehicleWindowTint(vehicle)] or { label = 'неизвестно' }
+    lines[#lines + 1] = ('Тонировка: %s%s'):format(tint.label, tint.article and ' — **нарушение**' or '')
+
+    local article = tint.article or STATUS_ARTICLE[res.status]
+    local driver = article and driverServerId(vehicle)
+    if not driver then
+        return lib.alertDialog({ header = 'База ГИБДД', content = table.concat(lines, '  \n'), centered = true })
+    end
+    lines[#lines + 1] = '\nВыписать штраф водителю?'
+    local answer = lib.alertDialog({ header = 'База ГИБДД', content = table.concat(lines, '  \n'), centered = true, cancel = true,
+        labels = { confirm = 'Выписать штраф', cancel = 'Закрыть' } })
+    if answer == 'confirm' then ExecuteCommand(('fine %d %s'):format(driver, article)) end
 end
 
 local policeGroups = {}

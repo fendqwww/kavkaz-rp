@@ -11,10 +11,13 @@ RegisterCommand('fine', function(_, args)
         target = player and GetPlayerServerId(player)
     end
     if not target then return lib.notify({ description = 'рядом нет нарушителя. /fine ID', type = 'error' }) end
-    local opts = {}
-    for _, a in ipairs(articles) do opts[#opts + 1] = { value = a.id, label = ('%s — %s'):format(a.label, money(a.amount)) } end
+    local opts, preset = {}, nil
+    for _, a in ipairs(articles) do
+        opts[#opts + 1] = { value = a.id, label = ('%s — %s'):format(a.label, money(a.amount)) }
+        if a.id == args[2] then preset = a.id end -- /fine ID статья: статью подставляет пробивка номера (kavkaz_plates)
+    end
     local input = lib.inputDialog(('Штраф игроку ID %d'):format(target), {
-        { type = 'select', label = 'Статья', options = opts, required = true },
+        { type = 'select', label = 'Статья', options = opts, required = true, default = preset },
         { type = 'number', label = 'Сумма, ₽ (пусто — по статье)', min = 1 },
         { type = 'input', label = 'Описание (необязательно)', max = 160 },
     })
