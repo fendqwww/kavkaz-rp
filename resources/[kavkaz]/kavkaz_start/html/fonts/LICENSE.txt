@@ -1,0 +1,2 @@
+Шрифты Montserrat (логотип) и Golos Text (текст) распространяются по лицензии SIL Open Font License 1.1
+(https://openfontlicense.org). Montserrat — Google Fonts, Golos Text — github.com/googlefonts/golos-text.

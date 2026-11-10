@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>МРЭО ГИБДД</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<script src="plate.js"></script>
+<style>
+  :root {
+    --bg: #f3f7fb; --card: #ffffff; --line: #dce5ee; --line2: #c5d3e0;
+    --text: #131b18; --muted: #607285; --sky: #2fbf8a; --sky-d: #1f8f66; --sky-l: #e6f6ef;
+    --ok: #1f9d55; --warn: #c27a00; --bad: #d23c3c;
+    --font: "Golos Text", "Segoe UI", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+  body { font: 400 15px/1.45 var(--font); color: var(--text); user-select: none; }
+  body.preview { background: #5b6b78; }
+  .hidden { display: none !important; }
+  button, select, input { font: inherit; color: inherit; }
+
+  .overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(10, 16, 13, .45); }
+  .win { width: 1060px; max-width: calc(100vw - 40px); height: 680px; max-height: calc(100vh - 40px);
+    display: grid; grid-template-rows: auto 1fr; background: var(--bg); border-radius: 8px; overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .35); }
+
+  header { display: flex; align-items: center; gap: 14px; padding: 14px 20px; background: var(--card); border-bottom: 1px solid var(--line); }
+  .emblem { width: 36px; height: 36px; border-radius: 6px; background: var(--sky); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header p { font-size: 13px; color: var(--muted); }
+  .grow { flex: 1; }
+  .close { width: 34px; height: 34px; border: 1px solid var(--line2); border-radius: 6px; background: var(--card); cursor: pointer; font-size: 18px; color: var(--muted); }
+  .close:hover { background: var(--sky-l); color: var(--sky-d); border-color: var(--sky); }
+
+  .body { display: grid; grid-template-columns: 220px 1fr; min-height: 0; }
+  aside { padding: 14px 10px; border-right: 1px solid var(--line); background: var(--card); }
+  aside button { display: flex; justify-content: space-between; width: 100%; padding: 10px 12px; margin-bottom: 2px; border: 0; border-radius: 6px;
+    background: transparent; text-align: left; cursor: pointer; font-size: 15px; }
+  aside button:hover { background: var(--bg); }
+  aside button.on { background: var(--sky-l); color: var(--sky-d); font-weight: 600; }
+  aside .cnt { color: var(--muted); font-weight: 400; }
+  aside .note { margin: 18px 12px 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+
+  main { overflow-y: auto; padding: 18px 20px 24px; min-height: 0; }
+  main::-webkit-scrollbar { width: 8px; } main::-webkit-scrollbar-thumb { background: #c8d4df; border-radius: 4px; }
+  h2 { font-size: 17px; font-weight: 600; margin-bottom: 12px; }
+
+  .item { display: grid; grid-template-columns: 236px 1fr auto; gap: 18px; align-items: center; padding: 14px 16px; margin-bottom: 8px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
+  .item .plate-svg { width: 236px; display: block; filter: drop-shadow(0 1px 1px rgba(0,0,0,.15)); }
+  .item .name { font-weight: 600; font-size: 16px; }
+  .item .meta { margin-top: 4px; font-size: 13.5px; color: var(--muted); }
+  .st { display: inline-flex; align-items: center; gap: 6px; margin-right: 14px; }
+  .st::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .st.ok { color: var(--ok); } .st.warn { color: var(--warn); } .st.bad { color: var(--bad); } .st.mute { color: var(--muted); }
+  .tier { color: var(--sky-d); }
+  .acts { display: flex; gap: 8px; }
+
+  .btn { padding: 8px 14px; border-radius: 6px; border: 1px solid var(--line2); background: var(--card); cursor: pointer; font-size: 14px; white-space: nowrap; }
+  .btn:hover { border-color: var(--sky); color: var(--sky-d); }
+  .btn.primary { background: var(--sky); border-color: var(--sky); color: #fff; }
+  .btn.primary:hover { background: var(--sky-d); border-color: var(--sky-d); color: #fff; }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .empty { padding: 36px; text-align: center; color: var(--muted); background: var(--card); border: 1px dashed var(--line2); border-radius: 8px; }
+  .bar { display: flex; gap: 8px; align-items: center; margin-top: 14px; color: var(--muted); font-size: 14px; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  td { padding: 11px 16px; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+  tr:last-child td { border-bottom: 0; }
+  td.price { text-align: right; font-weight: 600; white-space: nowrap; }
+  td small { display: block; color: var(--muted); font-size: 13px; }
+  .rules { margin-top: 14px; font-size: 13.5px; color: var(--muted); line-height: 1.55; }
+  .rules b { color: var(--text); font-weight: 600; }
+
+  /* диалог */
+  .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(10, 16, 13, .35); }
+  .dlg { width: 560px; max-height: calc(100vh - 60px); overflow-y: auto; background: var(--card); border-radius: 8px; box-shadow: 0 16px 40px rgba(0,0,0,.3); }
+  .dlg h3 { padding: 16px 20px; font-size: 17px; font-weight: 600; border-bottom: 1px solid var(--line); }
+  .dlg .in { padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
+  .dlg .ft { padding: 12px 20px 16px; display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--line); }
+  .opt { display: grid; grid-template-columns: 18px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
+  .opt:hover { border-color: var(--line2); background: var(--bg); }
+  .opt.on { border-color: var(--sky); background: var(--sky-l); }
+  .opt .r { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--line2); background: #fff; }
+  .opt.on .r { border: 5px solid var(--sky); }
+  .opt small { display: block; color: var(--muted); font-size: 13px; }
+  .opt .p { font-weight: 600; white-space: nowrap; }
+  .opt .plate-svg { width: 210px; display: block; }
+  .opt.wide { grid-template-columns: 18px auto 1fr; }
+  label.f { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--muted); }
+  select, input { padding: 8px 10px; border: 1px solid var(--line2); border-radius: 6px; background: #fff; font-size: 14.5px; outline: none; }
+  select:focus, input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(47, 191, 138, .15); }
+  .preview-plate { display: flex; justify-content: center; padding: 6px 0 10px; } .preview-plate .plate-svg { width: 320px; }
+
+  /* мастер получения номера */
+  .steps { display: flex; gap: 6px; padding: 12px 20px 0; }
+  .steps span { flex: 1; padding-bottom: 8px; border-bottom: 3px solid var(--line); font-size: 13px; color: var(--muted); }
+  .steps span.on { border-color: var(--sky); color: var(--text); font-weight: 600; }
+  .steps span.done { border-color: #9fdcc2; color: var(--muted); }
+  .doc { display: grid; grid-template-columns: 84px 1fr; gap: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fbfcfe; }
+  .doc .photo { width: 84px; height: 104px; border-radius: 4px; background: #dfe7ef; display: grid; place-items: center; color: #8aa0b5; font-size: 34px; }
+  .doc dl { display: grid; grid-template-columns: 130px 1fr; gap: 4px 10px; font-size: 14px; }
+  .doc dt { color: var(--muted); } .doc dd { font-weight: 500; }
+  .doc-status { margin-top: 10px; font-size: 14px; } .doc-status.ok { color: var(--ok); } .doc-status.bad { color: var(--bad); }
+  .issue { padding: 26px 20px 10px; text-align: center; }
+  .issue .plate-svg { width: 380px; }
+  .issue p { margin-top: 14px; color: var(--muted); font-size: 14px; }
+  .issue h4 { margin-top: 10px; font-size: 18px; font-weight: 600; }
+  .frames { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .ftile { padding: 10px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
+  .ftile:hover { border-color: var(--line2); background: var(--bg); }
+  .ftile.on { border-color: var(--sky); background: var(--sky-l); }
+  .ftile .plate-svg { width: 100%; display: block; }
+  .ftile .fl { margin-top: 6px; display: flex; justify-content: space-between; font-size: 13px; }
+  .ftile .fl b { font-weight: 600; white-space: nowrap; }
+  .dlg.wide { width: 720px; }
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); padding: 10px 16px; border-radius: 6px; background: #131b18; color: #fff;
+    font-size: 14.5px; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+  .toast.err { background: var(--bad); }
+</style>
+</head>
+<body>
+<div class="overlay hidden" id="app">
+  <div class="win">
+    <header>
+      <div class="emblem">ГИ</div>
+      <div><h1>МРЭО ГИБДД</h1><p>Регистрация транспортных средств · Нагорск</p></div>
+      <div class="grow"></div>
+      <button class="close" id="close" title="Закрыть (Esc)">✕</button>
+    </header>
+    <div class="body">
+      <aside>
+        <button data-tab="cars">Мои машины <span class="cnt" id="nCars"></span></button>
+        <button data-tab="plates">Мои номера <span class="cnt" id="nPlates"></span></button>
+        <button data-tab="info">Услуги и цены</button>
+        <p class="note">Перерегистрация — если машина в гараже или стоит у здания МРЭО.<br><br>Оплата — наличными или картой.</p>
+      </aside>
+      <main id="main"></main>
+    </div>
+  </div>
+</div>
+<div class="modal hidden" id="modal"><div class="dlg" id="dlg"></div></div>
+<div class="toast hidden" id="toast"></div>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const preview = location.search.includes('preview');
+let S = null, tab = 'cars', busy = false;
+
+const rub = (v) => Math.floor(v).toLocaleString('ru-RU').replace(/\s/g, ' ') + ' ₽';
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const res = () => (window.GetParentResourceName ? GetParentResourceName() : 'kavkaz_plates');
+// frame — объект { text, color, textColor } или просто текст
+const plate = (p, style, frame) => Plate.svg({ plate: p, style: style || (/^TR\d{6}$/.test(p) ? 'transit' : 'ru'),
+  frame: frame ? (typeof frame === 'string' ? { text: frame } : frame) : null });
+const STATE = { 0: ['на улице', 'mute'], 1: ['в гараже', 'mute'], 2: ['на штрафстоянке', 'bad'] };
+const styleLabel = (id) => (S.styles.find((s) => s.id === id) || {}).label || '';
+
+function render() {
+  $('#nCars').textContent = S.vehicles.length;
+  $('#nPlates').textContent = S.plates.length;
+  $$('aside button').forEach((b) => b.classList.toggle('on', b.dataset.tab === tab));
+  const m = $('#main'), P = S.prices;
+
+  if (tab === 'cars') {
+    if (!S.vehicles.length) { m.innerHTML = '<h2>Мои машины</h2><div class="empty">Личных машин нет. Купите машину в автосалоне и приезжайте за номером.</div>'; return; }
+    m.innerHTML = '<h2>Мои машины</h2>' + S.vehicles.map((v) => {
+      const st = STATE[v.state] || ['', 'mute'];
+      return `<div class="item">${plate(v.plate, v.style, v.frameObj || v.frameText)}
+        <div><div class="name">${esc(v.label)}</div><div class="meta">
+          <span class="st ${v.registered ? 'ok' : 'warn'}">${v.registered ? 'на учёте' : 'транзит, не на учёте'}</span>
+          <span class="st ${st[1]}">${st[0]}</span></div></div>
+        <div class="acts">
+          ${v.registered ? `<button class="btn" data-do="detach" data-v="${v.id}">Снять номер</button>` : ''}
+          <button class="btn primary" data-do="register" data-v="${v.id}">${v.registered ? 'Сменить номер' : 'Получить номер'}</button>
+        </div></div>`;
+    }).join('');
+  } else if (tab === 'plates') {
+    const byId = Object.fromEntries(S.vehicles.map((v) => [v.id, v]));
+    m.innerHTML = '<h2>Мои номера</h2>' + (S.plates.length ? S.plates.map((p) => {
+      const car = p.vehicle_id && byId[p.vehicle_id];
+      return `<div class="item">${plate(p.plate, p.style, p.frameObj || p.frameText)}
+        <div><div class="name">${car ? esc(car.label) : 'Не установлен'}</div><div class="meta">
+          ${p.style && p.style !== 'ru' ? `<span class="st mute">${esc(styleLabel(p.style) || p.style)}</span>` : ''}
+          ${p.tierLabel ? `<span class="st tier">${esc(p.tierLabel)}</span>` : ''}
+          ${p.frameText ? `<span class="st mute">рамка «${esc(p.frameText)}»</span>` : ''}</div></div>
+        <div class="acts">
+          <button class="btn" data-do="frame" data-p="${p.plate}">Рамка</button>
+          ${car ? `<button class="btn" data-do="detach" data-v="${car.id}">Снять</button>` : `<button class="btn" data-do="sell" data-p="${p.plate}">Продать</button>`}
+          <button class="btn primary" data-do="attach" data-p="${p.plate}">Установить</button>
+        </div></div>`;
+    }).join('') : '<div class="empty">Номеров пока нет.</div>')
+      + `<div class="bar">Номер про запас: <button class="btn" data-do="register">Оформить номер без машины</button></div>`;
+  } else {
+    const foreign = S.styles.filter((s) => s.sale === 'foreign').map((s) => s.label).join(', ');
+    m.innerHTML = `<h2>Услуги и цены</h2><table>
+      <tr><td>Регистрационный знак, случайный<small>сразу на машину или на хранение</small></td><td class="price">${rub(P.window)}</td></tr>
+      <tr><td>Знак на выбор из пяти вариантов<small>варианты держатся 5 минут</small></td><td class="price">${rub(P.choose)}</td></tr>
+      <tr><td>Регистрация у инспектора ДПС на посту<small>инспектор получает ${rub(P.dpsShare)}</small></td><td class="price">${rub(P.dps)}</td></tr>
+      <tr><td>Иностранный знак<small>${esc(foreign)}</small></td><td class="price">${rub(P.foreign)}</td></tr>
+      <tr><td>Перестановка знака на другую машину</td><td class="price">${rub(P.swap)}</td></tr>
+      <tr><td>Снятие знака на хранение<small>машина получает транзитный знак</small></td><td class="price">бесплатно</td></tr>
+      <tr><td>Продажа знака другому лицу<small>комиссия с продавца, оба присутствуют в МРЭО</small></td><td class="price">${Math.round(P.commission * 100)}%</td></tr>
+    </table>
+    <p class="rules">Знак по ГОСТ: <b>буква, три цифры, две буквы, регион</b>. Используются только буквы <b>А В Е К М Н О Р С Т У Х</b>.
+    Знаки с одинаковыми цифрами, «нулевые» 001–009, серия <b>«КРА»</b> (например <b>К 013 РА 95</b>) и другие красивые сочетания
+    в свободную продажу не поступают: только аукцион, награды и мероприятия.</p>`;
+  }
+}
+
+// ---------- диалоги ----------
+function modal(html, onClick) { $('#dlg').classList.remove('wide'); $('#dlg').innerHTML = html; $('#modal').classList.remove('hidden'); $('#dlg').onclick = onClick; }
+function closeModal() { $('#modal').classList.add('hidden'); }
+function pickable(sel, cb) {
+  const all = $$(sel, $('#dlg'));
+  all.forEach((o) => o.addEventListener('click', () => { all.forEach((x) => x.classList.remove('on')); o.classList.add('on'); cb(o); }));
+}
+const enableOk = () => { $('[data-m=ok]', $('#dlg')).disabled = false; };
+
+// ---------- получение номера в МРЭО: документы -> что оформляем -> выдача ----------
+function stepsBar(n) {
+  return '<div class="steps">' + ['Документы', 'Номер', 'Выдача'].map((t, i) => `<span class="${i + 1 === n ? 'on' : i + 1 < n ? 'done' : ''}">${i + 1}. ${t}</span>`).join('') + '</div>';
+}
+
+function registerDialog(vehicleId) {
+  const d = S.passport || {}, car = S.vehicles.find((v) => v.id === vehicleId);
+  modal(`<h3>${car ? 'Регистрация: ' + esc(car.label) : 'Номер на хранение'}</h3>${stepsBar(1)}<div class="in">
+      <div class="doc"><div class="photo"><svg width="46" height="56" viewBox="0 0 46 56"><circle cx="23" cy="17" r="11" fill="#9db0a7"/><path d="M2 56c0-14 9-22 21-22s21 8 21 22z" fill="#9db0a7"/></svg></div><dl>
+        <dt>Документ</dt><dd>Паспорт гражданина</dd>
+        <dt>Фамилия, имя</dt><dd>${esc(d.lastname || '—')} ${esc(d.firstname || '')}</dd>
+        <dt>Дата рождения</dt><dd>${esc(d.birthdate || '—')}</dd>
+        <dt>Номер</dt><dd>${esc(d.number || '—')}</dd></dl></div>
+      <p class="doc-status ${d.ok ? 'ok' : 'bad'}">${d.ok ? '✓ Паспорт проверен' : '✕ ' + esc(d.reason || 'нет паспорта')}</p>
+    </div><div class="ft"><button class="btn" data-m="x">Отмена</button><button class="btn primary" data-m="ok" ${d.ok ? '' : 'disabled'}>Предъявить паспорт</button></div>`,
+  (e) => { const b = e.target.closest('[data-m]'); if (!b) return; if (b.dataset.m === 'x') return closeModal(); if (b.dataset.m === 'ok') plateStep(vehicleId); });
+}
+
+function plateStep(vehicleId) {
+  const car = S.vehicles.find((v) => v.id === vehicleId);
+  const pocket = vehicleId ? S.plates.filter((p) => !p.vehicle_id) : [];
+  const jobStyles = S.styles.filter((s) => s.sale === 'job'), foreign = S.styles.filter((s) => s.sale === 'foreign');
+  const P = S.prices;
+  const regions = `<option value="random">Случайный регион</option>` + S.regions.map((r) => `<option value="${r.code}" ${r.code === S.region ? 'selected' : ''}>${esc(r.label)}</option>`).join('');
+  modal(`<h3>${car ? 'Регистрация: ' + esc(car.label) : 'Номер на хранение'}</h3>${stepsBar(2)}<div class="in">
+      <div class="opt on" data-k="random"><span class="r"></span><span>Выдать номер<small>номер генерируется случайно из свободных</small></span><span class="p">${rub(P.window)}</span></div>
+      <div class="opt" data-k="choose"><span class="r"></span><span>Выбрать из пяти вариантов</span><span class="p">${rub(P.choose)}</span></div>
+      ${foreign.length ? `<div class="opt" data-k="foreign"><span class="r"></span><span>Иностранный номер<small>${esc(foreign.map((s) => s.label).join(', '))}</small></span><span class="p">${rub(P.foreign)}</span></div>` : ''}
+      ${jobStyles.map((s) => `<div class="opt" data-k="job" data-s="${s.id}"><span class="r"></span><span>${esc(s.label)}<small>служебный, для вашей работы</small></span><span class="p">${rub(P.window)}</span></div>`).join('')}
+      ${pocket.length ? `<div class="opt" data-k="pocket"><span class="r"></span><span>Свой номер с хранения<small>${pocket.length} шт.</small></span><span class="p">${rub(P.swap)}</span></div>` : ''}
+      <label class="f" id="fRegion">Регион<select id="region">${regions}</select></label>
+      <label class="f hidden" id="fCountry">Страна<select id="country">${foreign.map((s) => `<option value="${s.id}">${esc(s.label)}</option>`).join('')}</select></label>
+    </div><div class="ft"><button class="btn" data-m="back">Назад</button><div class="grow"></div><button class="btn" data-m="x">Отмена</button><button class="btn primary" data-m="ok">Оплатить и получить</button></div>`,
+  (e) => {
+    const b = e.target.closest('[data-m]'); if (!b) return;
+    if (b.dataset.m === 'x') return closeModal();
+    if (b.dataset.m === 'back') return registerDialog(vehicleId);
+    const o = $('.opt.on', $('#dlg')), k = o.dataset.k, region = $('#region').value;
+    if (k === 'random') issue('buyRandom', { vehicleId, region, style: 'ru' }, 'ru');
+    if (k === 'foreign') issue('buyRandom', { vehicleId, style: $('#country').value }, $('#country').value);
+    if (k === 'job') issue('buyRandom', { vehicleId, region, style: o.dataset.s }, o.dataset.s);
+    if (k === 'choose') chooseDialog(vehicleId, region);
+    if (k === 'pocket') pocketDialog(vehicleId, pocket);
+  });
+  pickable('.opt', (o) => {
+    $('#fRegion').classList.toggle('hidden', !['random', 'choose', 'job'].includes(o.dataset.k));
+    $('#fCountry').classList.toggle('hidden', o.dataset.k !== 'foreign');
+    $('[data-m=ok]', $('#dlg')).textContent = ['choose', 'pocket'].includes(o.dataset.k) ? 'Далее' : 'Оплатить и получить';
+  });
+}
+
+// случайный номер для «прокрутки» генератора (только вид, настоящий номер выдаёт сервер)
+const RAND_L = 'ABEKMHOPCTYX', rl = () => RAND_L[Math.floor(Math.random() * RAND_L.length)], rd = (n) => String(Math.floor(Math.random() * 10 ** n)).padStart(n, '0');
+const FAKE = {
+  ru: () => rl() + rd(3) + rl() + rl() + ['95', '05', '06', '07', '15', '26'][Math.floor(Math.random() * 6)],
+  ru_taxi: () => rl() + rl() + rd(3) + '95', ru_police: () => rl() + rd(4) + '95', ru_army: () => rd(4) + rl() + rl() + rd(2),
+  kz: () => rd(3) + rl() + rl() + rl() + '02', by: () => rd(4) + rl() + rl() + '7', am: () => rd(2) + rl() + rl() + rd(3),
+  ge: () => rl() + rl() + rd(3) + rl() + rl(), az: () => rd(2) + rl() + rl() + rd(3),
+};
+
+async function issue(name, args, style) {
+  modal(`<h3>Выдача номера</h3>${stepsBar(3)}<div class="issue"><div id="roll"></div><h4 id="iTitle">Подбираем свободный номер…</h4><p id="iSub">номер генерируется случайно</p></div>
+    <div class="ft"><button class="btn primary" data-m="done" disabled>Готово</button></div>`,
+  (e) => { const b = e.target.closest('[data-m]'); if (b && b.dataset.m === 'done') closeModal(); });
+  const gen = FAKE[style] || FAKE.ru;
+  const timer = setInterval(() => { $('#roll').innerHTML = plate(gen(), style); }, 70);
+  const started = Date.now();
+  const r = await act(name, args, true);
+  await new Promise((ok) => setTimeout(ok, Math.max(0, 1800 - (Date.now() - started))));
+  clearInterval(timer);
+  if (!r || r.error) { $('#iTitle').textContent = 'Номер не выдан'; $('#iSub').textContent = r ? r.error : ''; $('#roll').innerHTML = ''; }
+  else {
+    $('#roll').innerHTML = plate(r.issued.plate, r.issued.style);
+    $('#iTitle').textContent = 'Номер ' + Plate.pretty(r.issued.style, r.issued.plate) + ' выдан';
+    $('#iSub').textContent = r.issued.vehicleId ? 'Номер установлен на машину. Свидетельство о регистрации — в базе МРЭО.' : 'Номер на хранении: установить можно во вкладке «Мои номера».';
+  }
+  $('[data-m=done]', $('#dlg')).disabled = false;
+}
+
+async function chooseDialog(vehicleId, region) {
+  const r = await act('choices', { region }, true);
+  if (!r || r.error) return;
+  let idx = null;
+  modal(`<h3>Выберите номер</h3><div class="in">${r.list.map((p, i) => `<div class="opt wide" data-i="${i + 1}"><span class="r"></span>${plate(p.plate)}<span></span></div>`).join('')}</div>
+    <div class="ft"><button class="btn" data-m="again">Другие варианты</button><div class="grow"></div><button class="btn" data-m="x">Отмена</button>
+    <button class="btn primary" data-m="ok" disabled>Оплатить ${rub(S.prices.choose)}</button></div>`,
+  (e) => {
+    const b = e.target.closest('[data-m]'); if (!b) return;
+    if (b.dataset.m === 'x') closeModal();
+    if (b.dataset.m === 'again') chooseDialog(vehicleId, region);
+    if (b.dataset.m === 'ok' && idx) issue('pickChoice', { index: idx, vehicleId }, 'ru');
+  });
+  pickable('.opt', (o) => { idx = Number(o.dataset.i); enableOk(); });
+}
+
+function pocketDialog(vehicleId, pocket) {
+  let chosen = null;
+  modal(`<h3>Номер с хранения</h3><div class="in">${pocket.map((p) => `<div class="opt wide" data-p="${p.plate}"><span class="r"></span>${plate(p.plate, p.style, p.frameObj || p.frameText)}<span></span></div>`).join('')}</div>
+    <div class="ft"><button class="btn" data-m="x">Отмена</button><button class="btn primary" data-m="ok" disabled>Установить за ${rub(S.prices.swap)}</button></div>`,
+  (e) => { const b = e.target.closest('[data-m]'); if (!b) return; if (b.dataset.m === 'x') closeModal(); if (b.dataset.m === 'ok' && chosen) act('attach', { plate: chosen, vehicleId }); });
+  pickable('.opt', (o) => { chosen = o.dataset.p; enableOk(); });
+}
+
+function attachDialog(p) {
+  let chosen = null;
+  modal(`<h3>Установить номер</h3><div class="in"><div class="preview-plate">${plate(p.plate, p.style, p.frameObj || p.frameText)}</div>
+    ${S.vehicles.map((v) => `<div class="opt" data-v="${v.id}"><span class="r"></span><span>${esc(v.label)}<small>сейчас: ${esc(v.pretty)}</small></span><span></span></div>`).join('')}</div>
+    <div class="ft"><button class="btn" data-m="x">Отмена</button><button class="btn primary" data-m="ok" disabled>Установить за ${rub(S.prices.swap)}</button></div>`,
+  (e) => { const b = e.target.closest('[data-m]'); if (!b) return; if (b.dataset.m === 'x') closeModal(); if (b.dataset.m === 'ok' && chosen) act('attach', { plate: p.plate, vehicleId: chosen }); });
+  pickable('.opt', (o) => { chosen = Number(o.dataset.v); enableOk(); });
+}
+
+function frameDialog(p) {
+  let chosen = null;
+  const frameObj = (f) => (f && f.text ? { text: f.text, color: f.color, textColor: f.textColor } : null);
+  modal(`<h3>Рамка номера</h3><div class="in"><div class="frames">
+    ${S.frames.map((f) => `<div class="ftile" data-f="${f.id}">${plate(p.plate, p.style, frameObj(f))}<div class="fl"><span>${esc(f.label)}</span><b>${f.price ? rub(f.price) : 'бесплатно'}</b></div></div>`).join('')}
+    </div></div>
+    <div class="ft"><button class="btn" data-m="x">Отмена</button><button class="btn primary" data-m="ok" disabled>Установить</button></div>`,
+  (e) => { const b = e.target.closest('[data-m]'); if (!b) return; if (b.dataset.m === 'x') closeModal(); if (b.dataset.m === 'ok' && chosen) act('setFrame', { plate: p.plate, frame: chosen }); });
+  $('#dlg').classList.add('wide');
+  pickable('.ftile', (o) => { chosen = o.dataset.f; enableOk(); });
+}
+
+function sellDialog(p) {
+  modal(`<h3>Продажа номера</h3><div class="in"><div class="preview-plate">${plate(p.plate, p.style, p.frameObj || p.frameText)}</div>
+    <label class="f">ID покупателя (он должен стоять у окна МРЭО)<input id="sT" type="number" min="1"></label>
+    <label class="f">Цена, ₽<input id="sP" type="number" min="0" step="1000" value="100000"></label>
+    <p class="rules" id="sN"></p></div>
+    <div class="ft"><button class="btn" data-m="x">Отмена</button><button class="btn primary" data-m="ok">Предложить</button></div>`,
+  (e) => { const b = e.target.closest('[data-m]'); if (!b) return; if (b.dataset.m === 'x') closeModal();
+    if (b.dataset.m === 'ok') act('sell', { plate: p.plate, target: Number($('#sT').value), price: Number($('#sP').value) }); });
+  const upd = () => { $('#sN').textContent = `Вы получите на карту ${rub((Number($('#sP').value) || 0) * (1 - S.prices.commission))} (комиссия ${Math.round(S.prices.commission * 100)}%).`; };
+  $('#sP').oninput = upd; upd();
+}
+
+// ---------- обмен с игрой ----------
+let toastT;
+function toast(text, err) { const t = $('#toast'); t.textContent = text; t.className = 'toast' + (err ? ' err' : ''); clearTimeout(toastT); toastT = setTimeout(() => t.classList.add('hidden'), 3500); }
+
+async function post(name, body) {
+  if (preview) return mock(body);
+  const r = await fetch(`https://${res()}/${name}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+  return r.json();
+}
+
+async function act(name, args, keepModal) {
+  if (busy) return; busy = true;
+  try {
+    const r = await post('action', { name, args });
+    if (r.error) toast(r.error, true);
+    else { if (r.data) S = r.data; if (r.ok) toast(r.ok); if (!keepModal) closeModal(); render(); }
+    return r;
+  } finally { busy = false; }
+}
+
+$('#main').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-do]'); if (!b) return;
+  const v = b.dataset.v ? Number(b.dataset.v) : undefined, p = S.plates.find((x) => x.plate === b.dataset.p);
+  ({ register: () => registerDialog(v), detach: () => act('detach', { vehicleId: v }), attach: () => attachDialog(p),
+     frame: () => frameDialog(p), sell: () => sellDialog(p) })[b.dataset.do]();
+});
+$$('aside button').forEach((b) => (b.onclick = () => { tab = b.dataset.tab; render(); }));
+$('#close').onclick = () => close();
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if (!$('#modal').classList.contains('hidden')) closeModal(); else close(); } });
+
+function close() { $('#app').classList.add('hidden'); closeModal(); if (!preview) post('close'); }
+window.addEventListener('message', (e) => {
+  const { action, data } = e.data || {};
+  if (action === 'open') { S = data; $('#app').classList.remove('hidden'); render(); }
+  if (action === 'close') { $('#app').classList.add('hidden'); closeModal(); }
+});
+
+// ---------- предпросмотр: html/index.html?preview ----------
+function mock(body) {
+  if (body.name === 'choices') return { list: ['K319BM95', 'M052TP95', 'E744XC95', 'B610AO95', 'T238KH95'].map((p) => ({ plate: p })) };
+  const st = (body.args && body.args.style) || 'ru';
+  return { ok: 'Готово (предпросмотр)', data: S, issued: { plate: st === 'ru' ? 'X586KM95' : FAKE[st](), style: st, vehicleId: body.args && body.args.vehicleId } };
+}
+if (preview) {
+  document.body.classList.add('preview');
+  S = {
+    region: '95', regions: [{ code: '95', label: '95 — Нагорск' }, { code: '20', label: '20 — «старые»' }, { code: '05', label: '05 — соседняя республика' }],
+    prices: { window: 7000, choose: 25000, dps: 3000, dpsShare: 1000, swap: 2000, commission: 0.05, foreign: 50000 },
+    styles: [{ id: 'ru', label: 'Россия', sale: 'window' }, { id: 'ru_taxi', label: 'Такси (жёлтый)', sale: 'job' }, { id: 'kz', label: 'Казахстан', sale: 'foreign' },
+      { id: 'by', label: 'Беларусь', sale: 'foreign' }, { id: 'am', label: 'Армения', sale: 'foreign' }, { id: 'ge', label: 'Грузия', sale: 'foreign' }, { id: 'az', label: 'Азербайджан', sale: 'foreign' }],
+    passport: { ok: true, firstname: 'Ахмед', lastname: 'Умаров', birthdate: '14.03.1998', number: 'KZR48213' },
+    frames: [{ id: 'none', label: 'Без рамки', price: 0 }, { id: 'black', label: 'Чёрная без надписи', text: ' ', price: 500 },
+      { id: 'chrome', label: 'Хром «Нагорск»', text: 'НАГОРСК', color: '#c7ccd2', textColor: '#1d232a', price: 2500 },
+      { id: 'market', label: 'Авторынок Ахмеда-Падишаха', text: 'АВТОРЫНОК · АХМЕД-ПАДИШАХ', textColor: '#d9b44a', price: 2000 },
+      { id: 'bislan', label: 'Гараж Бислана', text: 'ГАРАЖ БИСЛАНА', textColor: '#ff5a4e', price: 2000 },
+      { id: 'lovzar', label: 'Ловзар (свадебная, белая)', text: 'ЛОВЗАР', color: '#f3f1ec', textColor: '#a9822c', price: 3000 },
+      { id: 'gold', label: 'Золотая', text: 'НАГОРЬЕ', color: '#1a1712', textColor: '#d4af37', price: 10000 },
+      { id: 'fso', label: 'ФСО (только сотрудникам)', text: 'ФСО РОССИИ', price: 0 }],
+    vehicles: [
+      { id: 1, label: 'Mercedes-Benz G63', plate: 'K013PA95', pretty: 'К 013 РА 95', style: 'ru', frameText: 'ФСО РОССИИ', registered: true, state: 1 },
+      { id: 2, label: 'Toyota Camry 70', plate: 'TR482113', pretty: 'TR482113', registered: false, state: 0 },
+      { id: 3, label: 'Лада Приора', plate: 'A777AA95', pretty: 'А 777 АА 95', style: 'ru', registered: true, state: 2 },
+    ],
+    plates: [
+      { plate: 'K013PA95', style: 'ru', vehicle_id: 1, tier: 'kra', tierLabel: 'серия «КРА»', frameText: 'ФСО РОССИИ' },
+      { plate: 'A777AA95', style: 'ru', vehicle_id: 3, tier: 'blat', tierLabel: 'полный блат' },
+      { plate: '123ABC02', style: 'kz', vehicle_id: null },
+    ],
+  };
+  $('#app').classList.remove('hidden'); render();
+}
+</script>
+</body>
+</html>

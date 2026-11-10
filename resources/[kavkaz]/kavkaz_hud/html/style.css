@@ -1,0 +1,154 @@
+/* KAVKAZ RP — HUD по образцу крупных RP-проектов: тонкий круглый спидометр, инфо у миникарты, подсказки клавиш справа.
+   цвета: изумруд #2FBF8A, золото #E3B341, опасное #E5534B. фон панелей почти не нужен — текст с тенью поверх игры. */
+/* KAVKAZ RP: единый шрифт интерфейса — Montserrat (SIL OFL 1.1). «Golos Text» — псевдоним, чтобы старые стили взяли Montserrat */
+@font-face{font-family:'Montserrat';font-style:normal;font-weight:100 900;font-display:block;src:url(montserrat-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;}
+@font-face{font-family:'Montserrat';font-style:normal;font-weight:100 900;font-display:block;src:url(montserrat-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD, U+20BD;}
+@font-face{font-family:'Montserrat';font-style:italic;font-weight:100 900;font-display:block;src:url(montserrat-cyrillic-italic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;}
+@font-face{font-family:'Montserrat';font-style:italic;font-weight:100 900;font-display:block;src:url(montserrat-latin-italic.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD, U+20BD;}
+@font-face{font-family:'Golos Text';font-style:normal;font-weight:100 900;font-display:block;src:url(montserrat-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;}
+@font-face{font-family:'Golos Text';font-style:normal;font-weight:100 900;font-display:block;src:url(montserrat-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD, U+20BD;}
+
+:root {
+  --text: #f4f7f5;
+  --muted: rgba(244, 247, 245, 0.62);
+  --em: #2fbf8a;
+  --gold: #e3b341;
+  --red: #e5534b;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.85), 0 0 6px rgba(0, 0, 0, 0.35);
+  --mm-left: 1.5vw;
+  --mm-bottom: 2.5vh;
+  --mm-w: 14vw;
+  --mm-h: 17.6vh;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 1.48vh; }
+html, body {
+  width: 100%; height: 100%; overflow: hidden; background: transparent;
+  font-family: 'Golos Text', 'Segoe UI', sans-serif; color: var(--text);
+  user-select: none; -webkit-font-smoothing: antialiased;
+}
+svg { fill: currentColor; }
+#hud { transition: opacity 0.25s; text-shadow: var(--shadow); }
+#hud.off { opacity: 0; }
+
+/* ===== справа сверху ===== */
+#brand { position: absolute; top: 2vh; right: 1.4vw; text-align: right; }
+.logo svg { width: 14rem; height: auto; display: block; margin-left: auto; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6)); }
+.meta { margin-top: 0.3rem; font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+.meta b { color: var(--text); }
+.meta i { display: inline-block; width: 0.25rem; height: 0.25rem; border-radius: 50%; background: var(--em); margin: 0 0.5rem; vertical-align: 0.15rem; }
+
+/* ===== подсказки клавиш ===== */
+#hints {
+  position: absolute; right: 1.4vw; top: 34vh;
+  display: flex; flex-direction: column; gap: 0.32rem; align-items: flex-start;
+  transition: opacity 0.25s;
+}
+#hints.off { opacity: 0; }
+#hints .h { display: flex; align-items: center; gap: 0.55rem; font-size: 0.82rem; font-weight: 600; }
+#hints kbd {
+  min-width: 2.3rem; height: 1.45rem; padding: 0 0.35rem; border-radius: 0.3rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(15, 20, 18, 0.72); border: 1px solid rgba(255, 255, 255, 0.16);
+  font-family: inherit; font-size: 0.7rem; font-weight: 800; text-shadow: none;
+}
+
+/* ===== у миникарты ===== */
+#info {
+  position: absolute;
+  left: calc(var(--mm-left) + var(--mm-w) + 0.9vw);
+  bottom: var(--mm-bottom);
+  display: flex; flex-direction: column; gap: 0.12rem;
+  white-space: nowrap;
+}
+.status { display: flex; gap: 0.35rem; margin-bottom: 0.45rem; }
+.st {
+  --p: 100; --c: var(--em);
+  position: relative; width: 2.05rem; height: 2.05rem; border-radius: 50%;
+  background: rgba(15, 20, 18, 0.6);
+  display: flex; align-items: center; justify-content: center;
+}
+.st::before {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(var(--c) calc(var(--p) * 1%), rgba(255, 255, 255, 0.12) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 0.18rem), #000 calc(100% - 0.16rem));
+}
+.st svg { width: 0.95rem; height: 0.95rem; color: var(--c); position: relative; }
+.st.hp { --c: #ef6a62; } .st.armor { --c: #c9d4ce; } .st.hunger { --c: var(--gold); }
+.st.thirst { --c: #5cc8d0; } .st.stress { --c: #b48cf2; } .st.oxygen { --c: #9fe3d0; }
+.st.hide, .radio.hide { display: none; }
+.st.low { animation: low 1s infinite; }
+.st.low svg { color: var(--red); }
+@keyframes low { 50% { transform: scale(1.1); } }
+.voice, .radio {
+  width: 2.05rem; height: 2.05rem; border-radius: 50%; background: rgba(15, 20, 18, 0.6);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.08rem; color: var(--muted);
+}
+.voice svg { width: 0.85rem; height: 0.85rem; }
+.voice .bars { display: flex; gap: 0.1rem; }
+.voice .bars i { width: 0.18rem; height: 0.18rem; border-radius: 50%; background: rgba(255, 255, 255, 0.2); }
+.voice[data-r="1"] .bars i:nth-child(-n+1), .voice[data-r="2"] .bars i:nth-child(-n+2), .voice[data-r="3"] .bars i:nth-child(-n+3) { background: currentColor; }
+.voice.talk { color: var(--em); box-shadow: 0 0 0 0.14rem rgba(47, 191, 138, 0.35); }
+.radio { color: var(--gold); }
+.radio svg { width: 0.8rem; height: 0.8rem; }
+.radio b { font-size: 0.55rem; line-height: 1; }
+
+.when { display: flex; align-items: baseline; gap: 0.55rem; }
+.when b { font-size: 1.45rem; font-weight: 800; letter-spacing: 0.01em; }
+.when span { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
+.day { display: flex; align-items: center; gap: 0.6rem; font-size: 0.82rem; font-weight: 600; color: var(--muted); text-transform: capitalize; }
+.weather { display: inline-flex; align-items: center; gap: 0.25rem; text-transform: none; }
+.weather svg { width: 0.9rem; height: 0.9rem; }
+.place { margin-top: 0.3rem; display: flex; align-items: baseline; gap: 0.5rem; }
+.place b { font-size: 1.05rem; font-weight: 800; }
+.place span { font-size: 0.75rem; font-weight: 800; color: var(--em); }
+.money { margin-top: 0.3rem; display: flex; flex-direction: column; gap: 0.05rem; font-variant-numeric: tabular-nums; }
+.money div { display: flex; align-items: center; gap: 0.4rem; font-weight: 800; }
+.money svg { width: 0.95rem; height: 0.95rem; }
+.money .cash { color: var(--gold); font-size: 1.1rem; }
+.money .bank { color: var(--text); font-size: 0.9rem; }
+.money .bank svg { color: var(--em); }
+
+#pops { position: absolute; left: 0; bottom: 100%; margin-bottom: 0.4rem; display: flex; flex-direction: column-reverse; gap: 0.15rem; }
+.pop { font-size: 0.95rem; font-weight: 800; animation: pop 3.2s ease forwards; }
+.pop.plus { color: var(--em); } .pop.minus { color: var(--red); }
+.pop small { color: var(--muted); font-weight: 600; font-size: 0.72rem; margin-left: 0.3rem; }
+@keyframes pop { 0% { opacity: 0; transform: translateY(0.4rem); } 10% { opacity: 1; transform: none; } 80% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ===== спидометр ===== */
+#speedo {
+  position: absolute; right: 1.6vw; bottom: 2.4vh; width: 11.5rem;
+  display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+  transition: opacity 0.25s, transform 0.25s;
+}
+#speedo.off { opacity: 0; transform: translateY(1rem); }
+.gauge { position: relative; width: 11.5rem; height: 11.5rem; }
+.dial { width: 100%; height: 100%; overflow: visible; }
+.dial path { fill: none; stroke-linecap: round; }
+.dial .track { stroke: rgba(255, 255, 255, 0.22); stroke-width: 3.5; }
+.dial .fill { stroke: #ffffff; stroke-width: 3.5; stroke-dasharray: 0 100; transition: stroke-dasharray 0.1s linear; filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.7)); }
+.dial .rpmtrack { stroke: rgba(255, 255, 255, 0.08); stroke-width: 2; }
+.dial .rpm { stroke: var(--em); stroke-width: 2; stroke-dasharray: 0 100; transition: stroke-dasharray 0.08s linear; }
+.dial .rpm.hot { stroke: var(--red); }
+.dial #ticks line { stroke: rgba(255, 255, 255, 0.55); stroke-width: 1.4; }
+.dial #ticks text { fill: rgba(255, 255, 255, 0.7); font-size: 8.5px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; font-family: 'Golos Text', sans-serif; }
+
+.center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 0.4rem; }
+.speed { font-size: 3.3rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.unit { font-size: 0.75rem; font-weight: 700; color: var(--muted); letter-spacing: 0.06em; }
+.bottom { position: absolute; left: 0; right: 0; bottom: 0.9rem; display: flex; justify-content: center; align-items: center; gap: 0.7rem; }
+.gear { font-size: 1.1rem; font-weight: 900; color: var(--gold); min-width: 1rem; text-align: center; }
+.gear.n { color: var(--text); } .gear.r { color: var(--red); } .gear.hide { display: none; }
+.fuel { display: inline-flex; align-items: center; gap: 0.2rem; font-size: 0.8rem; font-weight: 800; }
+.fuel svg { width: 0.85rem; height: 0.85rem; color: var(--gold); }
+.fuel.low, .fuel.low svg { color: var(--red); }
+.fuel.hide { display: none; }
+
+.icons { display: flex; gap: 0.55rem; }
+.icons span { color: rgba(255, 255, 255, 0.28); }
+.icons svg { width: 1.05rem; height: 1.05rem; }
+.icons .on { color: var(--em); } .icons .warn { color: var(--gold); } .icons .bad { color: var(--red); }
+.icons .blink { animation: blink 0.8s steps(2) infinite; }
+.icons .hide { display: none; }
+@keyframes blink { 50% { color: rgba(255, 255, 255, 0.2); } }

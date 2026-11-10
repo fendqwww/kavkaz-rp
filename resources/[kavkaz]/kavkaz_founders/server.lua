@@ -1,0 +1,92 @@
+-- KAVKAZ RP — усадьбы основателей: гараж, все машины автопарка с СГУ «Хазард Про», деньги (один раз).
+
+local function loadCars()
+    local code = LoadResourceFile('kavkaz_cars', 'cars.lua')
+    if not code then return {} end
+    local env = {}
+    local fn = load(code, '@kavkaz_cars/cars.lua', 't', env)
+    if not fn then return {} end
+    local ok, res = pcall(fn)
+    local Cars = (ok and type(res) == 'table' and res.List and res) or env.Cars
+    local list = {}
+    for _, car in ipairs(Cars and Cars.List or {}) do
+        if car.model and not car.placeholder then list[#list + 1] = car.model end
+    end
+    return list
+end
+
+local function registerGarage()
+    local g = Config.Garage
+    exports.qbx_garages:RegisterGarage(g.name, {
+        label = g.label,
+        vehicleType = 'car',
+        accessPoints = {
+            { coords = g.access, spawn = g.spawn, blip = { name = g.label, sprite = 357, color = 5 } },
+        },
+    })
+end
+
+-- выдать недостающие машины (можно запускать сколько угодно раз: что уже есть — не дублирует)
+local function giveCars(cid)
+    local have = {}
+    for _, r in ipairs(MySQL.query.await('SELECT id, vehicle FROM player_vehicles WHERE citizenid = ?', { cid }) or {}) do
+        have[r.vehicle] = have[r.vehicle] or r.id
+    end
+    local added = 0
+    for _, model in ipairs(loadCars()) do
+        local id = have[model]
+        if not id then
+            id = exports.qbx_vehicles:CreatePlayerVehicle({ model = model, citizenid = cid, garage = Config.Garage.name })
+            if id then
+                added = added + 1
+                pcall(function() exports.kavkaz_plates:AssignNew(id, 'founder') end)
+            end
+        end
+        if id and Config.Sgu and GetResourceState('kavkaz_sgu') == 'started' then
+            exports.kavkaz_sgu:SetById(id, Config.Sgu, cid)
+        end
+    end
+    return added
+end
+
+local function giveMoneyOnce(cid)
+    local key = 'money_v1_' .. cid
+    if GetResourceKvpInt(key) == 1 then return false end
+    local p = exports.qbx_core:GetPlayerByCitizenId(cid)
+    if p then
+        p.Functions.AddMoney('bank', Config.Money.bank, 'founder')
+        p.Functions.AddMoney('cash', Config.Money.cash, 'founder')
+    else
+        MySQL.update.await([[UPDATE players SET money = JSON_SET(money,
+            '$.bank', COALESCE(JSON_EXTRACT(money, '$.bank'), 0) + ?,
+            '$.cash', COALESCE(JSON_EXTRACT(money, '$.cash'), 0) + ?) WHERE citizenid = ?]], { Config.Money.bank, Config.Money.cash, cid })
+    end
+    SetResourceKvpInt(key, 1)
+    return true
+end
+
+local function setupAll()
+    for _, f in ipairs(Config.Founders) do
+        local added = giveCars(f.citizenid)
+        local money = giveMoneyOnce(f.citizenid)
+        print(('[kavkaz_founders] %s: машин добавлено %d, деньги %s'):format(f.citizenid, added, money and 'начислены' or 'уже были'))
+    end
+end
+
+CreateThread(function()
+    Wait(1000)
+    registerGarage()
+    Wait(9000) -- ждём kavkaz_plates, kavkaz_sgu и базу
+    setupAll()
+end)
+
+-- новые клиенты получат гараж от qbx_garages (он хранит список), но после рестарта qbx_garages — регистрируем заново
+AddEventHandler('onResourceStart', function(res)
+    if res == 'qbx_garages' then SetTimeout(1000, registerGarage) end
+end)
+
+-- консоль: kavkaz_founders — выдать основателям машины, добавленные в автопарк позже
+RegisterCommand('kavkaz_founders', function(src)
+    if src ~= 0 then return end
+    setupAll()
+end, true)
