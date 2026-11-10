@@ -55,7 +55,7 @@ RegisterCommand('gaid', function()
     openGuide(false)
 end, false)
 
-TriggerEvent('chat:addSuggestion', '/gaid', 'Памятка новичка: с чего начать и какие кнопки')
+-- подсказка в чате — в kavkaz_help/config.lua
 
 AddEventHandler('onResourceStop', function(resource)
     if resource == GetCurrentResourceName() and guideOpen then

@@ -59,9 +59,10 @@ RegisterCommand('apin', function()
     lib.notify({ description = ok and 'PIN изменён' or err, type = ok and 'success' or 'error' })
 end, false)
 
-TriggerEvent('chat:addSuggestion', '/alogin', 'Админка: заступить на смену (PIN)')
-TriggerEvent('chat:addSuggestion', '/apin', 'Админка: сменить PIN')
-TriggerEvent('chat:addSuggestion', '/report', 'Написать администрации', { { name = 'текст', help = 'что случилось' } })
+-- подсказки в чате для всех команд — в kavkaz_help/config.lua (один список на весь сервер)
+
+-- уровень, нужный для действия: kavkaz_help берёт его отсюда, чтобы не дублировать Config.Perms
+exports('PermLevel', function(perm) return Config.Perms[perm] or Config.MaxLevel end)
 
 ---------------------------------------------------------------------------
 -- объявления, репорты, карточка

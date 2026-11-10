@@ -213,6 +213,42 @@ local function openStaff()
 end
 
 ---------------------------------------------------------------------------
+-- команды по уровням (список — kavkaz_help/config.lua), клик — скопировать пример
+---------------------------------------------------------------------------
+
+local function openCommands()
+    local ok, list = pcall(function() return exports.kavkaz_help:GetAdminCommands() end)
+    if not ok or not list then
+        return lib.notify({ description = 'список команд недоступен: не запущен kavkaz_help', type = 'error' })
+    end
+    local my = MyLevel()
+    local options, lastLevel = {}, nil
+    for _, c in ipairs(list) do
+        if c.level ~= lastLevel then
+            lastLevel = c.level
+            options[#options + 1] = {
+                title = ('Уровень %d — %s'):format(c.level, Config.Levels[c.level] or ''),
+                readOnly = true,
+                icon = c.level <= my and 'unlock' or 'lock',
+            }
+        end
+        local text = c.ex or c.usage
+        options[#options + 1] = {
+            title = c.key and ('%s · %s'):format(c.key, c.usage) or c.usage,
+            description = ('%s\nпример: %s'):format(c.desc or '', text),
+            icon = 'copy',
+            disabled = c.level > my,
+            onSelect = function()
+                lib.setClipboard(text)
+                lib.notify({ description = ('скопировано: %s'):format(text), type = 'success' })
+            end,
+        }
+    end
+    lib.registerContext({ id = 'kavkaz_admin_commands', title = 'Команды (клик — скопировать)', menu = 'kavkaz_admin_main', options = options })
+    lib.showContext('kavkaz_admin_commands')
+end
+
+---------------------------------------------------------------------------
 -- главное меню
 ---------------------------------------------------------------------------
 
@@ -266,6 +302,7 @@ openMain = function()
             end }),
             item('logs', { title = 'Логи', icon = 'list', arrow = true, onSelect = function() openLogs() end }),
             item('logs', { title = 'Состав и часы смен', icon = 'user-shield', arrow = true, onSelect = openStaff }),
+            { title = 'Команды', icon = 'terminal', arrow = true, description = 'все команды по уровням, клик — скопировать', onSelect = openCommands },
             { title = 'Сдать смену', icon = 'right-from-bracket', onSelect = function() ExecuteCommand('alogout') end },
         },
     })

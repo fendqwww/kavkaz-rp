@@ -111,8 +111,7 @@ RegisterCommand('checkplate', function()
     if not vehicle then return lib.notify({ description = 'рядом нет машины', type = 'error' }) end
     checkVehicle(vehicle)
 end, false)
-TriggerEvent('chat:addSuggestion', '/checkplate', 'ДПС: пробить номер ближайшей машины')
-TriggerEvent('chat:addSuggestion', '/issueplate', 'ДПС: поставить машину водителя на учёт', { { name = 'id', help = 'ID водителя' } })
+-- подсказки в чате — в kavkaz_help/config.lua
 
 ---------------------------------------------------------------------------
 -- NPC и метка

@@ -43,5 +43,4 @@ local function openFines()
 end
 RegisterCommand('fines', openFines, false)
 
-TriggerEvent('chat:addSuggestion', '/fines', 'Мои штрафы и оплата')
-TriggerEvent('chat:addSuggestion', '/fine', 'Полиция/ДПС: выписать штраф', { { name = 'id', help = 'ID нарушителя (пусто — ближайший)' } })
+-- подсказки в чате — в kavkaz_help/config.lua

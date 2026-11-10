@@ -157,6 +157,11 @@ local function setStateLevel(src, level)
     Player(src).state:set('kavkazAdmin', level, true)
 end
 
+-- админ-уровень вне смены: по нему kavkaz_help показывает подсказки /alogin и /apin только админам
+local function setStateRank(src)
+    Player(src).state:set('kavkazAdminRank', Admin.getLevel(src), true)
+end
+
 ---------------------------------------------------------------------------
 -- лог: база + консоль + закрытый канал Discord
 ---------------------------------------------------------------------------
@@ -361,6 +366,7 @@ function Admin.setLevel(src, target, level)
     MySQL.insert.await([[INSERT INTO kavkaz_admins (license, name, level) VALUES (?, ?, ?)
         ON DUPLICATE KEY UPDATE level = VALUES(level), name = VALUES(name)]], { license, GetPlayerName(target) or '', level })
     loadRow(target)
+    setStateRank(target)
 
     if Admin.duty[target] then
         if level == 0 then stopDuty(target, 'снят с админки')
@@ -398,6 +404,7 @@ AddEventHandler('playerJoining', function()
     local src = source
     setStateLevel(src, 0)
     loadRow(src)
+    setStateRank(src)
 end)
 
 AddEventHandler('playerDropped', function()
@@ -412,6 +419,7 @@ MySQL.ready(function()
         local src = tonumber(id)
         setStateLevel(src, 0)
         loadRow(src)
+        setStateRank(src)
     end
     TriggerEvent('kavkaz_admin:server:ready')
 end)
