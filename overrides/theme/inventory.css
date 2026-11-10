@@ -1,147 +1,114 @@
-/* KAVKAZ RP — небесно-синяя тема ox_inventory.
-   исходник. собранный файл (со шрифтом внутри) лежит в
-   overrides/resources/[ox]/ox_inventory/web/build/assets/kavkaz-theme.css — пересобрать: python setup/build-theme.py
-   setup/apply-overrides.ps1 подключает его строкой <link> в web/build/index.html (код ox_inventory не меняем). */
+/* KAVKAZ RP — тема ox_inventory. исходник: собранный файл со шрифтом внутри —
+   overrides/resources/[ox]/ox_inventory/web/build/assets/kavkaz-theme.css (python setup/build-theme.py).
+   setup/apply-overrides.ps1 подключает его строкой <link> в web/build/index.html (код ox_inventory не меняем).
+   стиль: плоский, спокойный, без свечения и градиентов. акцент — небесно-синий. */
 
 :root {
-  --kz-bg0: rgba(3, 16, 51, .92);
-  --kz-bg1: rgba(7, 26, 69, .88);
-  --kz-slot: rgba(10, 34, 82, .62);
-  --kz-slot-hover: rgba(24, 70, 140, .72);
-  --kz-line: rgba(127, 211, 255, .20);
-  --kz-line2: rgba(127, 211, 255, .45);
-  --kz-sky: #2ab4ff;
-  --kz-sky2: #7fd3ff;
-  --kz-sky3: #c9ecff;
-  --kz-text: #eef8ff;
-  --kz-muted: #a9c4e6;
-  --kz-font: "Onest", "Segoe UI", system-ui, sans-serif;
+  --kz-panel: rgba(17, 25, 35, .94);
+  --kz-slot: #1c2734;
+  --kz-slot-hover: #223142;
+  --kz-line: #2b3a4b;
+  --kz-line-hover: #3d93d8;
+  --kz-sky: #3d93d8;
+  --kz-text: #e9eef3;
+  --kz-muted: #93a3b4;
+  --kz-font: "Golos Text", "Segoe UI", Arial, sans-serif;
 }
 
-body, .app-wrapper, .app-wrapper *, p, input, button { font-family: var(--kz-font) !important; }
+body, .app-wrapper, .app-wrapper * { font-family: var(--kz-font) !important; }
 
-/* фон за инвентарём — лёгкая синяя дымка */
-.inventory-wrapper {
-  background: radial-gradient(ellipse at 50% 40%, rgba(42, 180, 255, .14), rgba(3, 16, 51, .55) 70%);
-  gap: 26px;
-}
+.inventory-wrapper { gap: 18px; }
 
-/* сетки (свой инвентарь, багажник, магазин) */
 .inventory-grid-wrapper {
-  padding: 14px;
-  background: linear-gradient(180deg, var(--kz-bg1), var(--kz-bg0));
+  padding: 12px;
+  background: var(--kz-panel);
   border: 1px solid var(--kz-line);
-  border-top: 3px solid var(--kz-sky);
-  border-radius: 14px;
-  box-shadow: 0 24px 60px rgba(0, 8, 30, .55);
+  border-radius: 8px;
 }
 .inventory-grid-header-wrapper p {
   color: var(--kz-text);
-  font-weight: 800;
-  letter-spacing: .08em;
-  text-transform: uppercase;
   font-size: 14px !important;
+  font-weight: 600;
 }
-.inventory-grid-header-wrapper p:last-child { color: var(--kz-sky2); }
-.inventory-grid-container { gap: 4px; padding-right: 2px; }
+.inventory-grid-header-wrapper p:last-child { color: var(--kz-muted); font-weight: 500; }
+.inventory-grid-container { gap: 4px; }
 .inventory-grid-container::-webkit-scrollbar { width: 6px; }
-.inventory-grid-container::-webkit-scrollbar-thumb { background: rgba(127, 211, 255, .3); border-radius: 6px; }
+.inventory-grid-container::-webkit-scrollbar-thumb { background: #34465a; border-radius: 3px; }
 
-/* ячейки */
 .inventory-slot, .hotbar-item-slot, .item-notification-item-box {
   background-color: var(--kz-slot);
   border: 1px solid var(--kz-line) !important;
-  border-radius: 10px !important;
+  border-radius: 6px !important;
   color: var(--kz-text);
-  transition: background-color .15s, border-color .15s, box-shadow .15s;
 }
-.inventory-slot:hover {
-  background-color: var(--kz-slot-hover);
-  border-color: var(--kz-line2) !important;
-  box-shadow: 0 0 0 1px rgba(42, 180, 255, .25), 0 6px 18px rgba(42, 180, 255, .18);
-}
+.inventory-slot:hover { background-color: var(--kz-slot-hover); border-color: var(--kz-line-hover) !important; }
+
 .inventory-slot-label-box {
-  background: linear-gradient(180deg, rgba(4, 18, 52, .2), rgba(4, 18, 52, .92));
+  background: rgba(10, 16, 23, .75);
   color: var(--kz-text);
-  border-top: 1px solid var(--kz-line) !important;
-  border-radius: 0 0 9px 9px;
+  border-top: 0 !important;
+  border-radius: 0 0 5px 5px;
 }
-.inventory-slot-label-text { font-weight: 700; letter-spacing: .03em; font-size: 11px; }
+.inventory-slot-label-text {
+  text-transform: none !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0;
+  padding: 3px 4px !important;
+}
 .inventory-slot-number {
-  min-width: 18px;
-  height: 18px !important;
-  padding: 0 5px !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: var(--kz-sky);
-  color: #02234f;
-  font-weight: 800;
-  border-radius: 9px 0 9px 0;
+  color: #fff;
+  font-size: 11px !important;
+  font-weight: 600;
+  height: 16px !important;
+  min-width: 16px;
+  padding: 0 4px !important;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 5px 0 5px 0;
 }
-.item-slot-info-wrapper p, .item-slot-header-wrapper p { color: var(--kz-sky3); font-weight: 700; }
-.item-slot-currency-wrapper p, .item-slot-price-wrapper p { color: var(--kz-sky2); font-weight: 800; }
+.item-slot-info-wrapper p, .item-slot-header-wrapper p { color: var(--kz-muted); font-size: 11px !important; font-weight: 500; }
+.item-slot-currency-wrapper p, .item-slot-price-wrapper p { color: var(--kz-text); font-weight: 600; text-shadow: none !important; }
 
-/* полоски веса и прочности */
-.weight-bar {
-  height: 7px;
-  background: rgba(3, 16, 51, .8);
-  border: 1px solid var(--kz-line);
-  border-radius: 99px;
-}
-.durability-bar { background: rgba(3, 16, 51, .8); border-radius: 0 0 9px 9px; }
+.weight-bar { height: 4px; background: #0f161f; border: 0; border-radius: 2px; }
+.durability-bar { height: 3px; background: #0f161f; }
 
-/* центр: количество и кнопки */
 .inventory-control .inventory-control-input {
-  background: var(--kz-bg0);
-  border: 1px solid var(--kz-line2);
-  border-radius: 10px;
+  background: var(--kz-panel);
+  border: 1px solid var(--kz-line);
+  border-radius: 6px;
   color: var(--kz-text);
-  font-weight: 800;
+  font-size: 15px;
 }
-.inventory-control .inventory-control-input:focus-within { border-color: var(--kz-sky); box-shadow: 0 0 0 3px rgba(42, 180, 255, .25); }
+.inventory-control .inventory-control-input:focus-within { border-color: var(--kz-sky); }
 .inventory-control .inventory-control-button {
-  background: linear-gradient(180deg, rgba(11, 33, 82, .95), rgba(6, 22, 56, .95));
-  border: 1px solid var(--kz-line2);
-  border-radius: 10px;
-  color: var(--kz-sky3);
-  font-weight: 800;
-  letter-spacing: .1em;
+  background: var(--kz-panel);
+  border: 1px solid var(--kz-line);
+  border-radius: 6px;
+  color: var(--kz-text);
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: none !important;
 }
-.inventory-control .inventory-control-button:hover { background: var(--kz-sky); color: #02234f; border-color: transparent; }
+.inventory-control .inventory-control-button:hover { background: var(--kz-sky); border-color: var(--kz-sky); color: #fff; }
 
-/* подсказка предмета и меню по ПКМ */
 .tooltip-wrapper, .context-menu-list {
-  background: linear-gradient(180deg, #0b2152, #061638);
-  border: 1px solid var(--kz-line2);
-  border-top: 2px solid var(--kz-sky);
-  border-radius: 12px;
+  background: #141d28;
+  border: 1px solid var(--kz-line);
+  border-radius: 6px;
   color: var(--kz-text);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, .45);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .35);
 }
-.tooltip-header-wrapper p:first-child { color: #fff; font-weight: 800; font-size: 14px; }
-.tooltip-wrapper p { color: var(--kz-muted); }
+.tooltip-header-wrapper p:first-child { color: var(--kz-text); font-weight: 600; font-size: 13.5px; }
+.tooltip-wrapper p { color: var(--kz-muted); font-size: 12.5px; }
 .divider { background: var(--kz-line) !important; }
-.context-menu-item { color: var(--kz-text); border-radius: 8px; font-weight: 700; }
-.context-menu-item:hover { background: rgba(42, 180, 255, .2); color: #fff; }
+.context-menu-item { color: var(--kz-text); border-radius: 4px; font-size: 13.5px; }
+.context-menu-item:hover { background: #223142; }
 
-/* быстрые слоты F1 и уведомления «получено / использовано» */
-.hotbar-container { gap: 6px; }
-.item-notification-action-box {
-  background: var(--kz-sky);
-  color: #02234f;
-  border-radius: 9px 9px 0 0;
-}
-.item-notification-action-box p { font-weight: 800; }
+.hotbar-container { gap: 4px; }
+.item-notification-action-box { background: var(--kz-sky); color: #fff; border-radius: 5px 5px 0 0; text-transform: none !important; }
+.item-notification-action-box p { font-weight: 600; }
 
-/* окно «полезные клавиши» */
-.useful-controls-dialog {
-  background: linear-gradient(180deg, #0b2152, #061638) !important;
-  border: 1px solid var(--kz-line2);
-  border-top: 3px solid var(--kz-sky);
-  border-radius: 14px !important;
-  color: var(--kz-text);
-}
-.useful-controls-dialog-title { color: #fff; font-weight: 800; }
-.useful-controls-button, .useful-controls-exit-button { color: var(--kz-sky2) !important; }
-.item-drag-preview { filter: drop-shadow(0 8px 18px rgba(42, 180, 255, .35)); }
+.useful-controls-dialog { background: #141d28 !important; border: 1px solid var(--kz-line); border-radius: 8px !important; color: var(--kz-text); }
+.useful-controls-dialog-title { color: var(--kz-text); font-weight: 600; }

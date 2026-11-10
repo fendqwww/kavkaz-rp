@@ -23,7 +23,7 @@ powershell -ExecutionPolicy Bypass -File setup\apply-overrides.ps1
 | `[qbx]/qbx_spawn/config/client.lua` | места появления по лору: «Нагорск, центр», «Мотель», «Лам-Юрт» |
 | `[qbx]/qbx_properties/config/shared.lua` | стартовые квартиры на русском («Морской берег», «Сити-Тауэр» …) |
 | `*/locales/ru.json` | переводы: qbx_spawn, qbx_properties, qbx_cityhall, qbx_hud, qbx_seatbelt, ox_target |
-| `[ox]/ox_inventory/web/build/assets/kavkaz-theme.css` | небесно-синяя тема инвентаря со шрифтом Onest. исходник — `overrides/theme/inventory.css`, пересборка — `python setup/build-theme.py`. `apply-overrides` сам подключает её строкой `<link>` в `web/build/index.html` |
+| `[ox]/ox_inventory/.../kavkaz-theme.css`, `[ox]/ox_lib/web/build/kavkaz-theme.css` | темы инвентаря и меню ox_lib: шрифт Golos Text, плоский спокойный стиль. исходники — `overrides/theme/*.css`, пересборка — `python setup/build-theme.py`. `apply-overrides` сам подключает их строкой `<link>` в `web/build/index.html` |
 | `[standalone]/illenium-appearance/locales/ru.lua` + `fxmanifest.lua` | русский редактор внешности (в манифест добавлена строка `-- KAVKAZ:`) |
 
 если txAdmin обновит ресурс Qbox, просто запусти скрипт ещё раз. если у обновлённого ресурса

@@ -28,10 +28,39 @@ Config.Prices = {
     dpsShare = 1000,   -- из них сотруднику ДПС
     swap = 2000,       -- перевесить номер на другую свою машину
     commission = 0.05, -- комиссия при продаже номера другому игроку
+    foreign = 50000,   -- номер другой страны (машина «на учёте за границей»)
+}
+
+-- виды номеров. sale: 'window' — продаётся всем в МРЭО, 'foreign' — иностранный (дороже), 'job' — только своим работам.
+-- index — какой фон номера ставить машине в GTA (SetVehicleNumberPlateTextIndex): 0 белый, 1 жёлтый/чёрный,
+-- 2 жёлтый/синий, 3 и 4 белые варианты. с модом текстур номеров (см. README) индексы заменяются на наши фоны.
+Config.Styles = {
+    { id = 'ru',        label = 'Россия',           sale = 'window',  index = 0 },
+    { id = 'ru_taxi',   label = 'Такси (жёлтый)',   sale = 'job', jobs = { taxi = 0, bus = 0 }, index = 1 },
+    { id = 'ru_police', label = 'Полиция (синий)',  sale = 'job', jobs = { police = 0, sheriff = 0 }, index = 4 },
+    { id = 'ru_army',   label = 'Военный (чёрный)', sale = 'job', jobs = { army = 0 }, index = 3 },
+    { id = 'kz',        label = 'Казахстан',        sale = 'foreign', index = 0 },
+    { id = 'by',        label = 'Беларусь',         sale = 'foreign', index = 0 },
+    { id = 'am',        label = 'Армения',          sale = 'foreign', index = 0 },
+    { id = 'ge',        label = 'Грузия',           sale = 'foreign', index = 0 },
+    { id = 'az',        label = 'Азербайджан',      sale = 'foreign', index = 0 },
+}
+
+-- рамки номера (пластик вокруг знака с надписью снизу). jobs — только для сотрудников, price — цена в МРЭО.
+-- свою надпись ставит админ: /setframe
+Config.Frames = {
+    { id = 'none',     label = 'Без рамки',                    text = nil, price = 0 },
+    { id = 'dealer',   label = 'Нагорье Моторс (дилер)',       text = 'НАГОРЬЕ МОТОРС', price = 1500 },
+    { id = 'republic', label = 'Республика Нагорье',           text = 'РЕСПУБЛИКА НАГОРЬЕ · 95', price = 1500 },
+    { id = 'lovzar',   label = 'Ловзар (свадебная)',           text = 'ЛОВЗАР', price = 3000 },
+    { id = 'mvd',      label = 'МВД (только сотрудникам)',     text = 'МВД ПО РЕСПУБЛИКЕ НАГОРЬЕ', price = 0, jobs = { police = 0, sheriff = 0 } },
+    { id = 'fsb',      label = 'ФСБ (только сотрудникам)',     text = 'ФЕДЕРАЛЬНАЯ СЛУЖБА БЕЗОПАСНОСТИ', price = 0, jobs = { fsb = 0 } },
+    { id = 'fso',      label = 'ФСО (только сотрудникам)',     text = 'ФСО РОССИИ', price = 0, jobs = { fso = 0 } },
 }
 
 -- красивые номера не выпадают случайно: только аукцион, ивенты и админы (/setplate)
 Config.Tiers = {
+    kra     = { label = 'серия «КРА»', start = 10000000 }, -- К *** РА 95, например К 013 РА 95
     blat    = { label = 'полный блат', start = 5000000 },
     zero    = { label = '«нулевые» 001–009', start = 1500000 },
     region  = { label = 'регион «095»', start = 700000 },

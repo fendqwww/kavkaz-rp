@@ -5,52 +5,52 @@
 <title>KAVKAZ RP — памятка</title>
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
-  /* стиль по antr5-skill (C:\kavkaz\SKILL.md): тёмно-синий + голубой #2ab4ff, плоско, без неона и стекла */
+  /* спокойный плоский стиль: тёмно-синий фон, небесно-синий акцент, шрифт Golos Text; Montserrat — только логотип */
   :root {
-    --bg: #04103a; --panel: #0a1636; --line: rgba(183,200,232,.16);
-    --acc: #2ab4ff; --text: #ffffff; --muted: #b7c8e8;
+    --bg: #111a26; --panel: #172231; --line: #2a3a4d;
+    --acc: #3d93d8; --text: #eef2f6; --muted: #9fb0c2;
     --f-logo: "Montserrat", "Arial Black", sans-serif;
-    --f-ui: "Onest", "Segoe UI", system-ui, sans-serif;
+    --f-ui: "Golos Text", "Segoe UI", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
-  body { font: 700 16px/1.45 var(--f-ui); color: var(--text); user-select: none; }
+  body { font: 400 16px/1.5 var(--f-ui); color: var(--text); user-select: none; }
   body.preview { background: #1b2a4a; }
 
-  .shade { position: fixed; inset: 0; background: rgba(2,8,30,.72); display: none; align-items: center; justify-content: center; }
+  .shade { position: fixed; inset: 0; background: rgba(8,12,18,.6); display: none; align-items: center; justify-content: center; }
   .shade.open { display: flex; }
 
-  .card { width: 980px; max-width: calc(100vw - 48px); background: var(--panel); border-top: 4px solid var(--acc);
-    box-shadow: 0 30px 80px rgba(0,0,0,.55); padding: 44px 52px 40px; }
+  .card { width: 940px; max-width: calc(100vw - 48px); background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.4); padding: 36px 44px 32px; }
 
   .brand { display: flex; align-items: baseline; }
-  .logo { position: relative; font: italic 900 46px/1 var(--f-logo); letter-spacing: -.03em; }
+  .logo { position: relative; font: italic 900 34px/1 var(--f-logo); letter-spacing: -.03em; }
   .logo::after { content: ""; position: absolute; right: -11px; top: -3px; width: 13px; height: 13px; border-radius: 50%;
     background: radial-gradient(circle at 35% 35%, #9fe2ff, var(--acc) 55%, #0b74d6); }
-  .rp { font: italic 900 17px var(--f-logo); color: var(--acc); margin-left: 12px; }
+  .rp { font: italic 900 14px var(--f-logo); color: var(--acc); margin-left: 12px; }
 
-  h1 { margin-top: 26px; font: 800 34px/1.15 var(--f-ui); }
-  .lead { margin-top: 8px; color: var(--muted); font-size: 17px; }
+  h1 { margin-top: 22px; font: 600 28px/1.2 var(--f-ui); }
+  .lead { margin-top: 6px; color: var(--muted); font-size: 16px; }
 
   .steps { margin-top: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-  .step { padding: 20px 20px 18px; background: var(--bg); border: 1px solid var(--line); }
-  .num { font: italic 900 38px/1 var(--f-logo); color: var(--acc); }
-  .step h3 { margin-top: 10px; font: 800 18px var(--f-ui); text-transform: uppercase; letter-spacing: .08em; }
-  .step p { margin-top: 6px; color: var(--muted); font-size: 15px; font-weight: 600; }
+  .step { padding: 18px 18px 16px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; }
+  .num { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font: 600 15px/1 var(--f-ui); color: #fff; background: var(--acc); }
+  .step h3 { margin-top: 12px; font: 600 17px var(--f-ui); }
+  .step p { margin-top: 4px; color: var(--muted); font-size: 15px; }
 
-  .keys-title { margin-top: 30px; font: 800 13px var(--f-ui); letter-spacing: .3em; text-transform: uppercase; color: var(--acc); }
+  .keys-title { margin-top: 26px; font: 600 16px var(--f-ui); color: var(--text); }
   .keys { margin-top: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 28px; }
   .key { display: flex; align-items: center; gap: 12px; font-size: 16px; }
   kbd { flex: none; min-width: 52px; padding: 3px 10px; border-radius: 6px; text-align: center;
-    font: 800 15px var(--f-ui); color: var(--bg); background: #fff; }
+    font: 600 14px var(--f-ui); color: var(--text); background: #243347; border: 1px solid #3a4c62; border-bottom-width: 2px; }
 
   .foot { margin-top: 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-  .note { color: var(--muted); font-size: 14px; font-weight: 600; }
-  .note b { color: #fff; }
-  button { cursor: pointer; border: 0; padding: 16px 42px; font: 800 16px var(--f-ui); letter-spacing: .16em; text-transform: uppercase;
-    color: var(--bg); background: #fff; }
-  button:hover { background: #dff3ff; }
-  button:focus-visible { outline: 3px solid var(--acc); outline-offset: 3px; }
+  .note { color: var(--muted); font-size: 14px; }
+  .note b { color: var(--text); font-weight: 600; }
+  button { cursor: pointer; border: 0; border-radius: 6px; padding: 12px 34px; font: 600 16px var(--f-ui);
+    color: #fff; background: var(--acc); }
+  button:hover { background: #2f7fc0; }
+  button:focus-visible { outline: 2px solid #8cc4ef; outline-offset: 2px; }
 </style>
 </head>
 <body>
@@ -62,17 +62,17 @@
 
     <div class="steps">
       <div class="step">
-        <div class="num">01</div>
+        <div class="num">1</div>
         <h3>Мэрия</h3>
         <p>Работа и документы. Метка уже стоит на карте.</p>
       </div>
       <div class="step">
-        <div class="num">02</div>
+        <div class="num">2</div>
         <h3>Работа</h3>
         <p>Первая зарплата — на машину и жильё. Деньги приходят на карту.</p>
       </div>
       <div class="step">
-        <div class="num">03</div>
+        <div class="num">3</div>
         <h3>Машина</h3>
         <p>Автосалон и гаражи на карте. Свою машину ставь в гараж.</p>
       </div>

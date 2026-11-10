@@ -28,7 +28,8 @@ RegisterNUICallback('close', function(_, cb) close() cb('ok') end)
 RegisterNUICallback('action', function(body, cb)
     local name, a = body.name, body.args or {}
     local res
-    if name == 'buyRandom' then res = lib.callback.await('kavkaz_plates:buyRandom', false, a.vehicleId, a.region)
+    if name == 'buyRandom' then res = lib.callback.await('kavkaz_plates:buyRandom', false, a.vehicleId, a.region, a.style)
+    elseif name == 'setFrame' then res = lib.callback.await('kavkaz_plates:setFrame', false, a.plate, a.frame)
     elseif name == 'pickChoice' then res = lib.callback.await('kavkaz_plates:pickChoice', false, a.index, a.vehicleId)
     elseif name == 'attach' then res = lib.callback.await('kavkaz_plates:attach', false, a.plate, a.vehicleId)
     elseif name == 'detach' then res = lib.callback.await('kavkaz_plates:detach', false, a.vehicleId)
@@ -83,6 +84,7 @@ local function checkVehicle(vehicle)
     if not res then return lib.notify({ description = 'база недоступна: нужна служебная смена', type = 'error' }) end
     local lines = { ('Номер: **%s**'):format(res.pretty or res.plate), STATUS[res.status] or res.status }
     if res.owner then lines[#lines + 1] = 'Владелец: **' .. res.owner .. '**' end
+    if res.frameText then lines[#lines + 1] = ('Рамка: «%s»'):format(res.frameText) end
     if res.model then lines[#lines + 1] = 'Машина по базе: ' .. res.model end
     if res.registeredModel then lines[#lines + 1] = ('Номер выдан на: %s, а перед тобой — %s'):format(res.registeredModel,
         GetDisplayNameFromVehicleModel(GetEntityModel(vehicle))) end

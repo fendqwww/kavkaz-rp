@@ -23,6 +23,7 @@ ui_page 'html/index.html'
 
 files {
     'html/index.html',
+    'html/plate.js',
     'html/fonts/*.woff2',
     'html/fonts/fonts.css',
 }

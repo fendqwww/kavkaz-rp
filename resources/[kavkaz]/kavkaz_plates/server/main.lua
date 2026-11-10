@@ -18,7 +18,16 @@ MySQL.ready(function()
         `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`id`), KEY `idx_plate` (`plate`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4]])
+    -- 2026-11-10: вид номера и рамка (sql/2026-11-10_kavkaz_plates_styles.sql)
+    MySQL.query.await([[ALTER TABLE `kavkaz_plates`
+        ADD COLUMN IF NOT EXISTS `style` VARCHAR(16) NOT NULL DEFAULT 'ru',
+        ADD COLUMN IF NOT EXISTS `frame` VARCHAR(24) NULL DEFAULT NULL,
+        ADD COLUMN IF NOT EXISTS `frame_text` VARCHAR(48) NULL DEFAULT NULL]])
 end)
+
+local STYLE, FRAME = {}, {}
+for _, st in ipairs(Config.Styles) do STYLE[st.id] = st end
+for _, fr in ipairs(Config.Frames) do FRAME[fr.id] = fr end
 
 ---------------------------------------------------------------------------
 -- помощники
@@ -78,12 +87,21 @@ local function plateTaken(plate)
         { plate, plate }) ~= nil
 end
 
-local function freeRandom(region)
+local function freeRandom(region, style)
     for _ = 1, 50 do
-        local plate = Plates.random(region)
-        if not plateTaken(plate) then return plate end
+        local plate = Plates.random(style or 'ru', region)
+        if plate and not plateTaken(plate) then return plate end
     end
     return nil
+end
+
+-- подходит ли работа игрока под список { работа = мин. ранг }
+local function hasJob(src, jobs)
+    if not jobs then return true end
+    local p = exports.qbx_core:GetPlayer(src)
+    local job = p and p.PlayerData.job
+    local min = job and jobs[job.name]
+    return min ~= nil and (job.grade.level or 0) >= min
 end
 
 -- транзитный номер для машины без номера: TR + 6 цифр (не наш формат — сразу видно, что не на учёте)
@@ -122,12 +140,18 @@ local function vehicleReachable(row, near)
     return row.state == 1, nil
 end
 
--- сменить номер у машины в базе и в мире (ox_inventory переносит багажник и бардачок на новый номер)
-local function setVehiclePlate(row, newPlate)
+-- сменить номер у машины в базе и в мире (ox_inventory переносит багажник и бардачок на новый номер).
+-- style задаёт фон номера в GTA (Config.Styles[].index)
+local function setVehiclePlate(row, newPlate, style)
     local oldPlate = row.plate
-    MySQL.update.await("UPDATE player_vehicles SET plate = ?, mods = JSON_SET(mods, '$.plate', ?) WHERE id = ?", { newPlate, newPlate, row.id })
+    local index = (STYLE[style or 'ru'] or STYLE.ru).index or 0
+    MySQL.update.await("UPDATE player_vehicles SET plate = ?, mods = JSON_SET(mods, '$.plate', ?, '$.plateIndex', ?) WHERE id = ?",
+        { newPlate, newPlate, index, row.id })
     local entity = findEntityByPlate(oldPlate)
-    if entity then SetVehicleNumberPlateText(entity, newPlate) end
+    if entity then
+        SetVehicleNumberPlateText(entity, newPlate)
+        SetVehicleNumberPlateTextIndex(entity, index)
+    end
     pcall(function() exports.ox_inventory:UpdateVehicle(oldPlate, newPlate) end)
     row.plate = newPlate
 end
@@ -145,12 +169,14 @@ local function attach(cid, plate, row)
     end
 
     MySQL.update.await('UPDATE kavkaz_plates SET vehicle_id = ? WHERE plate = ?', { row.id, plate })
-    setVehiclePlate(row, plate)
+    local style = MySQL.scalar.await('SELECT style FROM kavkaz_plates WHERE plate = ?', { plate })
+    setVehiclePlate(row, plate, style)
 end
 
-local function create(cid, plate, sourceKind)
-    MySQL.insert.await('INSERT INTO kavkaz_plates (plate, citizenid, tier, source) VALUES (?, ?, ?, ?)',
-        { plate, cid, Plates.tier(plate), sourceKind })
+local function create(cid, plate, sourceKind, style)
+    style = style or 'ru'
+    MySQL.insert.await('INSERT INTO kavkaz_plates (plate, citizenid, tier, source, style) VALUES (?, ?, ?, ?, ?)',
+        { plate, cid, style == 'ru' and Plates.tier(plate) or nil, sourceKind, style })
     history(plate, nil, cid, sourceKind, 0)
 end
 
@@ -169,23 +195,40 @@ local function buildData(src)
     local cid = cidOf(src)
     if not cid then return nil end
     local vehicles = MySQL.query.await('SELECT id, vehicle, plate, state FROM player_vehicles WHERE citizenid = ? ORDER BY id', { cid }) or {}
-    local plates = MySQL.query.await('SELECT plate, vehicle_id, tier FROM kavkaz_plates WHERE citizenid = ? ORDER BY created_at', { cid }) or {}
+    local plates = MySQL.query.await('SELECT plate, vehicle_id, tier, style, frame, frame_text FROM kavkaz_plates WHERE citizenid = ? ORDER BY created_at', { cid }) or {}
 
     local registered = {}
     for _, p in ipairs(plates) do
-        if p.vehicle_id then registered[p.vehicle_id] = p.plate end
-        p.pretty = Plates.pretty(p.plate)
+        if p.vehicle_id then registered[p.vehicle_id] = p end
+        p.pretty = Plates.pretty(p.plate, p.style)
         p.tierLabel = p.tier and Config.Tiers[p.tier] and Config.Tiers[p.tier].label
+        p.frameText = p.frame_text or (p.frame and FRAME[p.frame] and FRAME[p.frame].text) or nil
     end
     local list = {}
     for _, v in ipairs(vehicles) do
+        local reg = registered[v.id]
+        reg = reg and reg.plate == v.plate and reg or nil
         list[#list + 1] = {
             id = v.id, model = v.vehicle, label = modelLabel(v.vehicle), plate = v.plate,
-            pretty = Plates.pretty(v.plate), registered = registered[v.id] == v.plate,
+            pretty = Plates.pretty(v.plate, reg and reg.style), registered = reg ~= nil,
+            style = reg and reg.style or nil, frameText = reg and reg.frameText or nil,
             state = v.state, -- 0 выгнана, 1 в гараже, 2 штрафстоянка
         }
     end
-    return { vehicles = list, plates = plates, prices = Config.Prices, regions = Config.Regions, region = Config.DefaultRegion }
+
+    -- какие виды номеров и рамки доступны этому игроку
+    local styles, frames = {}, {}
+    for _, st in ipairs(Config.Styles) do
+        if st.sale ~= 'job' or hasJob(src, st.jobs) then
+            styles[#styles + 1] = { id = st.id, label = st.label, sale = st.sale,
+                price = st.sale == 'foreign' and Config.Prices.foreign or Config.Prices.window }
+        end
+    end
+    for _, fr in ipairs(Config.Frames) do
+        if hasJob(src, fr.jobs) then frames[#frames + 1] = { id = fr.id, label = fr.label, text = fr.text, price = fr.price } end
+    end
+    return { vehicles = list, plates = plates, prices = Config.Prices, regions = Config.Regions, region = Config.DefaultRegion,
+        styles = styles, frames = frames }
 end
 
 lib.callback.register('kavkaz_plates:getData', function(src)
@@ -220,18 +263,34 @@ local function reachableOrError(cid, vehicleId)
 end
 
 -- случайный номер в окне (7 000 ₽); vehicleId = nil -> в карман
-officeAction('buyRandom', function(src, cid, vehicleId, region)
+officeAction('buyRandom', function(src, cid, vehicleId, region, style)
+    style = style or 'ru'
+    local st = STYLE[style]
+    if not st then return 'неизвестный вид номера' end
+    if st.sale == 'job' and not hasJob(src, st.jobs) then return 'такие номера выдают только сотрудникам' end
+    local price = st.sale == 'foreign' and Config.Prices.foreign or Config.Prices.window
     local row, err
     if vehicleId then
         row, err = reachableOrError(cid, vehicleId)
         if not row then return err end
     end
-    local plate = freeRandom(validRegion(region))
+    local plate = freeRandom(validRegion(region), style)
     if not plate then return 'свободных номеров нет, попробуй другой регион' end
-    if not pay(src, Config.Prices.window, 'МРЭО: номер') then return 'не хватает денег: нужно ' .. money(Config.Prices.window) end
-    create(cid, plate, 'window')
+    if not pay(src, price, 'МРЭО: номер') then return 'не хватает денег: нужно ' .. money(price) end
+    create(cid, plate, 'window', style)
     if row then attach(cid, plate, row) end
-    return nil, nil, ('номер %s оформлен'):format(Plates.pretty(plate))
+    return nil, nil, ('номер %s оформлен'):format(Plates.pretty(plate, style))
+end)
+
+-- рамка номера: из списка Config.Frames (служебные — только своим)
+officeAction('setFrame', function(src, cid, plate, frameId)
+    local fr = FRAME[frameId or '']
+    if not fr then return 'такой рамки нет' end
+    if not hasJob(src, fr.jobs) then return 'эта рамка только для сотрудников' end
+    if not MySQL.scalar.await('SELECT 1 FROM kavkaz_plates WHERE plate = ? AND citizenid = ?', { plate, cid }) then return 'это не твой номер' end
+    if not pay(src, fr.price or 0, 'МРЭО: рамка номера') then return 'не хватает денег: нужно ' .. money(fr.price) end
+    MySQL.update.await('UPDATE kavkaz_plates SET frame = ?, frame_text = NULL WHERE plate = ?', { fr.id ~= 'none' and fr.id or nil, plate })
+    return nil, nil, fr.id == 'none' and 'рамка снята' or ('рамка «%s» установлена'):format(fr.text)
 end)
 
 -- 5 вариантов на выбор (оплата при выборе)
@@ -403,10 +462,13 @@ lib.callback.register('kavkaz_plates:check', function(src, netId)
     local plate = trim(GetVehicleNumberPlateText(entity))
     local res = { plate = plate, pretty = Plates.pretty(plate) }
 
-    local reg = MySQL.single.await([[SELECT k.plate, k.citizenid, k.vehicle_id, v.vehicle, v.hash, p.charinfo
+    local reg = MySQL.single.await([[SELECT k.plate, k.citizenid, k.vehicle_id, k.style, k.frame, k.frame_text, v.vehicle, v.hash, p.charinfo
         FROM kavkaz_plates k LEFT JOIN player_vehicles v ON v.id = k.vehicle_id LEFT JOIN players p ON p.citizenid = k.citizenid
         WHERE k.plate = ?]], { plate })
     if reg then
+        res.style = reg.style
+        res.pretty = Plates.pretty(plate, reg.style)
+        res.frameText = reg.frame_text or (reg.frame and FRAME[reg.frame] and FRAME[reg.frame].text) or nil
         local ci = reg.charinfo and json.decode(reg.charinfo) or {}
         res.owner = ci.firstname and ('%s %s'):format(ci.firstname, ci.lastname) or reg.citizenid
         if not reg.vehicle_id then
@@ -433,29 +495,64 @@ lib.callback.register('kavkaz_plates:check', function(src, netId)
 end)
 
 ---------------------------------------------------------------------------
--- админ: /setplate ID номер (красивые номера — призы, аукцион)
+-- админ: /setplate ID вид номер — красивые номера, серия «КРА», призы, номера других стран
+-- /setframe номер текст — своя надпись на рамке (например «ФСО РОССИИ» для кортежа ивента)
 ---------------------------------------------------------------------------
 
+local function adminOk(src)
+    if src == 0 then return true end
+    local ok, level = pcall(function() return exports.kavkaz_admin:GetDutyLevel(src) end)
+    if ok and (level or 0) >= Config.AdminLevel then return true end
+    notify(src, 'нужен админ на смене, уровень ' .. Config.AdminLevel, 'error')
+    return false
+end
+
+local styleIds = {}
+for _, st in ipairs(Config.Styles) do styleIds[#styleIds + 1] = st.id end
+
 lib.addCommand('setplate', {
-    help = 'Выдать номер игроку в карман (А777АА95)',
+    help = 'Выдать номер игроку в карман: /setplate ID ru К 013 РА 95',
     params = {
         { name = 'target', type = 'playerId', help = 'ID игрока' },
-        { name = 'plate', type = 'longString', help = 'номер, например А777АА95' },
+        { name = 'style', type = 'string', help = table.concat(styleIds, ', ') },
+        { name = 'plate', type = 'longString', help = 'номер, например К 013 РА 95' },
     },
 }, function(src, args)
-    if src ~= 0 then
-        local ok, level = pcall(function() return exports.kavkaz_admin:GetDutyLevel(src) end)
-        if not ok or (level or 0) < Config.AdminLevel then return notify(src, 'нужен админ на смене, уровень ' .. Config.AdminLevel, 'error') end
-    end
-    local plate = Plates.normalize(args.plate)
-    if not plate then return notify(src, 'формат: А777АА95 (буквы АВЕКМНОРСТУХ, регион из списка)', 'error') end
+    if not adminOk(src) then return end
+    local style = args.style:lower()
+    if not STYLE[style] then return notify(src, 'вид номера: ' .. table.concat(styleIds, ', '), 'error') end
+    local plate = Plates.normalize(args.plate, style)
+    if not plate then return notify(src, 'неверный номер для вида ' .. style .. ' (буквы только АВЕКМНОРСТУХ)', 'error') end
     if plateTaken(plate) then return notify(src, 'номер уже занят', 'error') end
     local cid = cidOf(args.target)
     if not cid then return notify(src, 'персонаж не загружен', 'error') end
-    create(cid, plate, 'admin')
-    pcall(function() exports.kavkaz_admin:Log(src, 'setplate', args.target, Plates.pretty(plate)) end)
-    notify(args.target, ('тебе выдан номер %s. повесить — в МРЭО'):format(Plates.pretty(plate)), 'success')
+    create(cid, plate, 'admin', style)
+    local pretty = Plates.pretty(plate, style)
+    pcall(function() exports.kavkaz_admin:Log(src, 'setplate', args.target, ('%s (%s)'):format(pretty, style)) end)
+    notify(args.target, ('тебе выдан номер %s. повесить — в МРЭО'):format(pretty), 'success')
     if src ~= 0 then notify(src, 'номер выдан', 'success') end
+end)
+
+lib.addCommand('setframe', {
+    help = 'Своя надпись на рамке номера: /setframe К013РА95 ФСО РОССИИ (пусто — снять)',
+    params = {
+        { name = 'plate', type = 'string', help = 'номер без пробелов' },
+        { name = 'text', type = 'longString', help = 'надпись (до 40 символов)', optional = true },
+    },
+}, function(src, args)
+    if not adminOk(src) then return end
+    local plate
+    for _, st in ipairs(Config.Styles) do
+        plate = Plates.normalize(args.plate, st.id)
+        if plate then break end
+    end
+    if not plate or not MySQL.scalar.await('SELECT 1 FROM kavkaz_plates WHERE plate = ?', { plate }) then
+        return notify(src, 'номер не найден в базе МРЭО', 'error')
+    end
+    local text = args.text and args.text:gsub('[\r\n]', ' '):sub(1, 40) or nil
+    MySQL.update.await('UPDATE kavkaz_plates SET frame = ?, frame_text = ? WHERE plate = ?', { text and 'custom' or nil, text, plate })
+    pcall(function() exports.kavkaz_admin:Log(src, 'setframe', nil, ('%s: %s'):format(plate, text or 'снята')) end)
+    notify(src, text and ('рамка «%s» на %s'):format(text, Plates.pretty(plate)) or 'рамка снята', 'success')
 end)
 
 ---------------------------------------------------------------------------
@@ -468,9 +565,9 @@ exports('Tier', Plates.tier)
 exports('GetOwner', function(plate)
     return MySQL.scalar.await('SELECT citizenid FROM kavkaz_plates WHERE plate = ?', { plate })
 end)
-exports('Give', function(cid, plate, sourceKind)
-    plate = Plates.normalize(plate)
+exports('Give', function(cid, plate, sourceKind, style)
+    plate = Plates.normalize(plate, style or 'ru')
     if not plate or plateTaken(plate) then return false end
-    create(cid, plate, sourceKind or 'event')
+    create(cid, plate, sourceKind or 'event', style or 'ru')
     return true
 end)

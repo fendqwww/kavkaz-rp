@@ -4,7 +4,7 @@
 #   2) копирует наши ресурсы resources\[kavkaz]\... ;
 #   3) кладёт overrides\kavkaz.cfg рядом с server.cfg и добавляет в конец server.cfg строку "exec kavkaz.cfg";
 #   4) включает русский язык в ox.cfg;
-#   5) подключает небесно-синюю тему ox_inventory (строка <link> в его web/build/index.html).
+#   5) подключает наши темы ox_inventory и ox_lib (строка <link> в их web/build/index.html).
 # заменённые файлы сохраняются в C:\kavkaz\backup-overrides\<дата>\ — ничего не теряется.
 # запуск: powershell -ExecutionPolicy Bypass -File setup\apply-overrides.ps1 [-Base "C:\kavkaz\txData\Qbox_XXXX.base"]
 param([string]$Base)
@@ -77,31 +77,30 @@ if (Test-Path -LiteralPath $oxCfg) {
     }
 }
 
-Write-Host '5) тема ox_inventory (небесно-синяя)'
-$invHtml = Join-Path $Base 'resources\[ox]\ox_inventory\web\build\index.html'
-if (-not (Test-Path -LiteralPath $invHtml)) {
-    $found = Get-ChildItem -LiteralPath (Join-Path $Base 'resources') -Recurse -Filter 'index.html' -ErrorAction SilentlyContinue |
-        Where-Object { $_.FullName -like '*\ox_inventory\web\build\index.html' } | Select-Object -First 1
-    if ($found) { $invHtml = $found.FullName }
-}
-if (Test-Path -LiteralPath $invHtml) {
-    $themeDst = Join-Path (Split-Path -Parent $invHtml) 'assets\kavkaz-theme.css'
-    if (-not (Test-Path -LiteralPath $themeDst)) {
-        # ox_inventory лежит не в [ox] — копируем тему рядом с его index.html
-        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $themeDst) | Out-Null
-        Copy-Item -LiteralPath (Join-Path $repo 'overrides\resources\[ox]\ox_inventory\web\build\assets\kavkaz-theme.css') -Destination $themeDst -Force
-    }
-    $html = [IO.File]::ReadAllText($invHtml)
+Write-Host '5) темы ox_inventory и ox_lib (шрифт Golos Text, спокойный стиль)'
+# KAVKAZ: код ресурсов не меняем — только добавляем строку <link> на свою тему в их web/build/index.html
+$themes = @(
+    @{ name = 'ox_inventory'; html = 'web\build\index.html'; css = 'web\build\assets\kavkaz-theme.css'; href = './assets/kavkaz-theme.css' },
+    @{ name = 'ox_lib';       html = 'web\build\index.html'; css = 'web\build\kavkaz-theme.css';        href = './kavkaz-theme.css' }
+)
+foreach ($t in $themes) {
+    $resDir = Get-ChildItem -LiteralPath (Join-Path $Base 'resources') -Recurse -Directory -Filter $t.name -ErrorAction SilentlyContinue |
+        Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName 'fxmanifest.lua') } | Select-Object -First 1
+    if (-not $resDir) { Write-Host "  ! $($t.name) не найден, тему пропускаю"; continue }
+    $htmlPath = Join-Path $resDir.FullName $t.html
+    if (-not (Test-Path -LiteralPath $htmlPath)) { Write-Host "  ! у $($t.name) нет $($t.html)"; continue }
+    $cssSrc = Join-Path $repo ("overrides\resources\[ox]\" + $t.name + '\' + $t.css)
+    $cssDst = Join-Path $resDir.FullName $t.css
+    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $cssDst) | Out-Null
+    Copy-Item -LiteralPath $cssSrc -Destination $cssDst -Force
+    $html = [IO.File]::ReadAllText($htmlPath)
     if ($html -notmatch 'kavkaz-theme\.css') {
         New-Item -ItemType Directory -Force -Path $backup | Out-Null
-        Copy-Item -LiteralPath $invHtml -Destination (Join-Path $backup 'ox_inventory-index.html') -Force
-        # KAVKAZ: подключаем свою тему последней, чтобы она перекрывала стили ox_inventory
-        $html = $html -replace '</head>', '<link rel="stylesheet" href="./assets/kavkaz-theme.css"></head>'
-        [IO.File]::WriteAllText($invHtml, $html, (New-Object Text.UTF8Encoding($false)))
-        Write-Host '  + ox_inventory/web/build/index.html: подключена kavkaz-theme.css'
+        Copy-Item -LiteralPath $htmlPath -Destination (Join-Path $backup ($t.name + '-index.html')) -Force
+        $html = $html -replace '</head>', ('<link rel="stylesheet" href="' + $t.href + '"></head>')
+        [IO.File]::WriteAllText($htmlPath, $html, (New-Object Text.UTF8Encoding($false)))
+        Write-Host "  + $($t.name): подключена тема"
     }
-} else {
-    Write-Host '  ! ox_inventory не найден, тему пропускаю'
 }
 
 Write-Host ''
