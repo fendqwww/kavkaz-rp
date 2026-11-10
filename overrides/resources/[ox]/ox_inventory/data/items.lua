@@ -746,4 +746,52 @@ return {
             notification = 'Холодный айран'
         },
     },
+
+    ['lepeshka'] = { -- KAVKAZ: kavkaz_food (базар)
+        label = 'Тандырная лепёшка',
+        weight = 250,
+        client = {
+            image = 'burger.png',
+            status = { hunger = 160000 },
+            anim = 'eating',
+            usetime = 2500,
+            notification = 'Горячая лепёшка'
+        },
+    },
+
+    ['yabloki'] = { -- KAVKAZ: kavkaz_food (базар)
+        label = 'Яблоки',
+        weight = 400,
+        client = {
+            image = 'burger.png',
+            status = { hunger = 80000, thirst = 60000 },
+            anim = 'eating',
+            usetime = 2500,
+            notification = 'Хрустят'
+        },
+    },
+
+    ['tvorog'] = { -- KAVKAZ: kavkaz_food (базар)
+        label = 'Творог домашний',
+        weight = 500,
+        client = {
+            image = 'burger.png',
+            status = { hunger = 170000 },
+            anim = 'eating',
+            usetime = 2500,
+            notification = 'Домашний творог'
+        },
+    },
+
+    ['kompot'] = { -- KAVKAZ: kavkaz_food (базар)
+        label = 'Компот',
+        weight = 1000,
+        client = {
+            image = 'water.png',
+            status = { thirst = 280000 },
+            anim = { dict = 'mp_player_intdrink', clip = 'loop_bottle' },
+            usetime = 2500,
+            notification = 'Компот из алычи'
+        },
+    },
 }

@@ -67,3 +67,88 @@ Config.Posts = {
         },
     },
 }
+
+---------------------------------------------------------------------------
+-- 4. места Нагорья в зданиях GTA: мебель, люди, машины вокруг (появляются, когда игрок рядом)
+-- тот же формат, что у постов ДПС. offset от точки места: x вправо, y вперёд по heading.
+-- всё помечено «сверить»: координаты по карте, без проверки в игре. встань на место, /mypos, пришли — поправим.
+---------------------------------------------------------------------------
+Config.Scenes = {
+    {
+        id = 'avtovokzal',
+        label = 'Автовокзал Нагорска',
+        coords = vec4(462.2, -641.2, 28.5, 180.0), -- точка появления новичка (kavkaz_start)
+        blip = false,                               -- метку и навигатор ставит kavkaz_map
+        props = {
+            { model = 'prop_bench_01a', offset = vec3(-6.0, 3.0, 0.0), heading = 180.0 },
+            { model = 'prop_bench_01a', offset = vec3(-9.0, 3.0, 0.0), heading = 180.0 },
+            { model = 'prop_flag_russia', offset = vec3(-12.0, -2.0, 0.0) },
+        },
+        peds = {
+            { model = 'a_m_m_eastsa_02', offset = vec3(-6.5, 1.8, 0.0), heading = 0.0, scenario = 'WORLD_HUMAN_STAND_MOBILE' },
+            { model = 'a_f_m_eastsa_01', offset = vec3(-8.6, 1.6, 0.0), heading = 10.0, scenario = 'WORLD_HUMAN_STAND_IMPATIENT' },
+            { model = 'a_m_y_stbla_02', offset = vec3(-4.0, 5.5, 0.0), heading = 200.0, scenario = 'WORLD_HUMAN_SMOKING' },
+        },
+        vehicles = {
+            -- стоянка такси у вокзала (Приоры в цвет такси)
+            { model = 'kv_priora', fallback = 'asea', offset = vec3(9.0, 4.0, 0.0), heading = 90.0, color = 88, plate = 'T205AX95' },
+            { model = 'kv_logan', fallback = 'asea', offset = vec3(9.0, 9.5, 0.0), heading = 90.0, color = 88, plate = 'T318KM95' },
+        },
+    },
+    {
+        id = 'chaikhana_terrace',
+        label = 'Чайхана «У Румисы»: терраса',
+        coords = vec4(-714.0, -914.0, 19.2, 90.0), -- рядом с Румисой (kavkaz_quests) и поваром (kavkaz_food)
+        blip = false,
+        props = {
+            { model = 'prop_gazebo_02', offset = vec3(0.0, 0.0, 0.0), heading = 0.0 },
+            { model = 'prop_table_03', offset = vec3(-1.2, 0.8, 0.0) },
+            { model = 'prop_chair_01a', offset = vec3(-2.2, 0.8, 0.0), heading = 90.0 },
+            { model = 'prop_chair_01a', offset = vec3(-0.2, 0.8, 0.0), heading = 270.0 },
+            { model = 'prop_table_03', offset = vec3(1.4, -1.0, 0.0) },
+            { model = 'prop_chair_01a', offset = vec3(0.4, -1.0, 0.0), heading = 90.0 },
+            { model = 'prop_chair_01a', offset = vec3(2.4, -1.0, 0.0), heading = 270.0 },
+        },
+        peds = {
+            { model = 'a_m_m_eastsa_01', offset = vec3(-1.2, 2.2, 0.0), heading = 180.0, scenario = 'WORLD_HUMAN_HANG_OUT_STREET' },
+            { model = 'a_m_o_genstreet_01', offset = vec3(1.4, 0.6, 0.0), heading = 180.0, scenario = 'WORLD_HUMAN_DRINKING' },
+        },
+    },
+    {
+        id = 'bazar',
+        label = 'Восточный базар',
+        coords = vec4(-702.0, -900.0, 19.2, 0.0), -- метка базара уже есть в kavkaz_map; продавцы еды — kavkaz_food
+        blip = false,
+        props = {
+            { model = 'prop_fruit_stand_01', offset = vec3(-4.5, 0.0, 0.0), heading = 0.0 },
+            { model = 'prop_fruit_stand_02', offset = vec3(-1.5, 0.0, 0.0), heading = 0.0 },
+            { model = 'prop_fruit_stand_03', offset = vec3(1.5, 0.0, 0.0), heading = 0.0 },
+            { model = 'prop_fruit_stand_01', offset = vec3(4.5, 0.0, 0.0), heading = 0.0 },
+        },
+        peds = {
+            { model = 'a_f_m_soucent_02', offset = vec3(-4.5, 1.3, 0.0), heading = 180.0, scenario = 'WORLD_HUMAN_STAND_IMPATIENT' },
+            { model = 'a_m_m_soucent_01', offset = vec3(1.5, 1.3, 0.0), heading = 180.0, scenario = 'WORLD_HUMAN_STAND_MOBILE' },
+            { model = 'a_f_o_soucent_01', offset = vec3(0.0, -2.5, 0.0), heading = 0.0, scenario = 'WORLD_HUMAN_STAND_IMPATIENT' },
+        },
+    },
+    {
+        id = 'mreo',
+        label = 'МРЭО ГИБДД у Правительства',
+        coords = vec4(-541.0, -212.0, 37.6, 210.0), -- окно МРЭО — kavkaz_plates
+        blip = false,
+        props = {
+            { model = 'prop_flag_russia', offset = vec3(-4.0, -3.0, 0.0) },
+            { model = 'prop_roadcone02a', offset = vec3(5.0, -6.0, 0.0) },
+            { model = 'prop_roadcone02a', offset = vec3(6.5, -6.0, 0.0) },
+        },
+        peds = {
+            -- очередь за номерами
+            { model = 'a_m_y_business_02', offset = vec3(1.0, -1.5, 0.0), heading = 30.0, scenario = 'WORLD_HUMAN_STAND_MOBILE' },
+            { model = 'a_m_m_eastsa_02', offset = vec3(1.4, -3.0, 0.0), heading = 30.0, scenario = 'WORLD_HUMAN_STAND_IMPATIENT' },
+            { model = 's_m_y_ranger_01', offset = vec3(-2.0, -4.5, 0.0), heading = 120.0, scenario = 'WORLD_HUMAN_CLIPBOARD' },
+        },
+        vehicles = {
+            { model = 'kv_uaz_dps', fallback = 'sheriff2', offset = vec3(6.0, -9.0, 0.0), heading = 120.0, plate = 'A177795' },
+        },
+    },
+}

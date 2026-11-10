@@ -16,6 +16,10 @@ Config.Items = {
     ayran        = { label = 'Айран',                desc = 'холодный, утоляет жажду' },
     water        = { label = 'Вода',                 desc = 'бутылка 0,5 л' },
     coffee       = { label = 'Кофе',                 desc = 'с собой' },
+    lepeshka     = { label = 'Тандырная лепёшка',    desc = 'горячая, только из тандыра' },
+    yabloki      = { label = 'Яблоки',               desc = 'кулёк, с гор' },
+    tvorog       = { label = 'Творог домашний',      desc = 'полкило, на развес' },
+    kompot       = { label = 'Компот',               desc = 'из алычи, литр' },
 }
 
 Config.MaxPerBuy = 5      -- за одну покупку
@@ -49,6 +53,15 @@ Config.Places = {
         props = {},
         blip = false, -- метку ставит kavkaz_quests (Румиса)
         menu = { zhizhig = 600, chepalgash = 250, samsa = 150, chai = 80, ayran = 120, water = 60 },
+    },
+    {
+        id = 'bazar',
+        label = 'Восточный базар',
+        desc = 'лепёшки, фрукты, творог — рядом с чайханой',
+        seller = { model = 'a_f_m_soucent_01', coords = vec4(-697.5, -898.7, 19.2, 180.0) }, -- сверить (за 4-м прилавком сцены bazar в kavkaz_world)
+        props = {},
+        blip = false, -- метку ставит kavkaz_map, прилавки — kavkaz_world
+        menu = { lepeshka = 60, yabloki = 90, tvorog = 180, kompot = 70, samsa = 150, chai = 80 },
     },
     {
         id = 'mangal',

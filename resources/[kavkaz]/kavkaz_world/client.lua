@@ -93,7 +93,8 @@ local function spawnPost(post)
             SetVehicleDoorsLocked(veh, 2)
             SetEntityInvincible(veh, true)
             FreezeEntityPosition(veh, true)
-            SetVehicleNumberPlateText(veh, 'A001AA95')
+            SetVehicleNumberPlateText(veh, v.plate or 'A001AA95')
+            if v.color then SetVehicleColours(veh, v.color, v.color) end
             SetModelAsNoLongerNeeded(m)
             list[#list + 1] = veh
         end
@@ -123,7 +124,11 @@ end
 
 local blips = {}
 CreateThread(function()
-    for _, post in ipairs(Config.Posts) do
+    -- посты ДПС и «сцены» (места Нагорья в зданиях GTA) устроены одинаково
+    local all = {}
+    for _, p in ipairs(Config.Posts or {}) do all[#all + 1] = p end
+    for _, p in ipairs(Config.Scenes or {}) do all[#all + 1] = p end
+    for _, post in ipairs(all) do
         if post.blip then
             local b = AddBlipForCoord(post.coords.x, post.coords.y, post.coords.z)
             SetBlipSprite(b, post.blip.sprite)
