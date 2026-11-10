@@ -7,7 +7,7 @@ description 'KAVKAZ RP — HUD: спидометр (км/ч, передачи, �
 author 'KAVKAZ RP'
 version '1.0.0'
 
-shared_script 'config.lua'
+shared_scripts { '@ox_lib/init.lua', 'config.lua' }
 client_script 'client.lua'
 server_script 'server.lua'
 

@@ -84,6 +84,12 @@ C{ tab = 'admin', cmd = 'ajail', perm = 'ajail', p = { { 'ID', '' }, { 'мину
 C{ tab = 'admin', cmd = 'unjail', perm = 'ajail', p = { { 'ID', '' } }, ex = '/unjail 12', desc = 'выпустить из админ-тюрьмы' }
 C{ tab = 'admin', cmd = 'warn', perm = 'warn', p = { { 'ID', '' }, { 'причина', '' } }, ex = '/warn 12 нон-РП', desc = 'предупреждение; три — бан на 3 дня' }
 C{ tab = 'admin', cmd = 'arevive', perm = 'revive', p = { { '[ID]', 'пусто — себя' } }, ex = '/arevive 12', desc = 'поднять и вылечить' }
+C{ tab = 'admin', cmd = 'aheal', perm = 'heal', p = { { '[ID]', 'пусто — себя' } }, ex = '/aheal 12', desc = 'вылечить: здоровье 100% (без поднятия)' }
+C{ tab = 'admin', cmd = 'afeed', perm = 'feed', p = { { '[ID]', 'пусто — себя' } }, ex = '/afeed 12', desc = 'накормить и напоить: еда и вода 100%, стресс 0' }
+C{ tab = 'admin', cmd = 'aarmor', perm = 'armor', p = { { '[ID]', 'пусто — себя' }, { '[броня]', '0–100, по умолчанию 100' } }, ex = '/aarmor 12 50', desc = 'выдать броню' }
+C{ tab = 'admin', cmd = 'ahealall', perm = 'healall', ex = '/ahealall', desc = 'поднять, вылечить и накормить всех на сервере (мероприятия)' }
+C{ tab = 'admin', cmd = 'aweather', perm = 'weather', p = { { 'погода', 'солнце, ясно, облачно, пасмурно, дождь, гроза, туман, снег, метель, зима' }, { '[минут]', 'по умолчанию 60' } }, ex = '/aweather дождь 30', desc = 'сменить погоду в республике' }
+C{ tab = 'admin', cmd = 'atime', perm = 'time', p = { { 'час', '0–23' }, { '[минуты]', '' } }, ex = '/atime 21', desc = 'поставить время суток' }
 C{ tab = 'admin', cmd = 'freeze', perm = 'freeze', p = { { 'ID', '' } }, ex = '/freeze 12', desc = 'заморозить или разморозить игрока' }
 C{ tab = 'admin', cmd = 'check', perm = 'check', p = { { 'ID', '' } }, ex = '/check 12', desc = 'карточка игрока: деньги, работа, наказания' }
 C{ tab = 'admin', cmd = 'afix', perm = 'afix', side = 'client', ex = '/afix', desc = 'починить и заправить машину' }
@@ -104,7 +110,7 @@ C{ tab = 'admin', cmd = 'agiveitem', perm = 'giveitem', p = { { 'ID', '' }, { '�
 C{ tab = 'admin', cmd = 'agivecar', perm = 'givecar', p = { { 'ID', '' }, { 'модель', '' }, { 'причина', '' } }, ex = '/agivecar 12 kv_priora компенсация', desc = 'выдать машину в гараж (номер — транзит от kavkaz_plates)' }
 C{ tab = 'admin', cmd = 'kavkaz_cars', ace = 'command.kavkaz_cars', ex = 'kavkaz_cars', desc = 'консоль сервера: автопарк — какие машины настоящие, какие на заглушках, вес' }
 C{ tab = 'admin', cmd = 'kavkaz_cars_migrate', ace = 'command.kavkaz_cars_migrate', p = { { '[apply]', 'без apply — только показать' } }, ex = 'kavkaz_cars_migrate apply', desc = 'консоль: перевести купленные машины с заглушки на настоящую модель' }
-C{ tab = 'admin', cmd = 'asgu', ace = 'command.asgu', p = { { 'модель', 'mini, std, pro или off' } }, ex = '/asgu pro', desc = 'поставить или снять СГУ «Хазард» на свою машину из гаража, в которой сидишь' }
+C{ tab = 'admin', cmd = 'asgu', perm = 'sgu', p = { { 'ID', 'игрок за рулём своей машины' }, { 'модель', 'mini, std, pro или off' } }, ex = '/asgu 12 pro', desc = 'поставить или снять СГУ «Хазард 7007» (то же — F10 → игрок → СГУ)' }
 C{ tab = 'admin', cmd = 'asetjob', perm = 'setjob', p = { { 'ID', '' }, { 'работа', 'например police' }, { 'ранг', '' }, { 'причина', '' } }, ex = '/asetjob 12 police 0 набор', desc = 'назначить работу и ранг' }
 C{ tab = 'admin', cmd = 'asetgang', perm = 'setgang', p = { { 'ID', '' }, { 'банда', '' }, { 'ранг', '' }, { 'причина', '' } }, ex = '/asetgang 12 ballas 0 заявка', desc = 'назначить банду и ранг' }
 C{ tab = 'admin', cmd = 'setleader', perm = 'setleader', p = { { 'ID', '' }, { 'организация', 'работа или банда' }, { 'причина', '' } }, ex = '/setleader 12 police выборы', desc = 'назначить лидера организации' }

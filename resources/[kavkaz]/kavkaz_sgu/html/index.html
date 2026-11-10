@@ -2,6 +2,55 @@
 <html lang="ru">
 <head><meta charset="utf-8"><title>KAVKAZ СГУ</title></head>
 <body style="background:transparent">
+<style>
+@font-face { font-family: 'Golos Text'; src: url('golos-text.woff2') format('woff2'); font-weight: 400 900; }
+html { font-size: 1.48vh; }
+body { margin: 0; overflow: hidden; font-family: 'Golos Text', sans-serif; user-select: none; }
+/* пульт «Хазард 7007» — настоящая фотография блока (unit.png), поверх: поворот ручки, лампы, нажатия */
+#unit { position: absolute; right: calc(1.6vw + 12.4rem); bottom: 2.6vh; width: 22rem;
+  filter: drop-shadow(0 .5rem .8rem rgba(0,0,0,.65)); transition: opacity .25s, transform .25s; }
+#unit.off { opacity: 0; transform: translateY(1rem); }
+#unit .photo { position: relative; width: 100%; aspect-ratio: 656 / 358; }
+#unit .photo > img { position: absolute; inset: 0; width: 100%; height: 100%; }
+#knob { position: absolute; left: 47.561%; top: 16.480%; width: 14.024%; aspect-ratio: 1; border-radius: 50%; overflow: hidden;
+  transition: transform .25s cubic-bezier(.3,1.4,.5,1); }
+#knob img { position: absolute; width: 713.043%; height: auto; left: -339.130%; top: -64.130%; }
+.dot { position: absolute; width: 1.1%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%);
+  background: #ffb12e; box-shadow: 0 0 .5rem .15rem rgba(255,170,40,.85); display: none; }
+.dot.on { display: block; }
+.led { position: absolute; width: 2.2%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%); display: none; }
+.led.on { display: block; background: #ff3b30; box-shadow: 0 0 .5rem .2rem rgba(255,59,48,.8); }
+.led.amber.on { background: #ffb12e; box-shadow: 0 0 .5rem .2rem rgba(255,170,40,.8); }
+.press { position: absolute; width: 8%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255,240,200,.75), rgba(255,200,120,0) 70%); opacity: 0; transition: opacity .12s; }
+.press.on { opacity: 1; }
+#cap { margin: .35rem auto 0; width: fit-content; max-width: 100%; padding: .25rem .7rem; border-radius: .4rem;
+  background: rgba(10,12,13,.82); border: 1px solid rgba(255,255,255,.1); color: #e9ecee; font-size: .68rem; font-weight: 700;
+  white-space: nowrap; display: flex; gap: .55rem; align-items: center; }
+#cap b { color: #ffb12e; }
+#cap kbd { font-family: inherit; font-size: .65rem; font-weight: 800; padding: .05rem .3rem; border-radius: .25rem;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); }
+#cap .k { color: #9aa3a8; font-weight: 600; }
+</style>
+<div id="unit" class="off">
+  <div class="photo">
+    <img src="unit.png" alt="">
+    <div id="knob"><img src="unit.png" alt=""></div>
+    <i class="dot" id="d0" style="left:48.476%;top:17.318%"></i>
+    <i class="dot" id="d1" style="left:46.951%;top:24.860%"></i>
+    <i class="dot" id="d2" style="left:45.579%;top:34.078%"></i>
+    <i class="dot" id="d3" style="left:47.866%;top:42.737%"></i>
+    <i class="dot" id="d4" style="left:51.524%;top:48.883%"></i>
+    <i class="dot" id="d5" style="left:55.030%;top:48.603%"></i>
+    <i class="led amber" id="l1" style="left:79.726%;top:12.849%"></i>
+    <i class="led" id="l2" style="left:79.726%;top:36.034%"></i>
+    <i class="press" id="pHorn" style="left:57.622%;top:79.609%"></i>
+    <i class="press" id="pMan" style="left:71.341%;top:79.609%"></i>
+  </div>
+  <div id="cap"><span><b id="c-tone">—</b> <span id="c-num"></span></span>
+    <span class="k"><kbd id="kq">G</kbd> кряк</span><span class="k"><kbd id="kt">J</kbd> вкл</span>
+    <span class="k"><kbd id="kn">U</kbd> дальше</span><span class="k" id="c-strobe"><kbd id="ks">O</kbd> строб</span></div>
+</div>
 <script>
 // KAVKAZ RP — звук СГУ «Хазард 7007». всё синтезируется (WebAudio), файлов и чужих записей нет.
 // цепочка: генераторы → «рупор» (перегруз + полоса 350–3000 Гц) → громкость → панорама → общий компрессор.
@@ -98,7 +147,23 @@ const OPTS = {
 
 const loops = new Map(); // id -> { v, tone, next }
 
+// записи настоящих СГУ: html/sounds/<мелодия>.ogg и quack.ogg. если файла нет — звучит синтез
+const SAMPLES = {};
+for (const id of ['quack', ...Object.keys(TONES)]) {
+  fetch('sounds/' + id + '.ogg').then(r => r.ok ? r.arrayBuffer() : null)
+    .then(b => b && ctx.decodeAudioData(b)).then(buf => { if (buf) SAMPLES[id] = buf; }).catch(() => {});
+}
+
+function sampleVoice(buf, vol, pan, loop) {
+  const out = ctx.createGain(); out.gain.value = vol * BASE * 1.6;
+  const p = ctx.createStereoPanner(); p.pan.value = pan;
+  const src = ctx.createBufferSource(); src.buffer = buf; src.loop = loop;
+  src.connect(out); out.connect(p); p.connect(comp); src.start();
+  return { c: { out, pan: p }, nodes: [src], sample: true };
+}
+
 function startLoop(id, tone, vol, pan) {
+  if (SAMPLES[tone]) { loops.set(id, { v: sampleVoice(SAMPLES[tone], vol, pan, true), tone, next: Infinity }); return; }
   const v = voice(vol, pan, OPTS[tone]);
   v.gate.setValueAtTime(0, ctx.currentTime);
   loops.set(id, { v, tone, next: ctx.currentTime + 0.02 });
@@ -116,11 +181,13 @@ setInterval(() => {
   const ahead = ctx.currentTime + 0.4;
   for (const l of loops.values()) {
     let guard = 0;
+    if (l.v.sample) continue;
     while (l.next < ahead && guard++ < 64) l.next += TONES[l.tone](l.v, l.next);
   }
 }, 60);
 
 function quack(vol, pan) {
+  if (SAMPLES.quack) { sampleVoice(SAMPLES.quack, vol, pan, false); return; }
   const v = voice(vol, pan, { freq: 1600 });
   v.gate.setValueAtTime(0, ctx.currentTime);
   const t = ctx.currentTime + 0.01;
@@ -128,8 +195,37 @@ function quack(vol, pan) {
   for (const n of v.nodes) n.stop(t + 0.4);
 }
 
+const $ = (id) => document.getElementById(id);
+// углы меток на фото относительно центра ручки (ручка на фото смотрит на HHI, ~222°)
+const POS = [217, 191, 170, 147, 123];   // HHI, HI-LO, PHSR, YELP, WAIL
+const OFF = 87;                          // STBY — выключено
+const KNOB0 = 222;
+function panel(d) {
+  $('unit').classList.toggle('off', !d.show);
+  if (!d.show) return;
+  const pos = (d.index - 1) % POS.length;
+  const angle = d.on ? POS[pos] : OFF;
+  $('knob').style.transform = 'rotate(' + (angle - KNOB0) + 'deg)';
+  for (let i = 0; i < 6; i++) $('d' + i).classList.toggle('on', d.on ? i === pos : i === 5);
+  $('l1').classList.toggle('on', !!d.on);
+  $('l2').classList.toggle('on', !!d.strobe);
+  $('c-tone').textContent = d.tones[d.index - 1] || '—';
+  $('c-num').textContent = d.index + '/' + d.tones.length + (d.on ? ' ▶' : '');
+  $('kq').textContent = d.keys.quack; $('kt').textContent = d.keys.tone; $('kn').textContent = d.keys.next; $('ks').textContent = d.keys.strobe;
+  $('c-strobe').style.display = d.canStrobe ? '' : 'none';
+}
+let flashT;
+function flash(which) {
+  const b = $(which === 'next' ? 'pMan' : 'pHorn');
+  b.classList.add('on');
+  clearTimeout(flashT);
+  flashT = setTimeout(() => b.classList.remove('on'), 200);
+}
+
 window.addEventListener('message', (e) => {
   const d = e.data || {};
+  if (d.action === 'panel') return panel(d);
+  if (d.action === 'flash') return flash(d.which);
   if (ctx.state !== 'running') ctx.resume();
   if (d.action === 'quack') quack(d.vol, d.pan || 0);
   else if (d.action === 'loop') {
@@ -153,6 +249,7 @@ if (location.search.includes('preview')) {
   add('кряк', () => quack(1, 0));
   for (const t of Object.keys(TONES)) add(t, () => { stopLoop(1); startLoop(1, t, 1, 0); });
   add('стоп', () => stopLoop(1));
+  panel({ show: true, label: 'Хазард 7007 Про', tones: ['«Хазард»', 'Вой', 'Йелп', 'Двухтон', 'Фазер', 'Пульс', 'Горн', 'Кря-кря'], index: 1, on: true, strobe: true, canStrobe: true, keys: { quack: 'G', tone: 'J', next: 'U', strobe: 'O' } });
 }
 </script>
 </body>

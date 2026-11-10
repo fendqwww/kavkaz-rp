@@ -67,6 +67,37 @@ end)
 
 local DIRS = { 'С', 'СВ', 'В', 'ЮВ', 'Ю', 'ЮЗ', 'З', 'СЗ' }
 
+local WEEKDAYS = { 'воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота' }
+local WEATHER = {
+    EXTRASUNNY = 'солнечно', CLEAR = 'ясно', CLOUDS = 'облачно', OVERCAST = 'пасмурно', CLEARING = 'проясняется',
+    RAIN = 'дождь', THUNDER = 'гроза', FOGGY = 'туман', SMOG = 'дымка', NEUTRAL = 'облачно',
+    SNOWLIGHT = 'лёгкий снег', SNOW = 'снег', BLIZZARD = 'метель', XMAS = 'зима', HALLOWEEN = 'туман',
+}
+
+-- дата по часам компьютера игрока, день недели — формула Зеллера
+local function today()
+    local y, mo, d = GetLocalTime()
+    local yy, mm = y, mo
+    if mm < 3 then mm = mm + 12; yy = yy - 1 end
+    local k, j = yy % 100, yy // 100
+    local h = (d + (13 * (mm + 1)) // 5 + k + k // 4 + j // 4 + 5 * j) % 7 -- 0 = суббота
+    local wd = ({ 7, 1, 2, 3, 4, 5, 6 })[h + 1]                              -- 1 = воскресенье
+    return ('%02d.%02d.%d'):format(d, mo, y), WEEKDAYS[wd]
+end
+
+local function weatherName()
+    local w = GlobalState.weather
+    local code = type(w) == 'table' and w.weather or nil
+    return code and (WEATHER[code] or code:lower()) or ''
+end
+
+-- подсказки клавиш справа (F6 — спрятать/показать, запоминается на ПК игрока)
+local HINTS_KVP = 'kavkaz_hud_hints_off'
+local hintsOff = GetResourceKvpInt(HINTS_KVP) == 1
+local function sendHints()
+    send('hints', { show = not hintsOff, list = Config.Hints })
+end
+
 local function direction()
     local rot = GetGameplayCamRot(2)
     local deg = (360.0 - rot.z) % 360.0
@@ -150,6 +181,7 @@ CreateThread(function()
                 refreshPlayerData()
                 last = {}
                 send('layout', minimapLayout())
+                sendHints()
             end
             send('visible', { show = show })
             DisplayRadar(show)
@@ -187,7 +219,11 @@ CreateThread(function()
             local ped = PlayerPedId()
             local money = pdata.money or {}
             local h, m = GetClockHours(), GetClockMinutes()
+            local date, weekday = today()
             local info = {
+                date = date,
+                weekday = weekday,
+                weather = weatherName(),
                 id = GetPlayerServerId(PlayerId()),
                 online = GlobalState.kavkaz_online or #GetActivePlayers(),
                 slots = GlobalState.kavkaz_slots or 48,
@@ -197,7 +233,7 @@ CreateThread(function()
                 dir = direction(),
                 zone = zoneName(GetEntityCoords(ped)),
             }
-            sendIfChanged('info', info, table.concat({ info.id, info.online, info.time, info.cash, info.bank, info.dir, info.zone }, '|'))
+            sendIfChanged('info', info, table.concat({ info.id, info.online, info.time, info.cash, info.bank, info.dir, info.zone, info.date, info.weather }, '|'))
             if IsRadarHidden() then DisplayRadar(true) end
             SetRadarBigmapEnabled(false, false)
         end
@@ -231,6 +267,15 @@ CreateThread(function()
         end
     end
 end)
+
+lib.addKeybind({
+    name = 'kavkaz_hud_hints', description = 'Подсказки клавиш: показать / скрыть', defaultKey = Config.HintsKey,
+    onPressed = function()
+        hintsOff = not hintsOff
+        SetResourceKvpInt(HINTS_KVP, hintsOff and 1 or 0)
+        sendHints()
+    end,
+})
 
 RegisterCommand('hud', function()
     userHidden = not userHidden

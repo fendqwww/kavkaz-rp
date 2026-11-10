@@ -24,74 +24,67 @@
     <symbol id="i-unlock" viewBox="0 0 24 24"><path d="M9 10h9.5v11.5h-13V10H7V7.5a5 5 0 0 1 9.7-1.7l-1.9.6A3 3 0 0 0 9 7.5V10z"/></symbol>
     <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 6.5h14a1 1 0 0 1 1 1V9h1.5v8H19v1.5a1 1 0 0 1-1 1H4a1.5 1.5 0 0 1-1.5-1.5V8A1.5 1.5 0 0 1 4 6.5zm11 4.5a2 2 0 0 0 0 4h4v-4h-4z"/></symbol>
     <symbol id="i-card" viewBox="0 0 24 24"><path d="M3.5 5.5h17a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-17a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1zm-1 3v2.5h19V8.5h-19zm2 6v1.5h5v-1.5h-5z"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 19a5 5 0 0 1-.6-9.96A6 6 0 0 1 18 8.5a4.5 4.5 0 0 1-.5 10.5H7z"/></symbol>
   </defs>
 </svg>
 
 <div id="hud" class="off">
 
-  <!-- справа сверху -->
+  <!-- справа сверху: логотип, онлайн, ID -->
   <section id="brand">
-    <div class="logo">KAVKAZ<b>RP</b></div>
-    <div class="meta">
-      <span>ID <b id="pid">0</b></span>
-      <i></i>
-      <span><b id="online">0</b>/<em id="slots">48</em></span>
-      <i></i>
-      <span id="clock">00:00</span>
+    <div class="logo"><span>KAVKAZ</span><b>RP</b></div>
+    <div class="meta">Онлайн: <b id="online">0</b> / <span id="slots">48</span><i></i>ID <b id="pid">0</b></div>
+  </section>
+
+  <!-- справа: подсказки по клавишам (F6 — скрыть) -->
+  <section id="hints"></section>
+
+  <!-- справа от миникарты: время, дата, погода, район, деньги -->
+  <section id="info">
+    <div class="status" id="status">
+      <div class="st hp" id="s-hp"><svg><use href="#i-heart"/></svg></div>
+      <div class="st armor" id="s-armor"><svg><use href="#i-shield"/></svg></div>
+      <div class="st hunger" id="s-hunger"><svg><use href="#i-food"/></svg></div>
+      <div class="st thirst" id="s-thirst"><svg><use href="#i-drop"/></svg></div>
+      <div class="st stress" id="s-stress"><svg><use href="#i-stress"/></svg></div>
+      <div class="st oxygen" id="s-oxygen"><svg><use href="#i-air"/></svg></div>
+      <div class="voice" id="voice"><svg><use href="#i-mic"/></svg><span class="bars"><i></i><i></i><i></i></span></div>
+      <div class="radio" id="radio"><svg><use href="#i-radio"/></svg><b id="radio-ch"></b></div>
     </div>
+    <div class="when"><b id="clock">00:00</b><span id="date">01.01.2026</span></div>
+    <div class="day"><span id="weekday">понедельник</span><span class="weather"><svg><use href="#i-cloud"/></svg><span id="weather">ясно</span></span></div>
+    <div class="place"><b id="zone">Нагорск</b><span id="dir">С</span></div>
     <div class="money">
-      <div class="row cash"><svg><use href="#i-wallet"/></svg><span id="cash">0</span><small>₽</small></div>
-      <div class="row bank"><svg><use href="#i-card"/></svg><span id="bank">0</span><small>₽</small></div>
+      <div class="cash"><svg><use href="#i-wallet"/></svg><span id="cash">0</span> ₽</div>
+      <div class="bank"><svg><use href="#i-card"/></svg><span id="bank">0</span> ₽</div>
     </div>
     <div id="pops"></div>
   </section>
 
-  <!-- над миникартой -->
-  <section id="place">
-    <span id="dir">С</span>
-    <span id="zone"></span>
-  </section>
-
-  <!-- рядом с миникартой -->
-  <section id="status">
-    <div class="st hp"     id="s-hp"><svg><use href="#i-heart"/></svg></div>
-    <div class="st armor"  id="s-armor"><svg><use href="#i-shield"/></svg></div>
-    <div class="st hunger" id="s-hunger"><svg><use href="#i-food"/></svg></div>
-    <div class="st thirst" id="s-thirst"><svg><use href="#i-drop"/></svg></div>
-    <div class="st stress" id="s-stress"><svg><use href="#i-stress"/></svg></div>
-    <div class="st oxygen" id="s-oxygen"><svg><use href="#i-air"/></svg></div>
-    <div class="voice" id="voice">
-      <svg><use href="#i-mic"/></svg>
-      <span class="bars"><i></i><i></i><i></i></span>
-    </div>
-    <div class="radio" id="radio"><svg><use href="#i-radio"/></svg><b id="radio-ch"></b></div>
-  </section>
-
-  <!-- справа снизу -->
+  <!-- справа снизу: спидометр -->
   <section id="speedo" class="off">
     <div class="gauge">
       <svg class="dial" viewBox="0 0 200 200">
         <path class="track" d="M40.6 159.4 A84 84 0 1 1 159.4 159.4" pathLength="100"/>
-        <path class="red"   d="M40.6 159.4 A84 84 0 1 1 159.4 159.4" pathLength="100"/>
-        <path class="rpm" id="rpm" d="M40.6 159.4 A84 84 0 1 1 159.4 159.4" pathLength="100"/>
-        <g class="ticks" id="ticks"></g>
+        <path class="fill" id="spd-arc" d="M40.6 159.4 A84 84 0 1 1 159.4 159.4" pathLength="100"/>
+        <path class="rpmtrack" d="M50.5 149.5 A70 70 0 1 1 149.5 149.5" pathLength="100"/>
+        <path class="rpm" id="rpm" d="M50.5 149.5 A70 70 0 1 1 149.5 149.5" pathLength="100"/>
+        <g id="ticks"></g>
       </svg>
       <div class="center">
-        <div class="speed" id="speed"><span class="dim">00</span>0</div>
+        <div class="speed" id="speed">0</div>
         <div class="unit">км/ч</div>
       </div>
-      <div class="gear" id="gear">N</div>
-    </div>
-    <div class="fuel" id="fuel">
-      <svg><use href="#i-fuel"/></svg>
-      <div class="bar"><i id="fuel-bar"></i></div>
-      <b id="fuel-val">100</b>
+      <div class="bottom">
+        <span class="gear" id="gear">N</span>
+        <span class="fuel" id="fuel"><svg><use href="#i-fuel"/></svg><b id="fuel-val">100</b></span>
+      </div>
     </div>
     <div class="icons">
-      <span id="v-belt"   title="ремень"><svg><use href="#i-belt"/></svg></span>
-      <span id="v-engine" title="двигатель"><svg><use href="#i-engine"/></svg></span>
-      <span id="v-lights" title="фары"><svg><use href="#i-lights"/></svg></span>
-      <span id="v-lock"   title="замок"><svg><use id="v-lock-ico" href="#i-unlock"/></svg></span>
+      <span id="v-belt"><svg><use href="#i-belt"/></svg></span>
+      <span id="v-engine"><svg><use href="#i-engine"/></svg></span>
+      <span id="v-lights"><svg><use href="#i-lights"/></svg></span>
+      <span id="v-lock"><svg><use id="v-lock-ico" href="#i-unlock"/></svg></span>
     </div>
   </section>
 </div>

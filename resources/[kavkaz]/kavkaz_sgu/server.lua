@@ -63,6 +63,10 @@ local function driverVehicle(src, net)
     return veh
 end
 
+local function sendModel(target, veh, model)
+    TriggerClientEvent('kavkaz_sgu:client:model', target, NetworkGetNetworkIdFromEntity(veh), model)
+end
+
 local function hasTone(model, tone)
     for _, t in ipairs(Config.Models[model].tones) do
         if t == tone then return true end
@@ -145,6 +149,7 @@ lib.callback.register('kavkaz_sgu:buy', function(src, net, model)
     MySQL.query.await('REPLACE INTO kavkaz_sgu (vkey, model, citizenid) VALUES (?, ?, ?)', { key, model, p.PlayerData.citizenid })
     installed[key] = model
     Entity(veh).state:set('sgu_tone', false, true)
+    sendModel(src, veh, model)
     print(('[kavkaz_sgu] %s поставил %s на %s'):format(GetPlayerName(src), model, key))
     return true, m.label
 end)
@@ -203,30 +208,33 @@ lib.callback.register('kavkaz_sgu:seize', function(src, net)
 end)
 
 ---------------------------------------------------------------------------
--- админ: /asgu mini|std|pro|off — на машину, в которой сидишь (только своя машина из гаража)
+-- выдача из админки: exports.kavkaz_sgu:Install(игрок, 'mini'|'std'|'pro'|'off') — на машину, где он за рулём.
+-- команда /asgu и пункт в F10 — в kavkaz_admin (права и лог там)
 ---------------------------------------------------------------------------
 
-lib.addCommand('asgu', {
-    help = 'Поставить или снять СГУ «Хазард» на машину, в которой сидишь',
-    params = { { name = 'model', type = 'string', help = 'mini, std, pro или off' } },
-    restricted = 'group.admin',
-}, function(src, args)
-    local ped = GetPlayerPed(src)
+exports('Install', function(target, model)
+    target = tonumber(target)
+    local ped = target and GetPlayerPed(target)
+    if not ped or ped == 0 then return false, 'игрок не найден' end
     local veh = GetVehiclePedIsIn(ped, false)
-    if veh == 0 then return exports.qbx_core:Notify(src, 'сядь в машину', 'error') end
+    if veh == 0 or GetPedInVehicleSeat(veh, -1) ~= ped then return false, 'игрок должен сидеть за рулём' end
     local key = vkeyOf(veh)
-    if not key then return exports.qbx_core:Notify(src, 'это не машина из гаража — СГУ не сохранится', 'error') end
-    if args.model == 'off' then
+    if not key then return false, 'это не машина из гаража — СГУ не сохранится. пусть сядет в свою машину' end
+    if model == 'off' then
         MySQL.query.await('DELETE FROM kavkaz_sgu WHERE vkey = ?', { key })
         installed[key] = nil
         Entity(veh).state:set('sgu_tone', false, true)
-        return exports.qbx_core:Notify(src, 'СГУ снято', 'success')
+        Entity(veh).state:set('sgu_strobe', false, true)
+        sendModel(target, veh, modelFor(target, veh))
+        return true, 'СГУ снято'
     end
-    local m = Config.Models[args.model]
-    if not m or not m.price then return exports.qbx_core:Notify(src, 'модель: mini, std, pro или off', 'error') end
-    MySQL.query.await('REPLACE INTO kavkaz_sgu (vkey, model) VALUES (?, ?)', { key, args.model })
-    installed[key] = args.model
-    exports.qbx_core:Notify(src, 'поставлено: ' .. m.label, 'success')
+    local m = Config.Models[model]
+    if not m or not m.price then return false, 'модель: mini, std, pro или off' end
+    local p = getPlayer(target)
+    MySQL.query.await('REPLACE INTO kavkaz_sgu (vkey, model, citizenid) VALUES (?, ?, ?)', { key, model, p and p.PlayerData.citizenid })
+    installed[key] = model
+    sendModel(target, veh, model)
+    return true, 'поставлено: ' .. m.label
 end)
 
 AddEventHandler('playerDropped', function() lastQuack[source] = nil end)

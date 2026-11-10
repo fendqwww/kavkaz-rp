@@ -381,3 +381,119 @@ cmd('admins', 'admins', 'Кто из админов на смене', nil, funct
     if src == 0 then return print(text) end
     Admin.chat(src, 'на смене:\n' .. text)
 end)
+
+---------------------------------------------------------------------------
+-- здоровье: вылечить, броня, накормить, вылечить всех
+---------------------------------------------------------------------------
+
+local function feed(target)
+    local player = exports.qbx_core:GetPlayer(target)
+    if not player then return end
+    player.Functions.SetMetaData('hunger', 100)
+    player.Functions.SetMetaData('thirst', 100)
+    player.Functions.SetMetaData('stress', 0)
+    Player(target).state:set('hunger', 100, true)
+    Player(target).state:set('thirst', 100, true)
+    Player(target).state:set('stress', 0, true)
+end
+
+cmd('aheal', 'heal', 'Вылечить игрока: здоровье 100% (без поднятия)', { P_TARGET_OPT }, function(src, args)
+    local target = args.target or src
+    if target == 0 then return end
+    exports.qbx_medical:Heal(target)
+    TriggerClientEvent('kavkaz_admin:client:heal', target)
+    Admin.notify(target, 'администратор вылечил тебя', 'success')
+    if target ~= src then Admin.notify(src, ('вылечен [%d]'):format(target), 'success') end
+    Admin.log(src, 'heal', target)
+end)
+
+cmd('aarmor', 'armor', 'Выдать броню игроку', { P_TARGET_OPT, { name = 'value', type = 'number', help = 'сколько, 0–100 (по умолчанию 100)', optional = true } }, function(src, args)
+    local target = args.target or src
+    if target == 0 then return end
+    local value = math.max(0, math.min(100, math.floor(args.value or 100)))
+    SetPedArmour(GetPlayerPed(target), value)
+    if target ~= src then Admin.notify(src, ('броня %d → [%d]'):format(value, target), 'success') end
+    Admin.log(src, 'armor', target, tostring(value))
+end)
+
+cmd('afeed', 'feed', 'Накормить и напоить игрока (еда и вода 100%, стресс 0)', { P_TARGET_OPT }, function(src, args)
+    local target = args.target or src
+    if target == 0 then return end
+    feed(target)
+    Admin.notify(target, 'ты сыт и не хочешь пить', 'success')
+    if target ~= src then Admin.notify(src, ('накормлен [%d]'):format(target), 'success') end
+    Admin.log(src, 'feed', target)
+end)
+
+cmd('ahealall', 'healall', 'Поднять, вылечить и накормить всех на сервере (мероприятия)', nil, function(src)
+    local n = 0
+    for _, id in ipairs(GetPlayers()) do
+        id = tonumber(id)
+        exports.qbx_medical:Revive(id)
+        exports.qbx_medical:Heal(id)
+        feed(id)
+        n = n + 1
+    end
+    TriggerClientEvent('kavkaz_admin:client:announce', -1, 'Администрация вылечила и накормила всех жителей.')
+    Admin.notify(src, ('готово: %d игроков'):format(n), 'success')
+    Admin.log(src, 'healall', nil, tostring(n))
+end)
+
+---------------------------------------------------------------------------
+-- погода и время (Renewed-Weathersync читает GlobalState.weather и GlobalState.currentTime)
+---------------------------------------------------------------------------
+
+Admin.Weather = {
+    { 'EXTRASUNNY', 'солнце' }, { 'CLEAR', 'ясно' }, { 'CLOUDS', 'облачно' }, { 'OVERCAST', 'пасмурно' },
+    { 'CLEARING', 'проясняется' }, { 'RAIN', 'дождь' }, { 'THUNDER', 'гроза' }, { 'FOGGY', 'туман' },
+    { 'SMOG', 'дымка' }, { 'SNOWLIGHT', 'лёгкий снег' }, { 'SNOW', 'снег' }, { 'BLIZZARD', 'метель' }, { 'XMAS', 'зима' },
+}
+local WEATHER = {}
+for _, w in ipairs(Admin.Weather) do
+    WEATHER[w[1]:lower()] = w
+    WEATHER[w[2]] = w
+end
+
+cmd('aweather', 'weather', 'Сменить погоду', {
+    { name = 'type', type = 'string', help = 'солнце, ясно, облачно, пасмурно, дождь, гроза, туман, снег, метель, зима' },
+    { name = 'minutes', type = 'number', help = 'на сколько минут (по умолчанию 60)', optional = true },
+}, function(src, args)
+    local w = WEATHER[args.type:lower()]
+    if not w then return Admin.notify(src, 'погода: солнце, ясно, облачно, пасмурно, дождь, гроза, туман, снег, метель, зима', 'error') end
+    local snow = w[1] == 'SNOW' or w[1] == 'SNOWLIGHT' or w[1] == 'BLIZZARD' or w[1] == 'XMAS'
+    GlobalState.weather = {
+        weather = w[1], time = math.max(1, math.floor(args.minutes or 60)),
+        windSpeed = (w[1] == 'THUNDER' or w[1] == 'BLIZZARD') and 8.0 or 1.0, windDirection = 0.0,
+        isRain = w[1] == 'RAIN' or w[1] == 'THUNDER', hasSnow = snow,
+    }
+    Admin.notify(src, 'погода: ' .. w[2], 'success')
+    Admin.log(src, 'weather', nil, w[1])
+end)
+
+cmd('atime', 'time', 'Поставить время суток', {
+    { name = 'hour', type = 'number', help = 'час 0–23' },
+    { name = 'minute', type = 'number', help = 'минуты', optional = true },
+}, function(src, args)
+    local h = math.max(0, math.min(23, math.floor(args.hour)))
+    local m = math.max(0, math.min(59, math.floor(args.minute or 0)))
+    GlobalState.currentTime = { hour = h, minute = m }
+    Admin.notify(src, ('время: %02d:%02d'):format(h, m), 'success')
+    Admin.log(src, 'time', nil, ('%02d:%02d'):format(h, m))
+end)
+
+---------------------------------------------------------------------------
+-- СГУ «Хазард 7007» (kavkaz_sgu)
+---------------------------------------------------------------------------
+
+cmd('asgu', 'sgu', 'Поставить или снять СГУ «Хазард» на машину игрока (сидит за рулём своей машины из гаража)', {
+    P_TARGET,
+    { name = 'model', type = 'string', help = 'mini, std, pro или off' },
+}, function(src, args)
+    if GetResourceState('kavkaz_sgu') ~= 'started' then return Admin.notify(src, 'kavkaz_sgu не запущен', 'error') end
+    local ok, msg = exports.kavkaz_sgu:Install(args.target, args.model)
+    Admin.notify(src, msg, ok and 'success' or 'error')
+    if ok then
+        if args.target ~= src then Admin.notify(args.target, msg, 'success') end
+        Admin.log(src, 'sgu', args.target, args.model)
+    end
+end)

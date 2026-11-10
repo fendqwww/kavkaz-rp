@@ -41,6 +41,12 @@ openPlayer = function(p)
             item('bring', { title = 'ТП к себе', icon = 'person-walking-arrow-loop-left', onSelect = function() run('bring %d', id) end }),
             item('spec', { title = 'Наблюдать', icon = 'eye', onSelect = function() run('spec %d', id) end }),
             item('revive', { title = 'Вылечить / поднять', icon = 'heart-pulse', onSelect = function() run('arevive %d', id) end }),
+            item('heal', { title = 'Вылечить (здоровье 100%)', icon = 'kit-medical', onSelect = function() run('aheal %d', id) end }),
+            item('armor', { title = 'Выдать броню', icon = 'shield-halved', onSelect = function()
+                local i = ask('Броня', { { type = 'slider', label = 'сколько', min = 0, max = 100, default = 100 } })
+                if i then run('aarmor %d %d', id, i[1]) end
+            end }),
+            item('feed', { title = 'Накормить и напоить', icon = 'utensils', onSelect = function() run('afeed %d', id) end }),
             item('freeze', { title = 'Заморозить / разморозить', icon = 'snowflake', onSelect = function() run('freeze %d', id) end }),
             item('kick', { title = 'Кикнуть', icon = 'door-open', onSelect = function()
                 local i = ask('Кик', { F_REASON }) if i then run('kick %d %s', id, clean(i[1])) end
@@ -79,6 +85,12 @@ openPlayer = function(p)
             item('givecar', { title = 'Выдать машину в гараж', icon = 'car', onSelect = function()
                 local i = ask('Машина в гараж', { { type = 'input', label = 'модель', required = true }, F_REASON })
                 if i then run('agivecar %d %s %s', id, clean(i[1]), clean(i[2])) end
+            end }),
+            item('sgu', { title = 'СГУ «Хазард 7007»', icon = 'volume-high', description = 'игрок должен сидеть за рулём своей машины', onSelect = function()
+                local i = ask('СГУ на машину игрока', { { type = 'select', label = 'модель', required = true, options = {
+                    { value = 'mini', label = 'Хазард 7007 Мини' }, { value = 'std', label = 'Хазард 7007' },
+                    { value = 'pro', label = 'Хазард 7007 Про' }, { value = 'off', label = 'снять СГУ' } } } })
+                if i then run('asgu %d %s', id, i[1]) end
             end }),
             item('setjob', { title = 'Работа и ранг', icon = 'briefcase', onSelect = function()
                 local i = ask('Назначить работу', { { type = 'input', label = 'работа (police, ambulance …)', required = true },
@@ -272,6 +284,8 @@ openMain = function()
                         item('atpm', { title = 'ТП на метку', icon = 'location-dot', onSelect = function() ExecuteCommand('atpm') end }),
                         item('invis', { title = 'Невидимость', icon = 'ghost', description = Tools.isInvisible() and 'включена' or 'выключена', onSelect = function() ExecuteCommand('invis') end }),
                         item('revive', { title = 'Вылечиться', icon = 'heart-pulse', onSelect = function() ExecuteCommand('arevive') end }),
+                        item('armor', { title = 'Броня себе', icon = 'shield-halved', onSelect = function() ExecuteCommand('aarmor') end }),
+                        item('feed', { title = 'Наесться', icon = 'utensils', onSelect = function() ExecuteCommand('afeed') end }),
                         { title = 'Сменить PIN', icon = 'key', onSelect = function() ExecuteCommand('apin') end },
                     },
                 })
@@ -296,6 +310,24 @@ openMain = function()
                 })
                 lib.showContext('kavkaz_admin_veh')
             end },
+            item('weather', { title = 'Погода и время', icon = 'cloud-sun', arrow = true, onSelect = function()
+                local W = { { 'солнце', 'sun' }, { 'ясно', 'sun' }, { 'облачно', 'cloud' }, { 'пасмурно', 'cloud' }, { 'дождь', 'cloud-rain' },
+                    { 'гроза', 'cloud-bolt' }, { 'туман', 'smog' }, { 'снег', 'snowflake' }, { 'метель', 'wind' }, { 'зима', 'tree' } }
+                local opts = {}
+                for _, w in ipairs(W) do
+                    opts[#opts + 1] = { title = w[1], icon = w[2], onSelect = function() run('aweather %s', w[1]) end }
+                end
+                opts[#opts + 1] = item('time', { title = 'Время суток', icon = 'clock', onSelect = function()
+                    local i = ask('Время', { { type = 'slider', label = 'час', min = 0, max = 23, default = 12 } })
+                    if i then run('atime %d', i[1]) end
+                end })
+                lib.registerContext({ id = 'kavkaz_admin_weather', title = 'Погода и время', menu = 'kavkaz_admin_main', options = opts })
+                lib.showContext('kavkaz_admin_weather')
+            end }),
+            item('healall', { title = 'Вылечить всех', icon = 'heart-circle-plus', description = 'поднять, вылечить и накормить весь сервер', onSelect = function()
+                if lib.alertDialog({ header = 'Вылечить всех?', content = 'Поднять, вылечить и накормить всех игроков на сервере.', centered = true, cancel = true,
+                    labels = { confirm = 'Да', cancel = 'Нет' } }) == 'confirm' then ExecuteCommand('ahealall') end
+            end }),
             item('announce', { title = 'Объявление на сервер', icon = 'bullhorn', onSelect = function()
                 local i = ask('Объявление', { { type = 'textarea', label = 'текст', required = true, max = 300 } })
                 if i then run('announce %s', clean(i[1])) end

@@ -54,12 +54,48 @@ CreateThread(function()
     end
 end)
 
+-- сервер сообщил новую модель (купил у Бислана, выдал админ)
+RegisterNetEvent('kavkaz_sgu:client:model', function(net, model)
+    if myVeh ~= 0 and NetworkGetEntityIsNetworked(myVeh) and VehToNet(myVeh) == net then
+        myModel, toneIndex = model, 1
+    end
+end)
+
+-- панель прибора на экране, пока сидишь за рулём машины с СГУ
+CreateThread(function()
+    local lastKey
+    while true do
+        local data
+        if myModel and myVeh ~= 0 and not IsPauseMenuActive() and LocalPlayer.state.isLoggedIn then
+            local m = Config.Models[myModel]
+            local st = Entity(myVeh).state
+            local names = {}
+            for i, t in ipairs(m.tones) do names[i] = Config.Tones[t] end
+            data = { show = true, label = m.label, service = myModel == 'service', tones = names, index = toneIndex,
+                on = st.sgu_tone and true or false, strobe = st.sgu_strobe and true or false, canStrobe = m.strobe and true or false,
+                keys = Config.Keys }
+        else
+            data = { show = false }
+        end
+        local key = json.encode(data)
+        if key ~= lastKey then
+            lastKey = key
+            data.action = 'panel'
+            SendNUIMessage(data)
+        end
+        Wait(150)
+    end
+end)
+
 local function canUse()
     return myVeh ~= 0 and myModel ~= nil and not IsPauseMenuActive() and not IsNuiFocused()
 end
 
 lib.addKeybind({ name = 'kavkaz_sgu_quack', description = 'СГУ: кряк', defaultKey = Config.Keys.quack, onPressed = function()
-    if canUse() then TriggerServerEvent('kavkaz_sgu:server:quack', VehToNet(myVeh)) end
+    if canUse() then
+        TriggerServerEvent('kavkaz_sgu:server:quack', VehToNet(myVeh))
+        SendNUIMessage({ action = 'flash', which = 'quack' })
+    end
 end })
 
 lib.addKeybind({ name = 'kavkaz_sgu_tone', description = 'СГУ: мелодия вкл/выкл', defaultKey = Config.Keys.tone, onPressed = function()
@@ -72,6 +108,7 @@ lib.addKeybind({ name = 'kavkaz_sgu_next', description = 'СГУ: следующ
     if not canUse() then return end
     local tones = model().tones
     toneIndex = toneIndex % #tones + 1
+    SendNUIMessage({ action = 'flash', which = 'next' })
     local tone = tones[toneIndex]
     notify(('мелодия %d/%d: %s'):format(toneIndex, #tones, Config.Tones[tone]))
     if Entity(myVeh).state.sgu_tone then TriggerServerEvent('kavkaz_sgu:server:tone', VehToNet(myVeh), tone) end
