@@ -33,6 +33,9 @@ Config.HideEverywhere = {
     'prop_flag_lsservices',
     'prop_flag_sa',
     'prop_flag_sheriff',
+    -- маленькие варианты тех же флагов и флаги на яхтах (моделей, которых нет в игре, клиент просто пропускает)
+    'prop_flag_us_s', 'prop_flag_ls_s', 'prop_flag_lsfd_s', 'prop_flag_lsservices_s', 'prop_flag_sa_s', 'prop_flag_sheriff_s',
+    'apa_prop_flag_us_yt', 'apa_prop_flag_mexico_yt', 'prop_flag_mexico', 'prop_flag_mexico_s', 'prop_flag_canada', 'prop_flag_canada_s',
     -- американские мелочи на улицах: синие почтовые ящики, газетные автоматы, таксофоны
     'prop_postbox_01a',
     'prop_news_disp_01a', 'prop_news_disp_02a', 'prop_news_disp_02b', 'prop_news_disp_02c', 'prop_news_disp_02d',

@@ -189,6 +189,9 @@ Cars.List = {
       stub = 'phantom', model = nil, placeholder = true, sale = 'job' },
 
     ---------------------------------------------------------------- служебные (не продаются)
+    { spawn = 'kv_2114_dps', brand = 'Лада', name = '2114 ДПС', price = 0, category = 'service', class = 'ДПС, патруль в городе',
+      stub = 'police4', model = 'kv_2114_dps', placeholder = false,
+      mb = 11.1, tex = '2K (видеопамять ужата 26 -> 15 МБ)', source = 'https://www.gta5-mods.com/vehicles/vaz-2114-2115-lada-police-add-on', author = 'AKROM', license = 'Add-On (ladapol), переименован', sale = 'org', org = { police = 0, sasp = 0 }, plate = 'ru_police' },
     { spawn = 'kv_uaz_dps', brand = 'УАЗ', name = 'Патриот ДПС', price = 0, category = 'service', class = 'ДПС, внедорожник',
       stub = 'sheriff2', model = 'kv_uaz_dps', placeholder = false,
       mb = 7.4, tex = '2912', source = 'https://www.gta5-mods.com/vehicles/uaz-patriot-police', author = 'AKROM', license = 'FiveM не запрещён; meta по шаблону LC300, сирены свои', sale = 'org', org = { police = 0, sasp = 0 }, plate = 'ru_police' },
