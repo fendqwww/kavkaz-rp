@@ -40,3 +40,16 @@ Config.AutoMeText = {
     ['weapon_out:melee'] = 'взял в руки холодное оружие',
     ['weapon_out:other'] = 'достал оружие',
 }
+
+-- двигатель заводится кнопкой (engine.lua). клавишу игрок меняет в Настройки → Назначение клавиш → FiveM
+Config.Engine = {
+    Key = 'I', -- Y занят круизом (qbx_cruise), H — поиском ключей, K — присесть
+    CrankMs = 1100, -- сколько крутит стартёр
+    Anim = { dict = 'oddjobs@towing', clip = 'start_engine', delay = 450 },
+    AnimBike = { dict = 'veh@bike@quad@front@base', clip = 'start_engine', delay = 700 },
+    -- старые машины: шанс не завестись с первой попытки «на холодную» и с повторной
+    OldCars = { kv_vaz2107 = true, kv_vaz2109 = true, kv_vaz2110 = true, kv_vaz2114 = true, kv_niva_legend = true,
+                kv_gazel = true, kv_gazel_taxi = true, kv_gazel_ems = true, kv_uaz_dps = true, kv_liaz = true },
+    OldCold = 0.35,
+    OldRetry = 0.15,
+}
