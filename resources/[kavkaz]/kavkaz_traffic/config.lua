@@ -5,20 +5,28 @@
 Config = {}
 
 -- наши модели в потоке и их доля (чем больше число, тем чаще)
--- ВЫКЛЮЧЕНЫ до перепаковки текстур (слишком тяжёлые, не грузятся у игроков, см. docs/tasks/2026-11-11-friend-claude.md):
--- kv_vaz2107, kv_granta, kv_camry70, kv_camry80, kv_lc300, kv_g63, kv_zeekr001, kv_gazel. вернуть сюда после перепаковки.
+-- 11.11: тяжёлые текстуры перепакованы (setup/cars/repack_ytd.py, каждая машина ≤ 24 МБ видеопамяти) — все снова в потоке.
+-- суперкары (jesko, chiron, roadster, cybertruck) в поток не ставим: на улицах Нагорья их почти нет.
 Config.Models = {
     kv_priora  = 14,
     kv_vaz2114 = 12,
+    kv_vaz2107 = 10,
+    kv_granta  = 12,
     kv_vaz2110 = 9,
     kv_vaz2109 = 7,
     kv_vesta   = 9,
     kv_logan   = 8,
+    kv_camry70 = 6,
+    kv_camry80 = 4,
     kv_largus  = 5,
     kv_focus3  = 5,
     kv_octavia = 5,
+    kv_lc300   = 3,
+    kv_gazel   = 4,
     kv_mondeo  = 3,
     kv_m5f90   = 1,
+    kv_g63     = 1,
+    kv_zeekr001 = 1,
 }
 
 -- какие классы GTA заменяем: 0 компакт, 1 седан, 2 внедорожник, 3 купе, 4 маслкар, 5 классика, 6 спорт, 7 супер, 9 бездорожье, 12 фургон
