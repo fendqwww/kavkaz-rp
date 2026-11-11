@@ -23,18 +23,42 @@ local function oocName(src)
     return ('%s [%d]'):format(GetPlayerName(src) or '?', src)
 end
 
-local function send(target, color, prefix, text)
-    TriggerClientEvent('chat:addMessage', target, { color = color, multiline = true, args = { prefix, text } })
+-- вид строк чата (тема qbx_chat_theme/theme: kavkaz.js и app.css). в шаблоне только наш HTML,
+-- всё, что пишет игрок, идёт в args — чат сам экранирует их, так что вставить свой HTML игрок не может.
+-- класс kv-<вид> определяет цвет и вкладку: say shout whisper me do try ooc pm radio dep fam gov
+local NM = '<b class="nm">{0}</b><i class="id">[{1}]</i>'
+local TPL = {
+    say     = '<div class="kv kv-say">' .. NM .. ' говорит: {2}</div>',
+    shout   = '<div class="kv kv-shout">' .. NM .. ' кричит: {2}</div>',
+    whisper = '<div class="kv kv-whisper">' .. NM .. ' {3}: {2}</div>',
+    me      = '<div class="kv kv-me">* ' .. NM .. ' {2}</div>',
+    ['do']  = '<div class="kv kv-do">{2} <i class="who">(( {0} [{1}] ))</i></div>',
+    try_ok  = '<div class="kv kv-try">* ' .. NM .. ' {2} — <b class="ok">удачно</b></div>',
+    try_no  = '<div class="kv kv-try">* ' .. NM .. ' {2} — <b class="no">неудачно</b></div>',
+    todo    = '<div class="kv kv-me">«{2}», — сказал ' .. NM .. ', {3}</div>',
+    ooc     = '<div class="kv kv-ooc">(( ' .. NM .. ': {2} ))</div>',
+    pm      = '<div class="kv kv-pm"><b class="tag">{3}</b> ' .. NM .. ': {2}</div>',
+    radio   = '<div class="kv kv-radio"><b class="tag">[{3}]</b> ' .. NM .. ': {2}</div>',
+    radioOoc= '<div class="kv kv-radio kv-ooc"><b class="tag">[{3}]</b> (( ' .. NM .. ': {2} ))</div>',
+    dep     = '<div class="kv kv-dep"><b class="tag">[{3}]</b> ' .. NM .. ': {2}</div>',
+    fam     = '<div class="kv kv-fam"><b class="tag">[{3}]</b> ' .. NM .. ': {2}</div>',
+    famOoc  = '<div class="kv kv-fam kv-ooc"><b class="tag">[{3}]</b> (( ' .. NM .. ': {2} ))</div>',
+    gov     = '<div class="kv kv-gov"><b class="tag">ГОСНОВОСТИ · {0}</b> {2}</div>',
+}
+
+-- kind — ключ TPL, args = { имя, ID, текст, доп. }
+local function send(target, kind, args)
+    TriggerClientEvent('chat:addMessage', target, { template = TPL[kind], args = args })
 end
 
 -- всем в радиусе, в том же routing bucket
-local function sendNear(src, range, color, prefix, text)
+local function sendNear(src, range, kind, args)
     local pos = GetEntityCoords(GetPlayerPed(src))
     local bucket = GetPlayerRoutingBucket(src)
     for _, id in ipairs(GetPlayers()) do
         local t = tonumber(id)
         if GetPlayerRoutingBucket(t) == bucket and #(GetEntityCoords(GetPlayerPed(t)) - pos) <= range then
-            send(t, color, prefix, text)
+            send(t, kind, args)
         end
     end
 end
@@ -64,31 +88,31 @@ if Config.LocalChat then
     AddEventHandler('chatMessage', function(src, _, message)
         CancelEvent()
         if message:sub(1, 1) == '/' or isMuted(src) then return end
-        sendNear(src, Config.Range.say, Config.Colors.say, charName(src) .. ' говорит', clean(message))
+        sendNear(src, Config.Range.say, 'say', { charName(src), src, clean(message) })
     end)
 end
 
 chatCommand('s', 'Крикнуть', function(src, a)
-    sendNear(src, Config.Range.shout, Config.Colors.shout, charName(src) .. ' кричит', a.text .. '!')
+    sendNear(src, Config.Range.shout, 'shout', { charName(src), src, a.text .. '!' })
 end)
 
 chatCommand('do', 'Описание окружения', function(src, a)
-    sendNear(src, Config.Range.action, Config.Colors['do'], '*', ('%s (( %s ))'):format(a.text, charName(src)))
+    sendNear(src, Config.Range.action, 'do', { charName(src), src, a.text })
 end)
 
 chatCommand('try', 'Попытка', function(src, a)
     local ok = math.random() < 0.5
-    sendNear(src, Config.Range.action, Config.Colors.try, '*', ('%s %s — %s'):format(charName(src), a.text, ok and 'удачно' or 'неудачно'))
+    sendNear(src, Config.Range.action, ok and 'try_ok' or 'try_no', { charName(src), src, a.text })
 end)
 
 chatCommand('todo', 'Фраза*действие', function(src, a)
     local phrase, action = a.text:match('^(.-)%*(.+)$')
     if not phrase or phrase == '' then return notify(src, 'формат: /todo Привет, брат*пожимает руку', 'error') end
-    sendNear(src, Config.Range.action, Config.Colors.me, '*', ('«%s», — сказал %s, %s'):format(phrase, charName(src), action))
+    sendNear(src, Config.Range.action, 'todo', { charName(src), src, phrase, action })
 end)
 
 chatCommand('b', 'Локальный OOC', function(src, a)
-    sendNear(src, Config.Range.ooc, Config.Colors.ooc, '(( ' .. oocName(src), a.text .. ' ))')
+    sendNear(src, Config.Range.ooc, 'ooc', { GetPlayerName(src) or '?', src, a.text })
 end)
 
 chatCommand('w', 'Шёпот', function(src, a)
@@ -96,15 +120,15 @@ chatCommand('w', 'Шёпот', function(src, a)
     if #(GetEntityCoords(GetPlayerPed(t)) - GetEntityCoords(GetPlayerPed(src))) > Config.Range.whisper then
         return notify(src, 'нужно стоять вплотную', 'error')
     end
-    send(t, Config.Colors.whisper, charName(src) .. ' шепчет', a.text)
-    send(src, Config.Colors.whisper, 'ты шепчешь ' .. charName(t), a.text)
-    sendNear(src, Config.Range.action, Config.Colors.me, '*', charName(src) .. ' что-то шепчет ' .. charName(t))
+    send(t, 'whisper', { charName(src), src, a.text, 'шепчет тебе' })
+    send(src, 'whisper', { charName(src), src, a.text, 'шепчет ' .. charName(t) })
+    sendNear(src, Config.Range.action, 'me', { charName(src), src, 'что-то шепчет ' .. charName(t) })
 end, { { name = 'target', type = 'playerId', help = 'ID' } })
 
 chatCommand('pm', 'Личное OOC-сообщение', function(src, a)
     if a.target == src then return end
-    send(a.target, Config.Colors.pm, 'ЛС от ' .. oocName(src), a.text)
-    send(src, Config.Colors.pm, 'ЛС для ' .. oocName(a.target), a.text)
+    send(a.target, 'pm', { GetPlayerName(src) or '?', src, a.text, 'ЛС от' })
+    send(src, 'pm', { GetPlayerName(a.target) or '?', a.target, a.text, 'ЛС для' })
 end, { { name = 'target', type = 'playerId', help = 'ID' } })
 
 ---------------------------------------------------------------------------
@@ -129,9 +153,10 @@ local function radio(ooc)
         local job = jobOf(src)
         if not job or job.name == 'unemployed' then return notify(src, 'ты не состоишь в организации', 'error') end
         if Config.GovJobs[job.name] and not job.onduty then return notify(src, 'рация работает на смене', 'error') end
-        local prefix = ('[%s] %s %s'):format(job.label, job.grade.name, ooc and oocName(src) or charName(src))
+        local tag = ('%s · %s'):format(job.label, job.grade.name)
+        local who = ooc and (GetPlayerName(src) or '?') or charName(src)
         eachPlayer(function(pd) return pd.job.name == job.name end, function(t)
-            send(t, ooc and Config.Colors.radioOoc or Config.Colors.radio, prefix, ooc and ('(( ' .. a.text .. ' ))') or a.text)
+            send(t, ooc and 'radioOoc' or 'radio', { who, src, a.text, tag })
         end)
     end
 end
@@ -142,7 +167,7 @@ chatCommand('d', 'Департамент', function(src, a)
     local job = jobOf(src)
     if not job or not Config.GovJobs[job.name] or not job.onduty then return notify(src, 'только госструктуры на смене', 'error') end
     eachPlayer(function(pd) return Config.GovJobs[pd.job.name] and pd.job.onduty end, function(t)
-        send(t, Config.Colors.dep, ('[Департамент] %s | %s'):format(job.label, charName(src)), a.text)
+        send(t, 'dep', { charName(src), src, a.text, 'Департамент · ' .. job.label })
     end)
 end)
 
@@ -151,7 +176,7 @@ local function family(ooc)
         local _, gang = jobOf(src)
         if not gang or gang.name == 'none' then return notify(src, 'ты не состоишь в семье или банде', 'error') end
         eachPlayer(function(pd) return pd.gang.name == gang.name end, function(t)
-            send(t, Config.Colors.fam, ('[%s] %s'):format(gang.label, ooc and oocName(src) or charName(src)), ooc and ('(( ' .. a.text .. ' ))') or a.text)
+            send(t, ooc and 'famOoc' or 'fam', { ooc and (GetPlayerName(src) or '?') or charName(src), src, a.text, gang.label })
         end)
     end
 end
@@ -161,7 +186,7 @@ chatCommand('fn', 'Чат семьи NonRP', family(true))
 chatCommand('gov', 'Госновости', function(src, a)
     local job = jobOf(src)
     if not job or not Config.GovJobs[job.name] or not job.isboss then return notify(src, 'только лидеры и замы госструктур', 'error') end
-    send(-1, Config.Colors.gov, ('ГОСНОВОСТИ | %s'):format(job.label), a.text)
+    send(-1, 'gov', { job.label, src, a.text })
 end)
 
 ---------------------------------------------------------------------------
@@ -194,11 +219,24 @@ lib.addCommand('pay', {
     TriggerClientEvent('kavkaz_rp:client:payAnim', src)
     notify(src, ('ты передал %s'):format(sum), 'success')
     notify(args.target, ('%s передал тебе %s'):format(charName(src), sum), 'success')
-    sendNear(src, Config.Range.action, Config.Colors.me, '*', ('%s передал деньги %s'):format(charName(src), charName(args.target)))
+    sendNear(src, Config.Range.action, 'me', { charName(src), src, 'передал деньги ' .. charName(args.target) })
     print(('[kavkaz_rp] pay %s -> %s: %d'):format(oocName(src), oocName(args.target), amount))
 end)
 
 AddEventHandler('playerDropped', function() lastPay[source] = nil end)
+
+-- автодействия: клиент сообщает только ключ события, текст и дальность — здесь
+local lastAuto = {}
+RegisterNetEvent('kavkaz_rp:server:autoMe', function(key)
+    local src = source
+    if not Config.AutoMe or type(key) ~= 'string' then return end
+    local text = Config.AutoMeText[key]
+    if not text or isMuted(src) then return end
+    if (lastAuto[src] or 0) + 1200 > GetGameTimer() then return end
+    lastAuto[src] = GetGameTimer()
+    sendNear(src, Config.Range.action, 'me', { charName(src), src, text })
+end)
+AddEventHandler('playerDropped', function() lastAuto[source] = nil end)
 
 -- первая помощь от игрока: проверяем расстояние, что человек упал, и списываем аптечку
 local lastAid = {}

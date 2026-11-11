@@ -83,6 +83,9 @@ local function giveCars(cid)
         if id and Config.Sgu and GetResourceState('kavkaz_sgu') == 'started' then
             exports.kavkaz_sgu:SetById(id, Config.Sgu, cid)
         end
+        if id and GetResourceState('kavkaz_air') == 'started' then
+            exports.kavkaz_air:SetById(id, true, cid) -- основателям пневма на всех машинах
+        end
     end
     return added
 end

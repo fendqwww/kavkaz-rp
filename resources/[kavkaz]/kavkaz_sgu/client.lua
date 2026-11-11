@@ -49,6 +49,7 @@ CreateThread(function()
             if myVeh ~= 0 and DoesEntityExist(myVeh) then
                 if Entity(myVeh).state.sgu_tone then TriggerServerEvent('kavkaz_sgu:server:tone', VehToNet(myVeh), false) end
                 if Entity(myVeh).state.sgu_strobe then TriggerServerEvent('kavkaz_sgu:server:strobe', VehToNet(myVeh), false) end
+                if Entity(myVeh).state.sgu_man then TriggerServerEvent('kavkaz_sgu:server:manual', VehToNet(myVeh), false) end
             end
             myVeh, myModel, toneIndex = veh, nil, 1
             if veh ~= 0 and NetworkGetEntityIsNetworked(veh) then
@@ -56,8 +57,9 @@ CreateThread(function()
                 if myModel and not hinted[veh] then
                     hinted[veh] = true
                     local m = Config.Models[myModel]
-                    notify(('%s: %s — кряк, %s — мелодия, %s — сменить%s'):format(m.label, Config.Keys.quack, Config.Keys.tone,
-                        Config.Keys.next, m.strobe and (', ' .. Config.Keys.strobe .. ' — стробоскоп') or ''))
+                    notify(('%s: %s — кряк, %s — мелодия, %s — сменить%s%s'):format(m.label, Config.Keys.quack, Config.Keys.tone,
+                        Config.Keys.next, Config.ManualModels[myModel] and (', ' .. Config.Keys.manual .. ' (держать) — ручной тон') or '',
+                        m.strobe and (', ' .. Config.Keys.strobe .. ' — стробоскопы') or ''))
                 end
             end
         end
@@ -125,6 +127,17 @@ lib.addKeybind({ name = 'kavkaz_sgu_next', description = 'СГУ: следующ
     if Entity(myVeh).state.sgu_tone then TriggerServerEvent('kavkaz_sgu:server:tone', VehToNet(myVeh), tone) end
 end })
 
+lib.addKeybind({ name = 'kavkaz_sgu_manual', description = 'СГУ: ручной тон (держать)', defaultKey = Config.Keys.manual,
+    onPressed = function()
+        if not canUse() or not Config.ManualModels[myModel] then return end
+        TriggerServerEvent('kavkaz_sgu:server:manual', VehToNet(myVeh), true)
+        SendNUIMessage({ action = 'flash', which = 'quack' })
+    end,
+    onReleased = function()
+        if myVeh ~= 0 and Entity(myVeh).state.sgu_man then TriggerServerEvent('kavkaz_sgu:server:manual', VehToNet(myVeh), false) end
+    end,
+})
+
 lib.addKeybind({ name = 'kavkaz_sgu_strobe', description = 'СГУ: стробоскоп', defaultKey = Config.Keys.strobe, onPressed = function()
     if not canUse() or not model().strobe then return end
     TriggerServerEvent('kavkaz_sgu:server:strobe', VehToNet(myVeh), not Entity(myVeh).state.sgu_strobe)
@@ -158,6 +171,38 @@ AddStateBagChangeHandler('sgu_strobe', nil, function(bagName, _, value)
     local entity = GetEntityFromStateBagName(bagName)
     if entity == 0 then return end
     strobing[entity] = value and true or nil
+end)
+
+-- ручной тон машин рядом
+local manualOn = {} -- netId -> true
+AddStateBagChangeHandler('sgu_man', nil, function(bagName, _, value)
+    local entity = GetEntityFromStateBagName(bagName)
+    if entity == 0 then return end
+    local net = NetworkGetNetworkIdFromEntity(entity)
+    if value then
+        manualOn[net] = true
+    elseif manualOn[net] then
+        manualOn[net] = nil
+        local vol, pan = mix(entity, Config.Range.loop)
+        SendNUIMessage({ action = 'manual', id = 'm' .. net, on = false, vol = vol, pan = pan })
+    end
+end)
+CreateThread(function()
+    while true do
+        local any = false
+        for net in pairs(manualOn) do
+            any = true
+            local veh = NetworkDoesEntityExistWithNetworkId(net) and NetToVeh(net) or 0
+            if veh == 0 or not DoesEntityExist(veh) then
+                manualOn[net] = nil
+                SendNUIMessage({ action = 'manual', id = 'm' .. net, on = false, vol = 0, pan = 0 })
+            else
+                local vol, pan = mix(veh, Config.Range.loop)
+                SendNUIMessage({ action = 'manual', id = 'm' .. net, on = true, vol = vol, pan = pan })
+            end
+        end
+        Wait(any and 100 or 400)
+    end
 end)
 
 -- громкость мелодий рядом стоящих машин
@@ -209,6 +254,58 @@ AddStateBagChangeHandler('sgu_strobe', nil, function(bagName, _, value)
     end
 end)
 
+-- стробоскопы в решётке радиатора: красный и синий, двойная вспышка. рисует каждый игрок у себя — видно всем, кто рядом
+local function grillePoints(veh)
+    local bl = GetEntityBoneIndexByName(veh, 'headlight_l')
+    local br = GetEntityBoneIndexByName(veh, 'headlight_r')
+    local fwd = GetEntityForwardVector(veh)
+    local g = Config.Grille
+    if bl ~= -1 and br ~= -1 then
+        local l, r = GetWorldPositionOfEntityBone(veh, bl), GetWorldPositionOfEntityBone(veh, br)
+        local mid = (l + r) / 2
+        local off = vector3(fwd.x * g.forward, fwd.y * g.forward, -g.down)
+        return mid + (l - mid) * g.spread + off, mid + (r - mid) * g.spread + off, fwd
+    end
+    -- у машины нет костей фар: берём перед кузова по размерам модели
+    local mn, mx = GetModelDimensions(GetEntityModel(veh))
+    return GetOffsetFromEntityInWorldCoords(veh, -0.25, mx.y - 0.05, 0.05), GetOffsetFromEntityInWorldCoords(veh, 0.25, mx.y - 0.05, 0.05), fwd
+end
+
+local function flashOn(t)
+    local g = Config.Grille
+    local half = 2 * g.flash + g.gap + g.pause
+    local side = (t % (2 * half)) < half and 1 or 2
+    local p = t % half
+    local lit = p < g.flash or (p >= g.flash + g.gap and p < 2 * g.flash + g.gap)
+    return lit, side
+end
+
+local function drawLamp(pos, fwd, rgb)
+    local g = Config.Grille
+    local lp = pos + fwd * 0.5
+    DrawLightWithRange(lp.x, lp.y, lp.z, rgb[1], rgb[2], rgb[3], g.range, g.intensity)
+    DrawMarker(28, pos.x, pos.y, pos.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.07, 0.07, 0.05, rgb[1], rgb[2], rgb[3], 235, false, false, 2, false, nil, nil, false)
+end
+
+CreateThread(function()
+    local RED, BLUE = { 255, 20, 20 }, { 30, 70, 255 }
+    while true do
+        local any = false
+        local me = GetEntityCoords(cache.ped)
+        for veh in pairs(strobing) do
+            if DoesEntityExist(veh) and #(GetEntityCoords(veh) - me) < Config.Grille.distance then
+                any = true
+                local lit, side = flashOn(GetGameTimer())
+                if lit then
+                    local a, b, fwd = grillePoints(veh)
+                    if side == 1 then drawLamp(a, fwd, RED) else drawLamp(b, fwd, BLUE) end
+                end
+            end
+        end
+        Wait(any and 0 or 300)
+    end
+end)
+
 -- штатные американские сирены у машин экстренных служб глушим: звук даёт наше служебное СГУ (J)
 CreateThread(function()
     while true do
@@ -257,7 +354,12 @@ local function openGarage()
             if done then myModel = nil end
         end }
     end
-    lib.registerContext({ id = 'kavkaz_sgu_garage', title = 'Гараж Бислана: СГУ «Хазард 7007»', options = options })
+    -- пневмоподвеска (kavkaz_air) — тут же, у Бислана
+    if GetResourceState('kavkaz_air') == 'started' then
+        local ok, opt = pcall(function() return exports.kavkaz_air:GarageOption(net) end)
+        if ok and opt then options[#options + 1] = opt end
+    end
+    lib.registerContext({ id = 'kavkaz_sgu_garage', title = 'Гараж Бислана: СГУ «Хазард 7007» и пневма', options = options })
     lib.showContext('kavkaz_sgu_garage')
 end
 

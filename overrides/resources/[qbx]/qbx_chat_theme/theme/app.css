@@ -1,12 +1,25 @@
-/* KAVKAZ: свой вид чата поверх qbx_chat_theme (overrides). было: серые плашки Mantine и «утка» Qbox в строке ввода.
-   цвета: тёмный #0F1412, изумруд #2FBF8A, золото #E3B341 (docs/vision/21, блок 2). */
-/* KAVKAZ RP: единый шрифт интерфейса — Manrope (SIL OFL 1.1, близок к Gilroy). «Montserrat» и «Golos Text» — псевдонимы, чтобы старые стили взяли Manrope */
-@font-face{font-family:'Montserrat';font-style:normal;font-weight:100 900;font-display:block;src:url(manrope-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;}
-@font-face{font-family:'Montserrat';font-style:normal;font-weight:100 900;font-display:block;src:url(manrope-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD, U+20BD;}
-@font-face{font-family:'Montserrat';font-style:italic;font-weight:100 900;font-display:block;src:url(manrope-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;}
-@font-face{font-family:'Montserrat';font-style:italic;font-weight:100 900;font-display:block;src:url(manrope-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD, U+20BD;}
-@font-face{font-family:'Golos Text';font-style:normal;font-weight:100 900;font-display:block;src:url(manrope-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;}
-@font-face{font-family:'Golos Text';font-style:normal;font-weight:100 900;font-display:block;src:url(manrope-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD, U+20BD;}
+/* KAVKAZ: чат в стиле Majestic (утверждён вариант «А + В», 10.11.2026; правила — .claude/skills/kavkaz-ui).
+   строки без плашек, цвет по виду сообщения (классы kv-* шлёт kavkaz_rp), мягкое затемнение под чатом без рамки,
+   при вводе — вкладки, режим «В роли / Вне роли / Рация», счётчик символов (их добавляет theme/app.js). */
+@font-face { font-family: 'Golos Text'; font-weight: 400 900; font-display: block; src: url(golos-text.woff2) format('woff2'); }
+
+:root {
+    --kv-text: #f2f3f5;
+    --kv-muted: rgba(242, 243, 245, 0.6);
+    --kv-acc: #2fbf8a;
+    --kv-red: #e5534b;
+    --kv-say: #f2f3f5;
+    --kv-me: #c7a8ff;
+    --kv-do: #8fd3ff;
+    --kv-ooc: #a3a8ae;
+    --kv-pm: #ffd27a;
+    --kv-radio: #6fe0b2;
+    --kv-dep: #ffb86b;
+    --kv-fam: #e0a8ff;
+    --kv-gov: #ffd36b;
+    --kv-adm: #ff6b6b;
+    --kv-sh: 0 1px 2px rgba(0, 0, 0, 0.95), 0 0 6px rgba(0, 0, 0, 0.45);
+}
 
 * {
     font-family: 'Golos Text', 'Segoe UI', Arial, sans-serif !important;
@@ -16,112 +29,158 @@
 
 #app {
     -webkit-font-smoothing: antialiased;
-    color: #e8efea;
-    font-size: 0.86rem;
+    color: var(--kv-text);
+    font-size: 16px;
 }
 
+/* ===== окно сообщений ===== */
 .chat-window {
-    height: 26% !important;
+    left: 1.4% !important;
+    top: 2.6% !important;
+    width: 40% !important;
+    height: 30% !important;
     background: none !important;
-    left: 1.2% !important;
-    top: 2.5% !important;
+    overflow: visible !important;
 }
+/* мягкое затемнение под чатом, без рамки: текст читается на светлом небе и стенах */
+.chat-window::before {
+    content: '';
+    position: absolute;
+    left: -3vw; top: -4vh; width: 120%; height: 150%;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 0 0, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 45%, transparent 75%);
+}
+.chat-hide-state + .chat-window::before, .chat-window.fadeOut::before { opacity: 0; }
 
 .chat-messages {
     height: 100%;
     margin: 0;
     font-size: inherit;
-    color: #e8efea;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 1.5rem);
+    color: var(--kv-text);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 1.2rem);
 }
 
-.msg { margin: 0.28rem 0; }
+.msg { margin: 0.18rem 0; }
 
-.message-wrapper {
+.message-wrapper, .kv {
     display: block;
-    padding: 0.38rem 0.7rem;
+    padding: 0;
+    background: none !important;
+    border: 0 !important;
+    line-height: 1.38;
+    font-weight: 500;
     overflow-wrap: anywhere;
-    width: fit-content;
-    max-width: 100%;
-    line-height: 1.35;
-    background: rgba(15, 20, 18, 0.72);
-    border: 0;
-    border-left: 3px solid #2fbf8a;
-    border-radius: 0.35rem;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    text-shadow: var(--kv-sh);
 }
-
 .message-wrapper > span { display: inline; }
 
-.author {
-    display: inline;
-    margin-right: 0.4rem;
-    color: #2fbf8a;
-    font-weight: 700;
-}
-.alt { color: #e8efea; }
-.author, .author.alt { color: #2fbf8a; }
-.console { color: #e3b341; font-weight: 700; }
-.join, .quit { color: #8fa39a; font-size: 0.8rem; }
-.message-wrapper:has(.join) { border-left-color: #2fbf8a; }
-.message-wrapper:has(.quit) { border-left-color: #e5534b; }
-.message-wrapper:has(.console) { border-left-color: #e3b341; }
-
+/* сообщения других ресурсов (шаблон по умолчанию): «АВТОР текст» */
+.author, .author.alt { display: inline; margin-right: 0.4rem; color: var(--kv-text); font-weight: 700; }
+.alt { color: var(--kv-text); }
+.console { color: var(--kv-gov); font-weight: 700; }
+.join, .quit { color: var(--kv-muted); font-size: 14px; }
 .print, .print * { font-family: Consolas, monospace !important; }
-
 .multiline { margin-left: 0; text-indent: 0; }
 
+/* наши строки */
+.kv .nm { font-weight: 700; }
+.kv .id { font-style: normal; font-weight: 600; opacity: 0.7; margin-left: 0.2rem; }
+.kv .tag { font-weight: 700; }
+.kv .who { font-style: normal; opacity: 0.75; }
+.kv-say { color: var(--kv-say); }
+.kv-shout { color: #fff; font-weight: 700; }
+.kv-whisper { color: var(--kv-muted); font-style: italic; }
+.kv-me, .kv-try { color: var(--kv-me); }
+.kv-do { color: var(--kv-do); }
+.kv-try .ok { color: #7ee2a8; }
+.kv-try .no { color: var(--kv-red); }
+.kv-ooc { color: var(--kv-ooc); }
+.kv-pm { color: var(--kv-pm); }
+.kv-radio { color: var(--kv-radio); }
+.kv-radio.kv-ooc { color: #a9d9c4; }
+.kv-dep { color: var(--kv-dep); }
+.kv-fam { color: var(--kv-fam); }
+.kv-gov { color: var(--kv-gov); }
+.msg[data-cat="adm"] .message-wrapper, .msg[data-cat="adm"] .author { color: var(--kv-adm) !important; }
+
+/* вкладки: прячем строки других видов (вид ставит app.js в data-cat) */
+body[data-f="ic"] .msg:not([data-cat="ic"]),
+body[data-f="ooc"] .msg:not([data-cat="ooc"]),
+body[data-f="radio"] .msg:not([data-cat="radio"]),
+body[data-f="adm"] .msg:not([data-cat="adm"]) { display: none; }
+
+/* ===== ввод ===== */
 .chat-input {
-    top: 30% !important;
-    left: 1.2% !important;
+    top: 33% !important;
+    left: 1.4% !important;
+    width: 40% !important;
     background: none;
     font-size: inherit;
 }
+.kv-tabs { display: flex; gap: 2px; margin-bottom: 6px; }
+.kv-tabs button {
+    border: 0; cursor: pointer; padding: 6px 12px; border-radius: 4px;
+    font-size: 13px; font-weight: 600; color: var(--kv-muted);
+    background: rgba(18, 19, 20, 0.78);
+}
+.kv-tabs button:hover { color: var(--kv-text); }
+.kv-tabs button.on { background: var(--kv-acc); color: #0d0e0f; }
 
 .chat-input > div.input {
+    display: flex;
     align-items: center;
-    background: rgba(15, 20, 18, 0.92);
-    border: 1px solid #2fbf8a;
-    border-radius: 0.45rem;
-    box-shadow: 0 0 0 3px rgba(47, 191, 138, 0.15);
+    min-height: 44px;
+    background: rgba(18, 19, 20, 0.88);
+    border: 0;
+    border-radius: 6px;
+    box-shadow: none;
 }
 .chat-input > div.input::after { content: none; }
+.prefix { display: none !important; }
+.kv-mode {
+    flex: none; padding-left: 14px; padding-right: 2px;
+    font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--kv-acc);
+}
+.kv-mode.ooc { color: var(--kv-ooc); }
+.kv-mode.radio { color: var(--kv-radio); }
+.kv-mode.adm { color: var(--kv-adm); }
+.kv-count { flex: none; padding-right: 14px; font-size: 13px; color: var(--kv-muted); font-variant-numeric: tabular-nums; }
+.kv-count.over { color: var(--kv-red); }
 
 textarea {
+    flex: 1;
     display: block;
     min-height: 100% !important;
-    padding: 0.45rem 0.75rem 0.45rem 0.4rem;
+    padding: 10px 10px;
     resize: none;
     box-sizing: content-box;
     line-height: 1.5rem;
-    font-size: inherit;
-    color: #e8efea;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--kv-text);
     background: transparent;
     border-width: 0;
+    outline: none;
 }
 
-.prefix {
-    height: fit-content;
-    margin: 0;
-    padding-left: 0.75rem;
-    line-height: 1rem;
-    font-size: inherit;
-    font-weight: 800;
-    color: #2fbf8a;
-}
-
+/* подсказки команд */
 .suggestions {
-    margin-top: 0.3rem;
-    padding: 0.3rem 0.75rem;
-    font-size: 0.82rem;
-    color: #e8efea;
-    background: rgba(15, 20, 18, 0.94);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 0.45rem;
+    margin-top: 4px;
+    padding: 4px 0;
+    list-style: none;
+    font-size: 15px;
+    color: var(--kv-text);
+    background: rgba(18, 19, 20, 0.94);
+    border: 0;
+    border-radius: 6px;
 }
-.suggestion { margin: 0.35rem 0; font-weight: 700; color: #e8efea; }
+.suggestion { margin: 0; padding: 8px 14px; font-weight: 700; color: var(--kv-text); }
+.suggestion:first-child { background: #222326; }
 .suggestion * { font-family: 'Golos Text', sans-serif !important; }
-.help { color: #8fa39a; font-weight: 400; }
-.disabled { color: #5d6e66; font-weight: 400; }
+.suggestion p { display: inline; }
+.suggestion .param, .suggestion p span + span { color: var(--kv-acc); font-weight: 600; }
+.help { display: inline; margin-left: 10px; color: var(--kv-muted); font-weight: 500; }
+.disabled { color: rgba(242, 243, 245, 0.35); font-weight: 500; }
 
 .chat-hide-state { position: absolute; }

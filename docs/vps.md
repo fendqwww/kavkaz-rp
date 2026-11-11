@@ -74,6 +74,10 @@ kavkaz-update --restart
 на VPS их закидывают в папку сервера `resources/[cars]` (WinSCP или `scp -r`), потом `kavkaz-update --restart`:
 команда сама пишет `cars.cfg` и ставит `ensure kavkaz_cars` перед `qbx_core`.
 
+## файлы мимо git (звуки СГУ, вывески из текстур игры)
+`kavkaz-update` не трогает и не удаляет то, что в `.gitignore`: записи сирен (`kavkaz_sgu/html/sounds`),
+вывески с кусками текстур игры (`kavkaz_world/images/local`), модели карты (`*/stream/*`). их кладут на VPS вручную (WinSCP).
+
 ## звуки СГУ
 записи сирен в git не лежат. их закидывают прямо в папку сервера `resources/[kavkaz]/kavkaz_sgu/html/sounds`
 (`.ogg` / `.wav`). `kavkaz-update` эти файлы не трогает и не удаляет.

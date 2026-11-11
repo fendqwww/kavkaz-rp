@@ -20,3 +20,9 @@ __pycache__/
 # чужие записи звуков СГУ — на VPS копируются напрямую, в git не кладём
 resources/[[]kavkaz[]]/kavkaz_sgu/html/sounds/*.wav
 resources/[[]kavkaz[]]/kavkaz_sgu/html/sounds/*.ogg
+
+# куски текстур GTA с нашими вывесками (setup/retex/fit.py): файлы игры в открытый репозиторий не кладём
+resources/[[]kavkaz[]]/kavkaz_world/images/local/
+
+# примерка табличек на стене (setup/retex/plates_mvd.py) — пересобирается
+setup/retex/preview/

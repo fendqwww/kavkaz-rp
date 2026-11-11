@@ -107,6 +107,16 @@ RegisterNetEvent('kavkaz_sgu:server:tone', function(net, tone)
     Entity(veh).state:set('sgu_tone', tone or false, true)
 end)
 
+-- ручной тон: держишь кнопку — state bag sgu_man = true, отпустил — false
+RegisterNetEvent('kavkaz_sgu:server:manual', function(net, on)
+    local src = source
+    local veh = driverVehicle(src, net)
+    if not veh then return end
+    local model = modelFor(src, veh)
+    if on and not (model and Config.ManualModels[model]) then return end
+    Entity(veh).state:set('sgu_man', on and true or false, true)
+end)
+
 RegisterNetEvent('kavkaz_sgu:server:strobe', function(net, on)
     local src = source
     local veh = driverVehicle(src, net)
@@ -252,3 +262,6 @@ exports('SetById', function(vehicleId, model, citizenid)
 end)
 
 AddEventHandler('playerDropped', function() lastQuack[source] = nil end)
+
+-- для kavkaz_air (пневмоподвеска ставится в том же гараже)
+exports('GarageCoords', function() return Config.Garage.coords end)

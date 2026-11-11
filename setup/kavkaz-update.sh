@@ -128,8 +128,10 @@ if [ -d "$BASE/resources/[kavkaz]" ]; then
       while IFS= read -r -d '' f; do
         rel=${f#"$BASE/resources/[kavkaz]/"}
         [ -e "$SRC/resources/[kavkaz]/$rel" ] && continue
-        # файлы, которые кладут прямо на сервер мимо git (.gitignore), не трогаем: модели карты и записи звуков СГУ
-        case "/$rel" in */stream/*|*/html/sounds/*.ogg|*/html/sounds/*.wav) continue ;; esac
+        # файлы, которые кладут прямо на сервер мимо git, не трогаем: модели карты, звуки СГУ, вывески из текстур игры
+        case "/$rel" in */stream/*|*/html/sounds/*.ogg|*/html/sounds/*.wav|*/images/local/*) continue ;; esac
+        # и вообще всё, что в .gitignore репозитория
+        git -c safe.directory="$SRC" -C "$SRC" check-ignore -q "resources/[kavkaz]/$rel" 2>/dev/null && continue
         backup "$f"; rm -f "$f"; say "  - $rel"
       done < <(find "$d" -type f -print0)
     fi

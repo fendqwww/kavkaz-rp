@@ -33,7 +33,7 @@ kavkaz-update --restart
 | `*/locales/ru.json` | переводы: qbx_spawn, qbx_properties, qbx_cityhall, qbx_hud, qbx_seatbelt, ox_target |
 | `[ox]/ox_inventory/.../kavkaz-theme.css`, `[ox]/ox_lib/web/build/kavkaz-theme.css` | темы инвентаря и меню ox_lib: шрифт Golos Text, плоский спокойный стиль. исходники — `overrides/theme/*.css`, пересборка — `python setup/build-theme.py`. `apply-overrides` сам подключает их строкой `<link>` в `web/build/index.html` |
 | `[qbx]/qbx_hud/config/shared.lua` | миникарта пешком — неактуально: qbx_hud выключен, HUD рисует `kavkaz_hud` |
-| `[qbx]/qbx_chat_theme/theme/app.css` + шрифт | вид чата KAVKAZ: тёмные плашки с изумрудной полосой, без «утки» Qbox в строке ввода |
+| `[qbx]/qbx_chat_theme/theme/app.css`, `app.js` + шрифт | чат как у Majestic: строки без плашек, цвет по виду сообщения, вкладки «Всё / В роли / Вне роли / Рация / Админ», режим и счётчик при вводе |
 | `[qbx]/qbx_core/shared/main.lua` | подмешивает автопарк из `kavkaz_cars/cars.lua` (русские названия, цены, разделы) в список машин сервера. строки `-- KAVKAZ:` |
 | `[qbx]/qbx_vehicleshop/config/shared.lua` | салон «Нагорье Моторс»: только наши машины, русские разделы, витрина; лодки и авиация как были |
 | `[qbx]/qbx_vehicleshop/config/server.lua` | `giveKeys` — номер от kavkaz_plates вместо случайного; `removePlayerFunds` — лимит редких машин |
