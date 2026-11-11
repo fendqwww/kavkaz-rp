@@ -20,6 +20,7 @@ BLOCK16 = {b'DXT3', b'DXT5', b'ATI2', b'BC7 ', b'BC7\0', b'BC6H'}
 RAW_BPP = {21: 4, 22: 4, 32: 4, 25: 2, 23: 2, 26: 2, 28: 1, 50: 1, 51: 2, 36: 8, 113: 8, 114: 4, 116: 16, 111: 2}
 MAXCNT = [1, 3, 15, 63, 127, 1, 1, 1, 1]  # число страниц размера base<<8 ... base<<0
 ALIGN = 256
+CAP = 0  # --cap N: ограничить сторону каждой текстуры
 
 
 def page_size(flags):
@@ -230,6 +231,14 @@ def repack(path, budget_mb=16, min_side=512, info=False):
         src = vs + (t['dp'] & 0x0FFFFFFF)
         t['data'] = bytes(d[src:src + t['size']])
     budget = budget_mb * 1048576
+    # --cap: каждая текстура не больше cap по большей стороне (для карт: дороги, здания)
+    if CAP:
+        for t in tex:
+            n = t['name'].lower()
+            # рельеф и блеск видно хуже цвета — им вдвое меньше
+            cap = CAP // 2 if n.endswith(('_n', '_nm', '_normal', '_s', '_spec', '_sp', '_nrm')) else CAP
+            while t['depth'] == 1 and max(t['w'], t['h']) > cap and min(t['w'], t['h']) >= 16:
+                reduce(t)
     # уменьшаем самую тяжёлую текстуру, пока не влезем в бюджет; меньше min_side по большей стороне не трогаем
     while sum(t['size'] for t in tex) > budget:
         cand = [t for t in tex if t['depth'] == 1 and max(t['w'], t['h']) > min_side and min(t['w'], t['h']) >= 16]
@@ -267,8 +276,10 @@ if __name__ == '__main__':
         budget = float(argv[argv.index('--budget') + 1])
     if '--min' in argv:
         mn = int(argv[argv.index('--min') + 1])
+    if '--cap' in argv:
+        CAP = int(argv[argv.index('--cap') + 1])
     skip = set()
-    for k in ('--budget', '--min'):
+    for k in ('--budget', '--min', '--cap'):
         if k in argv:
             skip.add(argv.index(k) + 1)
     files = [a for i, a in enumerate(argv) if not a.startswith('--') and i not in skip]

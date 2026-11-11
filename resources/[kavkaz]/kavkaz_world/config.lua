@@ -36,6 +36,13 @@ Config.HideEverywhere = {
     -- маленькие варианты тех же флагов и флаги на яхтах (моделей, которых нет в игре, клиент просто пропускает)
     'prop_flag_us_s', 'prop_flag_ls_s', 'prop_flag_lsfd_s', 'prop_flag_lsservices_s', 'prop_flag_sa_s', 'prop_flag_sheriff_s',
     'apa_prop_flag_us_yt', 'apa_prop_flag_mexico_yt', 'prop_flag_mexico', 'prop_flag_mexico_s', 'prop_flag_canada', 'prop_flag_canada_s',
+    -- пустыня: на Кавказе нет деревьев Джошуа, кактусов и перекати-поля (список — из карты игры, setup/maps)
+    'prop_joshua_tree_01a', 'prop_joshua_tree_01b', 'prop_joshua_tree_01c', 'prop_joshua_tree_01d', 'prop_joshua_tree_01e',
+    'prop_joshua_tree_02a', 'prop_joshua_tree_02b', 'prop_joshua_tree_02c', 'prop_joshua_tree_02d', 'prop_joshua_tree_02e',
+    'prop_cactus_01a', 'prop_cactus_01b', 'prop_cactus_01c', 'prop_cactus_01d', 'prop_cactus_01e', 'prop_cactus_02', 'prop_cactus_03',
+    'prop_creosote_b_01', 'prop_skunk_bush_01', 'prop_desert_iron_01', 'prop_grass_dry_02', 'prop_grass_dry_03',
+    'prop_weeddry_nxg01', 'prop_weeddry_nxg01b', 'prop_weeddry_nxg02', 'prop_weeddry_nxg02b', 'prop_weeddry_nxg03',
+    'prop_weeddry_nxg03b', 'prop_weeddry_nxg04', 'prop_weeddry_nxg05', 'prop_tumbleweed_01',
     -- американские мелочи на улицах: синие почтовые ящики, газетные автоматы, таксофоны
     'prop_postbox_01a',
     'prop_news_disp_01a', 'prop_news_disp_02a', 'prop_news_disp_02b', 'prop_news_disp_02c', 'prop_news_disp_02d',
