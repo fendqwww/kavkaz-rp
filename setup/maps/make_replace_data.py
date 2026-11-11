@@ -11,6 +11,8 @@ src = json.load(open(sys.argv[1]))
 out = os.path.join(os.path.dirname(__file__), '..', '..', 'resources', '[kavkaz]', 'kavkaz_replace', 'data.lua')
 seen, rows = set(), []
 for e in src:
+    if e['model'].startswith('prop_veg_crop_tr'):  # фруктовые сады оставляем
+        continue
     x, y, z, w = e['q']
     yaw = math.degrees(math.atan2(2 * (w * z + x * y), 1 - 2 * (y * y + z * z)))
     heading = (-yaw) % 360

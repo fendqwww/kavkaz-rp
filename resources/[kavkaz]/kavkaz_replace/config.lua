@@ -10,8 +10,11 @@ Config.Replace = {
     prop_bus_stop_sign = { with = nil },
 }
 -- пальмы: в предгорьях Кавказа их нет — на их месте обычные деревья (модели GTA, есть у всех)
+-- большие пальмы -> деревья, маленькие веерные пальмы в клумбах -> кусты (чтобы деревья не выросли посреди тротуара)
 Config.PalmTrees = { 'prop_tree_birch_01', 'prop_tree_birch_02', 'prop_tree_birch_03', 'prop_tree_maple_02', 'prop_tree_oak_01' }
+Config.PalmBushes = { 'prop_bush_lrg_01', 'prop_bush_lrg_04b', 'prop_bush_med_03', 'prop_bush_lrg_02' }
 Config.PalmPattern = '^prop_.*palm'
+Config.SmallPalm = { '^prop_palm_fan_0[34]', '^prop_palm_sm_', '^prop_fan_palm' } -- шаблоны Lua (без «|»)
 
 Config.Radius = 250.0 -- в каком радиусе от игрока ставим наши объекты
 Config.Cell = 200.0   -- размер клетки сетки

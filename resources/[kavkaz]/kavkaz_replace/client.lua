@@ -10,6 +10,9 @@ local function pick(model, i)
         if not r.with then return nil end
         return r.with[(i % #r.with) + 1], r.yaw or 0.0
     end
+    for _, pat in ipairs(Config.SmallPalm) do
+        if model:find(pat) then return Config.PalmBushes[(i % #Config.PalmBushes) + 1], 0.0 end
+    end
     if model:find(Config.PalmPattern) then
         return Config.PalmTrees[(i % #Config.PalmTrees) + 1], 0.0
     end
