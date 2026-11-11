@@ -1,7 +1,7 @@
 -- KAVKAZ: копия ox_inventory/data/shops.lua — русские названия магазинов (они же метки на карте) и цены в рублях
 return {
 	General = {
-		name = 'Продукты «24 часа»', -- KAVKAZ: было Shop
+		name = 'Продукты', -- KAVKAZ: было Shop (вывеска sign2_produkty)
 		blip = {
 			id = 59, colour = 69, scale = 0.8
 		}, inventory = {
@@ -36,7 +36,7 @@ return {
 	},
 
 	Liquor = {
-		name = 'Ночной магазин', -- KAVKAZ: было Liquor Store
+		name = 'Напитки', -- KAVKAZ: было Liquor Store (алкоголь в Нагорье не продаём)
 		blip = {
 			id = 93, colour = 69, scale = 0.8
 		}, inventory = {
@@ -76,7 +76,7 @@ return {
 	},
 
 	Ammunation = {
-		name = 'Оружейный магазин', -- KAVKAZ: было Ammunation
+		name = 'Охота и рыбалка', -- KAVKAZ: было Ammunation
 		blip = {
 			id = 110, colour = 69, scale = 0.8
 		}, inventory = {

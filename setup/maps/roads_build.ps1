@@ -8,7 +8,7 @@ Copy-Item "$Src\*.ytd" "$Dst\stream\" -Force
 $repack = Join-Path $PSScriptRoot '..\cars\repack_ytd.py'
 $hi = Get-ChildItem -LiteralPath "$Dst\stream" -Filter '*+hi.ytd' | ForEach-Object FullName
 $lo = Get-ChildItem -LiteralPath "$Dst\stream" -Filter '*.ytd' | Where-Object Name -notlike '*+hi.ytd' | ForEach-Object FullName
-python -I $repack @hi --cap 1024 --budget 9999
+python -I $repack @hi --cap 512 --budget 9999
 python -I $repack @lo --cap 512 --budget 9999
 @"
 fx_version 'cerulean'

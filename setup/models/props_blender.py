@@ -40,9 +40,13 @@ def solid_dds(rgb):
         f.write(bytes(head) + struct.pack('<HHI', c565, c565, 0))
     return path
 
+# хрущёвка скачана в масштабе ~1:2.3 (5 этажей должны быть ~15 м); пачки сигарет и фасад — не для улиц
+SCALE = {'khrushchevka': 2.3}
+SKIP = {'ussr_props', 'soviet_panel_building_facade_psx_style'}
+
 for name in sorted(os.listdir(SRC)):
     g = os.path.join(SRC, name, 'scene.gltf')
-    if not os.path.exists(g):
+    if not os.path.exists(g) or name in SKIP:
         continue
     before = set(bpy.data.objects)
     bpy.ops.import_scene.gltf(filepath=g)
@@ -69,11 +73,12 @@ for name in sorted(os.listdir(SRC)):
     lo = Vector((min(v.x for v in bb), min(v.y for v in bb), min(v.z for v in bb)))
     hi = Vector((max(v.x for v in bb), max(v.y for v in bb), max(v.z for v in bb)))
     shift = Vector(((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, lo.z))
+    k = SCALE.get(name, 1.0)  # модели в «неправильных» единицах — к настоящему размеру
     for v in ob.data.vertices:
-        v.co -= shift
+        v.co = (v.co - shift) * k
     pid = 'kv_p_' + name.replace('_psx_style', '').replace('_psx', '').replace('__', '_')[:40]
     ob.name = pid
-    size = hi - lo
+    size = (hi - lo) * k
     # UV / цвет вершин для шейдеров GTA
     me = ob.data
     if not me.uv_layers:

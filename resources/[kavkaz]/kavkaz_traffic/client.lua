@@ -8,26 +8,43 @@ local ours = {}       -- hash -> true: наши модели не меняем �
 local plated = {}     -- машины, которым уже поставили номер
 local SWAP_POP = { [2] = true, [4] = true, [5] = true } -- население GTA: припаркованные, сценарные, ездящие
 
-local function buildPool()
-    pool, total = {}, 0
-    for name, weight in pairs(Config.Models) do
+local classPools = {} -- класс GTA -> { pool, total } (фургоны -> Газель, автобусы -> ЛиАЗ)
+
+local function makePool(models)
+    local p, t = {}, 0
+    for name, weight in pairs(models) do
         local hash = joaat(name)
         ours[hash] = true
         if IsModelInCdimage(hash) and IsModelAVehicle(hash) then
-            pool[#pool + 1] = { hash, weight }
-            total = total + weight
+            p[#p + 1] = { hash, weight }
+            t = t + weight
         end
+    end
+    return p, t
+end
+
+local function buildPool()
+    pool, total = makePool(Config.Models)
+    for cls, models in pairs(Config.ClassModels or {}) do
+        local p, t = makePool(models)
+        if t > 0 then classPools[cls] = { p, t } end
     end
 end
 
-local function pickModel()
-    if total <= 0 then return nil end
-    local r = math.random() * total
-    for _, it in ipairs(pool) do
+local function pickFrom(p, t)
+    if t <= 0 then return nil end
+    local r = math.random() * t
+    for _, it in ipairs(p) do
         r = r - it[2]
         if r <= 0 then return it[1] end
     end
-    return pool[#pool][1]
+    return p[#p][1]
+end
+
+local function pickModel(cls)
+    local cp = cls and classPools[cls]
+    if cp then return pickFrom(cp[1], cp[2]) end
+    return pickFrom(pool, total)
 end
 
 local regions, regionTotal = {}, 0
@@ -61,7 +78,7 @@ local function hasPlayerInside(veh)
 end
 
 local function swap(veh)
-    local model = pickModel()
+    local model = pickModel(GetVehicleClass(veh))
     if not model then return false end
     if not HasModelLoaded(model) then
         RequestModel(model)
@@ -122,7 +139,7 @@ local function tick()
             if dist <= Config.MaxDistance and not hasPlayerInside(veh) then
                 local model = GetEntityModel(veh)
                 if NetworkHasControlOfEntity(veh) then
-                    if not ours[model] and Config.SwapClasses[GetVehicleClass(veh)] and dist >= Config.MinDistance
+                    if not ours[model] and (Config.SwapClasses[GetVehicleClass(veh)] or classPools[GetVehicleClass(veh)]) and dist >= Config.MinDistance
                         and (dist >= Config.SafeDistance or not IsEntityOnScreen(veh)) then
                         if swap(veh) then done = done + 1 end
                     else
