@@ -25,6 +25,41 @@ LAYOUT = {
 }
 
 
+# цвета деталей (sRGB) — как в рендере make_hazard_blender.py
+SWATCHES = {
+    'hz_body_c': (41, 41, 43),
+    'hz_knob_c': (28, 28, 30),
+    'hz_white_c': (237, 234, 224),
+    'hz_mark_c': (242, 242, 242),
+    'hz_led_c': (255, 196, 80),
+}
+
+
+def save_dds(img, path):
+    """DXT1 с полной цепочкой mip: Pillow сжимает каждый уровень, склеиваем в один DDS"""
+    import io
+    import struct
+    levels, w, h, cur = [], img.width, img.height, img.convert('RGB')
+    while True:
+        b = io.BytesIO()
+        cur.save(b, 'DDS', pixel_format='DXT1')
+        levels.append(b.getvalue())
+        if w <= 4 or h <= 4:
+            break
+        w, h = max(4, w // 2), max(4, h // 2)
+        cur = cur.resize((w, h), Image.LANCZOS)
+    head = bytearray(levels[0][:128])
+    flags = struct.unpack_from('<I', head, 8)[0] | 0x20000  # DDSD_MIPMAPCOUNT
+    struct.pack_into('<I', head, 8, flags)
+    struct.pack_into('<I', head, 28, len(levels))
+    # размер верхнего уровня в байтах (Pillow пишет сюда «шаг строки», читатели DDS на это ругаются)
+    struct.pack_into('<I', head, 20, max(1, (img.width + 3) // 4) * max(1, (img.height + 3) // 4) * 8)
+    caps = struct.unpack_from('<I', head, 108)[0] | 0x8 | 0x400000  # COMPLEX | MIPMAP
+    struct.pack_into('<I', head, 108, caps)
+    with open(path, 'wb') as f:
+        f.write(bytes(head) + b''.join(l[128:] for l in levels))
+
+
 def font(size, style='Bold SemiCondensed'):
     f = ImageFont.truetype(FONT, size)
     try:
@@ -127,6 +162,10 @@ def main(out):
     img = Image.blend(img, Image.merge('RGB', (noise, noise, noise)), 0.035)
     hgt = Image.blend(hgt, noise, 0.08)
     img.save(os.path.join(out, 'kv_hazard7007_face.png'))
+    # для игры: DDS (DXT1) с mip-уровнями + одноцветные образцы для корпуса, ручек, кнопок, светодиодов
+    save_dds(img, os.path.join(out, 'hz_face.dds'))
+    for name, rgb in SWATCHES.items():
+        save_dds(Image.new('RGB', (8, 8), rgb), os.path.join(out, name + '.dds'))
     hgt.save(os.path.join(out, 'kv_hazard7007_face_h.png'))
     with open(os.path.join(out, 'layout.json'), 'w') as f:
         json.dump({'W': W, 'H': H, **LAYOUT}, f)

@@ -79,7 +79,8 @@ CreateThread(function()
     local lastKey
     while true do
         local data
-        if myModel and myVeh ~= 0 and not IsPauseMenuActive() and LocalPlayer.state.isLoggedIn then
+        -- от первого лица виден 3D-пульт — экранный прячем
+        if myModel and myVeh ~= 0 and not IsPauseMenuActive() and LocalPlayer.state.isLoggedIn and GetFollowVehicleCamViewMode() ~= 4 then
             local m = Config.Models[myModel]
             local st = Entity(myVeh).state
             local names = {}
@@ -416,3 +417,32 @@ AddEventHandler('onResourceStop', function(res)
     if res ~= GetCurrentResourceName() then return end
     lib.hideTextUI()
 end)
+
+-- для 3D-пульта (dash.lua): состояние и действия водителя
+SGU = {
+    get = function() return myVeh, myModel, toneIndex end,
+    quack = doQuack,
+    -- повернуть ручку выбора: 0 — STANDBY (выкл), дальше мелодии
+    turn = function(step)
+        if not canUse() then return end
+        local tones = model().tones
+        local st = Entity(myVeh).state
+        local pos = st.sgu_tone and toneIndex or 0
+        pos = math.max(0, math.min(#tones, pos + step))
+        if pos == 0 then
+            if st.sgu_tone then TriggerServerEvent('kavkaz_sgu:server:tone', VehToNet(myVeh), false) end
+        else
+            toneIndex = pos
+            TriggerServerEvent('kavkaz_sgu:server:tone', VehToNet(myVeh), tones[pos])
+        end
+    end,
+    manual = function(on)
+        if on then
+            if not canUse() or not Config.ManualModels[myModel] then return false end
+            TriggerServerEvent('kavkaz_sgu:server:manual', VehToNet(myVeh), true)
+            return true
+        end
+        if myVeh ~= 0 then TriggerServerEvent('kavkaz_sgu:server:manual', VehToNet(myVeh), false) end
+        return true
+    end,
+}

@@ -64,6 +64,7 @@ local function driverVehicle(src, net)
 end
 
 local function sendModel(target, veh, model)
+    Entity(veh).state:set('sgu_model', model or false, true)
     TriggerClientEvent('kavkaz_sgu:client:model', target, NetworkGetNetworkIdFromEntity(veh), model)
 end
 
@@ -77,7 +78,10 @@ end
 lib.callback.register('kavkaz_sgu:get', function(src, net)
     local veh = driverVehicle(src, net)
     if not veh then return nil end
-    return modelFor(src, veh)
+    local m = modelFor(src, veh)
+    -- метка для 3D-пульта (dash.lua): его видят все рядом
+    if (Entity(veh).state.sgu_model or false) ~= (m or false) then Entity(veh).state:set('sgu_model', m or false, true) end
+    return m
 end)
 
 -- кряк: только игрокам поблизости
@@ -172,6 +176,7 @@ lib.callback.register('kavkaz_sgu:removeOwn', function(src, net)
     installed[key] = nil
     Entity(veh).state:set('sgu_tone', false, true)
     Entity(veh).state:set('sgu_strobe', false, true)
+    Entity(veh).state:set('sgu_model', false, true)
     return true
 end)
 
@@ -213,6 +218,7 @@ lib.callback.register('kavkaz_sgu:seize', function(src, net)
     installed[key] = nil
     Entity(veh).state:set('sgu_tone', false, true)
     Entity(veh).state:set('sgu_strobe', false, true)
+    Entity(veh).state:set('sgu_model', false, true)
     print(('[kavkaz_sgu] %s изъял СГУ с %s (%s)'):format(GetPlayerName(src), GetVehicleNumberPlateText(veh), key))
     return true
 end)

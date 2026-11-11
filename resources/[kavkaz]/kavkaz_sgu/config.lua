@@ -51,3 +51,13 @@ Config.Grille = {
     pause = 140,           -- пауза между цветами, мс
     range = 7.0, intensity = 9.0,
 }
+
+-- 3D-пульт на торпеде (dash.lua). место по умолчанию — от руля; своё для машины: /sgupos -> строку в cars
+Config.Dash = {
+    range = 30.0,
+    default = { fromWheel = vec3(0.36, 0.10, -0.12), rot = vec3(-20.0, 0.0, -15.0), fallback = vec3(0.0, 0.45, 0.30) },
+    selStart = -125.0, selStep = 22.0, -- угол ручки: STANDBY и шаг на мелодию
+    cars = {
+        -- ['kv_priora'] = { offset = vec3(0.0, 0.5, 0.3), rot = vec3(-20.0, 0.0, -15.0) },
+    },
+}
