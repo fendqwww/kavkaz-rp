@@ -97,7 +97,7 @@ Cars.List = {
       stub = 'cinquemila', model = 'kv_camry80', placeholder = false,
       mb = 28.2, tex = '2K', source = 'архив toyota-camry-xv80-llhprod (скачал основатель)', author = 'llhprod', license = 'Replace-мод, переделан в Add-On; meta от Камри 70', sale = 'shop' },
     { spawn = 'kv_camry40', brand = 'Тойота', name = 'Камри 40', price = 1300000, category = 'sedan', class = 'народный бизнес-класс',
-      stub = 'premier', model = 'kv_camry40', placeholder = false,
+      stub = 'fusilade', model = 'kv_camry40', placeholder = false,
       mb = 13.2, tex = '2K', source = 'архив 2009 Toyota camry GLX (скачал основатель 11.11)', author = 'см. архив', license = 'Replace-мод (premier), переделан в Add-On; meta от Камри 70', sale = 'shop' },
     { spawn = 'kv_v70', brand = 'Вольво', name = 'V70', price = 1100000, category = 'foreign', class = 'универсал',
       stub = 'dilettante', model = 'kv_v70', placeholder = false,
