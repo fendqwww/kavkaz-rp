@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Пролог</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  :root { --text: #f2f5f3; --muted: #a9b8b0; --accent: #2fbf8a; --panel: rgba(12, 16, 14, .94); --line: #2a3832;
+    --font: "Golos Text", "Segoe UI", Arial, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+  body { font: 400 18px/1.45 var(--font); color: var(--text); user-select: none; }
+  body.preview { background: #3b4448; }
+  .hidden { display: none !important; }
+
+  /* титры по центру — на чёрном экране или поверх кадра */
+  .title { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    text-align: center; padding: 0 12vw; text-shadow: 0 2px 12px rgba(0,0,0,.8); }
+  .title b { font-weight: 700; font-size: 44px; letter-spacing: .01em; }
+  .title span { color: var(--muted); font-size: 20px; max-width: 900px; }
+  .fade { animation: fade .9s ease both; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  /* субтитры: кто говорит и что */
+  .sub { position: fixed; left: 50%; bottom: 9vh; transform: translateX(-50%); max-width: min(980px, 86vw); text-align: center;
+    font-size: 22px; text-shadow: 0 2px 6px rgba(0,0,0,.95), 0 0 2px #000; }
+  .sub i { font-style: normal; color: var(--accent); font-weight: 700; margin-right: 8px; }
+
+  /* выбор ответа */
+  .choice { position: fixed; left: 50%; bottom: 7vh; transform: translateX(-50%); width: 640px; max-width: 90vw; display: flex; flex-direction: column; gap: 6px; }
+  .choice button { text-align: left; padding: 12px 16px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel); color: var(--text);
+    font: 500 17px var(--font); cursor: pointer; display: flex; gap: 12px; }
+  .choice button:hover, .choice button:focus { border-color: var(--accent); outline: none; }
+  .choice button i { font-style: normal; color: var(--accent); font-weight: 700; }
+
+  /* коробка деда */
+  .box { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 620px; max-width: 92vw; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 8px; padding: 26px 28px 22px; }
+  .box h2 { font-size: 26px; font-weight: 700; margin-bottom: 16px; }
+  .box ul { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+  .box li b { display: block; font-weight: 600; }
+  .box li span { color: var(--muted); font-size: 16px; }
+  .box p { color: var(--muted); font-size: 16px; border-top: 1px solid var(--line); padding-top: 14px; }
+  .box button { margin-top: 18px; width: 100%; padding: 12px; border-radius: 6px; border: 1px solid var(--accent); background: transparent;
+    color: var(--text); font: 600 17px var(--font); cursor: pointer; }
+  .box button:hover { background: rgba(47, 191, 138, .12); }
+
+  /* пропуск */
+  .skip { position: fixed; right: 28px; bottom: 24px; color: var(--muted); font-size: 14px; display: flex; align-items: center; gap: 10px;
+    text-shadow: 0 1px 4px #000; }
+  .skip kbd { font: 600 12px var(--font); border: 1px solid var(--muted); border-radius: 4px; padding: 2px 6px; }
+  .skip .bar { width: 80px; height: 3px; background: rgba(255,255,255,.18); border-radius: 2px; overflow: hidden; }
+  .skip .bar div { height: 100%; width: 0; background: var(--accent); }
+</style>
+</head>
+<body>
+<div class="title hidden" id="title"><b id="tBig"></b><span id="tSmall"></span></div>
+<div class="sub hidden" id="sub"><i id="who"></i><span id="line"></span></div>
+<div class="choice hidden" id="choice"></div>
+<div class="box hidden" id="box"><h2 id="bTitle"></h2><ul id="bItems"></ul><p id="bWords"></p><button id="bNext">Утро →</button></div>
+<div class="skip hidden" id="skip"><kbd>BACKSPACE</kbd> держать — пропустить <div class="bar"><div id="skipBar"></div></div></div>
+<script>
+const $ = (s) => document.querySelector(s);
+const preview = location.search.includes('preview');
+const res = () => (window.GetParentResourceName ? GetParentResourceName() : 'kavkaz_intro');
+const post = (name, body) => preview ? Promise.resolve() : fetch(`https://${res()}/${name}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const show = (el, on) => el.classList.toggle('hidden', !on);
+const replay = (el) => { el.classList.remove('fade'); void el.offsetWidth; el.classList.add('fade'); };
+
+let choosing = false;
+function pick(id) { if (!choosing) return; choosing = false; post('choice', { id }); }
+
+const actions = {
+  title(d) {
+    const el = $('#title');
+    if (!d.big && !d.small) return show(el, false);
+    $('#tBig').textContent = d.big || ''; $('#tSmall').textContent = d.small || '';
+    show($('#tBig'), !!d.big); show(el, true); replay(el);
+  },
+  sub(d) {
+    const el = $('#sub');
+    if (!d.text) return show(el, false);
+    $('#who').textContent = d.who ? d.who + ':' : ''; $('#line').textContent = d.text;
+    show(el, true); replay(el);
+  },
+  choice(d) {
+    const el = $('#choice');
+    if (!d.options) { choosing = false; return show(el, false); }
+    el.innerHTML = d.options.map((o, i) => `<button data-id="${esc(o.id)}"><i>${i + 1}</i>${esc(o.label)}</button>`).join('');
+    choosing = true; show(el, true); replay(el);
+  },
+  box(d) {
+    const el = $('#box');
+    if (!d.box) { choosing = false; return show(el, false); }
+    $('#bTitle').textContent = d.box.title;
+    $('#bItems').innerHTML = d.box.items.map((it) => `<li><b>${esc(it[0])}</b><span>${esc(it[1])}</span></li>`).join('');
+    $('#bWords').textContent = d.box.words;
+    choosing = true; show(el, true); replay(el);
+  },
+  skip(d) { show($('#skip'), !!d.show); },
+  skipProgress(d) { $('#skipBar').style.width = Math.round((d.value || 0) * 100) + '%'; },
+  reset() { ['#title', '#sub', '#choice', '#box', '#skip'].forEach((s) => show($(s), false)); choosing = false; },
+};
+
+window.addEventListener('message', (e) => { const f = actions[e.data && e.data.action]; if (f) f(e.data); });
+$('#choice').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) pick(b.dataset.id); });
+$('#bNext').onclick = () => pick('next');
+document.addEventListener('keydown', (e) => {
+  if (!choosing) return;
+  if (!$('#box').classList.contains('hidden') && (e.key === 'Enter' || e.key === ' ')) return pick('next');
+  const n = Number(e.key);
+  if (n >= 1 && n <= 9) { const b = document.querySelectorAll('#choice button')[n - 1]; if (b) pick(b.dataset.id); }
+});
+
+if (preview) {
+  document.body.classList.add('preview');
+  actions.sub({ who: 'Хамзат', text: 'Вот он, наш! Дай обниму… Худой какой! В Москве вас не кормят, что ли?' });
+  actions.choice({ options: [{ id: 'a', label: '«Ассаламу алейкум, дядя Хамзат!»' }, { id: 'b', label: '«Дядя, ты чего такой громкий?»' }, { id: 'c', label: '«Привет».' }] });
+  actions.skip({ show: true });
+}
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 
 local npcPos = function(id) return Config.Npcs[id].coords.xyz end
 local LINES = { 'law', 'business', 'crime' }
-local TALKABLE = { talk = true, pay = true, quiz = true, drive = true, final = true }
+local TALKABLE = { talk = true, pay = true, quiz = true, drive = true, final = true, gift = true, book = true }
 
 local function hasLicense(src)
     local ok, count = pcall(function() return exports.ox_inventory:Search(src, 'count', 'driver_license') end)
@@ -43,7 +43,7 @@ function Q.storyObjective(src, st)
     local who = s.npc and Config.Npcs[s.npc] and Config.Npcs[s.npc].name
     if TALKABLE[s.type] then return goTo(src, s.npc, s.goal or ('Иди к: ' .. who)) end
     if s.type == 'go' then
-        return Q.objective(src, { id = 'go_' .. st.step, text = s.text, coords = s.coords, radius = 4.0, anim = s.anim,
+        return Q.objective(src, { id = 'go_' .. st.step, text = s.text, coords = s.coords, radius = s.radius or 4.0, anim = s.anim,
             onReach = function(p) advance(p, Q.get(p)) end })
     end
     if s.type == 'points' then
@@ -106,22 +106,68 @@ function Q.storyTalk(src, st, npcId, choice)
     if not s or s.npc ~= npcId or not TALKABLE[s.type] then return nil end
 
     if s.type == 'talk' then
+        -- реплика может зависеть от того, как игрок ответил дяде в прологе (kavkaz_intro)
+        local text = s.textByTone and st.uncleTone and s.textByTone[st.uncleTone] or s.text
         if s.options then
             local n = choice and tonumber(choice:match('^opt_(%d+)$'))
             local o = n and s.options[n]
             if o then
+                if o.pay and not Q.pay(src, o.pay, ('сюжет: %s'):format(Config.Npcs[npcId].name)) then
+                    return Q.node(npcId, ('Нужно %s. Нет денег — выбирай другое.'):format(Q.money(o.pay)), nil)
+                end
+                if o.trust then Q.trust(src, st, o.trust) end
                 advance(src, st, o.rep)
                 return Q.node(npcId, o.reply, bye())
             end
             local opts = {}
             for i, opt in ipairs(s.options) do opts[#opts + 1] = { id = 'opt_' .. i, label = opt.label } end
-            return Q.node(npcId, s.text, opts)
+            return Q.node(npcId, text, opts)
         end
         if choice == 'ok' then
             advance(src, st)
             return nil
         end
-        return Q.node(npcId, s.text, { { id = 'ok', label = 'Понял' } })
+        return Q.node(npcId, text, { { id = 'ok', label = 'Понял' } })
+    end
+
+    -- машина в подарок (дедова «Семёрка»): кладётся в гараж, вместо «Семёрки Румисы»
+    if s.type == 'gift' then
+        if choice == 'take' then
+            if st.starterCar then
+                advance(src, st)
+                return Q.node(npcId, 'Ключи у тебя уже есть. Береги машину.', bye())
+            end
+            if GetResourceState('kavkaz_cars') ~= 'started' then return Q.node(npcId, 'Ключи куда-то задевал… Зайди попозже.', nil) end
+            st.starterCar = true -- сразу, чтобы двойное нажатие не выдало две машины
+            Q.save(src, st)
+            local id, err = exports.kavkaz_cars:GiveCar(src, s.car, { garage = s.garage, reason = 'quest_grandpa' })
+            if not id then
+                print(('[kavkaz_quests] машина деда не выдана %s: %s'):format(GetPlayerName(src) or src, tostring(err)))
+                st.starterCar = nil
+                return Q.node(npcId, 'Ключи куда-то задевал… Зайди попозже.', nil)
+            end
+            st.grandpaCar = true
+            Q.notify(src, 'дедова «Семёрка» в гараже у мотеля. номер оформи в МРЭО ГИБДД у мэрии', 'success')
+            advance(src, st)
+            return Q.node(npcId, 'Вот. Дед на ней на перевал ездил, когда другие боялись. Не гоняй.', bye('Спасибо, дядя'))
+        end
+        return Q.node(npcId, s.text, { { id = 'take', label = 'Взять ключи' } })
+    end
+
+    -- книжка деда: выбор, с какой линии начать (остальные линии остаются открыты — потом у Ислама)
+    if s.type == 'book' then
+        local id = choice and choice:match('^book_(%a+)$')
+        if id and Story[id] then
+            st.homeDone, st.line, st.step, st.rep = true, id, 1, 0
+            st.afterRent = true -- машина уже есть, скутер не нужен
+            Q.save(src, st)
+            Q.notify(src, ('глава 3: «%s»'):format(Story[id].label), 'success')
+            Q.storyObjective(src, st)
+            return Q.node(npcId, 'Правильно. Скажи, что ты внук Шамсудина, — двери откроются.', bye('Пошёл'))
+        end
+        local opts = {}
+        for _, l in ipairs(s.lines) do opts[#opts + 1] = { id = 'book_' .. l.id, label = l.label } end
+        return Q.node(npcId, s.text, opts)
     end
 
     if s.type == 'pay' then
@@ -264,12 +310,29 @@ Q.handlers.start = function(src, st, choice)
     return nil
 end
 
+-- глава 1 после пролога (kavkaz_intro) — и для тех, кто ещё не выбирал линию: начинаем с дяди, а не с меню
+function Q.startHome(src, st)
+    st = st or Q.get(src)
+    if not st or st.line or st.homeDone then return end
+    Q.giveStartMoney(src, st)
+    st.line, st.step, st.rep = 'home', 1, 0
+    Q.save(src, st)
+    Q.storyObjective(src, st)
+end
+
+AddEventHandler('kavkaz_quests:server:startHome', function(src)
+    if GetInvokingResource() ~= 'kavkaz_intro' then return end
+    local st = Q.get(src)
+    if st then migrate(st) Q.startHome(src, st) end
+end)
+
 RegisterNetEvent('kavkaz_quests:server:begin', function()
     local src = source
     local st = Q.get(src)
     if not st then return end
     migrate(st)
     if st.line then return Q.save(src, st) end
+    if not st.homeDone then return Q.startHome(src, st) end
     Q.giveStartMoney(src, st)
     Q.save(src, st)
     TriggerClientEvent('kavkaz_quests:client:dialog', src, Q.startNode(src))
@@ -281,7 +344,7 @@ function Q.storyResume(src)
     if not st then return end
     migrate(st)
     if not st.line or st.lineDone then return end
-    if not st.afterRent then return goTo(src, 'zaur', 'Арендуй скутер у Заура') end
+    if not st.afterRent and st.line ~= 'home' then return goTo(src, 'zaur', 'Арендуй скутер у Заура') end
     st.driving, st.quiz = nil, nil
     Q.save(src, st)
     Q.storyObjective(src, st)
