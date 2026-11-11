@@ -171,6 +171,12 @@ cmd('aveh', 'aveh', 'Заспавнить машину', { { name = 'model', typ
     local model = args.model:lower()
     local car = GetResourceState('kavkaz_cars') == 'started' and exports.kavkaz_cars:GetCar(model) or nil
     if car then model = car.current end
+    -- сначала модель должна скачаться у админа (медленный интернет: иначе qbx.spawnVehicle не дождётся машины)
+    Admin.notify(src, 'машина подгружается…', 'inform')
+    if not lib.callback.await('kavkaz_admin:preloadModel', src, model) then
+        return Admin.notify(src, 'модель не загрузилась (нет такой или медленный интернет) — попробуй ещё раз', 'error')
+    end
+    if GetVehiclePedIsIn(ped, false) ~= 0 then DeleteEntity(GetVehiclePedIsIn(ped, false)) end
     local ok, netId, vehicle = pcall(qbx.spawnVehicle, { model = model, spawnSource = ped, warp = true, bucket = GetPlayerRoutingBucket(src) })
     if not ok or not vehicle or vehicle == 0 then
         return Admin.notify(src, 'не удалось: проверь название модели', 'error')

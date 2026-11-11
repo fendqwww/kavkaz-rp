@@ -174,3 +174,16 @@ RegisterNetEvent('kavkaz_admin:client:heal', function()
     SetEntityHealth(ped, GetEntityMaxHealth(ped))
     ClearPedBloodDamage(ped)
 end)
+
+-- /aveh: скачать модель до спавна (сервер ждёт машину всего несколько секунд, а модель 10–20 МБ качается до минуты)
+lib.callback.register('kavkaz_admin:preloadModel', function(model)
+    local hash = joaat(model)
+    if not IsModelInCdimage(hash) or not IsModelAVehicle(hash) then return false end
+    local deadline = GetGameTimer() + 120000
+    RequestModel(hash)
+    while not HasModelLoaded(hash) and GetGameTimer() < deadline do
+        Wait(250)
+        RequestModel(hash)
+    end
+    return HasModelLoaded(hash)
+end)

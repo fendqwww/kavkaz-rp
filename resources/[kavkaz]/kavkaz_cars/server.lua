@@ -169,3 +169,15 @@ CreateThread(function()
         if wait > 0 then print(('^3[kavkaz_cars] %d машин игроков ещё на заглушках — в консоли: kavkaz_cars_migrate^7'):format(wait)) end
     end)
 end)
+
+-- модели машин игрока для предзагрузки (client.lua): только личные машины
+RegisterNetEvent('kavkaz_cars:server:prefetch', function()
+    local src = source
+    local player = GetResourceState('qbx_core') == 'started' and exports.qbx_core:GetPlayer(src)
+    if not player then return end
+    -- только 4 последние машины: у основателей в гараже весь автопарк (~450 МБ), остальные качаются при вызове из гаража
+    local rows = MySQL.query.await('SELECT vehicle FROM player_vehicles WHERE citizenid = ? ORDER BY id DESC LIMIT 4', { player.PlayerData.citizenid }) or {}
+    local models = {}
+    for _, r in ipairs(rows) do models[#models + 1] = r.vehicle end
+    TriggerClientEvent('kavkaz_cars:client:prefetch', src, models)
+end)

@@ -41,10 +41,53 @@ local function pickFrom(p, t)
     return p[#p][1]
 end
 
+-- 11.11: у игроков медленный интернет. раньше трафик сразу просил все ~20 моделей — они качались разом (~300 МБ),
+-- забивали канал, машина из гаража не грузилась, игроков выкидывало по таймауту. теперь:
+--   новые (ещё не скачанные) модели — строго по одной и только после своих машин (kavkaz_cars, state kvCarsCached)
+--   или через Config.DownloadDelay после входа; пока качается — в поток ставим уже скачанные.
+local ready = {}               -- hash -> true: модель уже на диске (хоть раз загрузилась)
+local loading, loadingSince    -- модель, которая сейчас качается
+local loggedAt = GetGameTimer()
+
+local function isReady(hash)
+    if ready[hash] then return true end
+    if HasModelLoaded(hash) then ready[hash] = true return true end
+    return false
+end
+
+local function canDownload()
+    if loading then
+        if HasModelLoaded(loading) or GetGameTimer() - loadingSince > 180000 then
+            if HasModelLoaded(loading) then ready[loading] = true end
+            loading = nil
+        else
+            return false
+        end
+    end
+    return LocalPlayer.state.kvCarsCached or GetGameTimer() - loggedAt > Config.DownloadDelay
+end
+
+-- из пула: модели, которые уже скачаны (с весами)
+local function pickReady(p)
+    local list, t = {}, 0
+    for _, it in ipairs(p) do
+        if isReady(it[1]) then list[#list + 1] = it; t = t + it[2] end
+    end
+    return pickFrom(list, t)
+end
+
 local function pickModel(cls)
     local cp = cls and classPools[cls]
-    if cp then return pickFrom(cp[1], cp[2]) end
-    return pickFrom(pool, total)
+    local p, t = pool, total
+    if cp then p, t = cp[1], cp[2] end
+    local want = pickFrom(p, t)
+    if not want or isReady(want) then return want end
+    -- выбранная модель ещё не скачана: начать её качать (если сейчас ничего не качается), а пока взять скачанную
+    if canDownload() then
+        loading, loadingSince = want, GetGameTimer()
+        RequestModel(want)
+    end
+    return pickReady(p)
 end
 
 local regions, regionTotal = {}, 0
@@ -169,6 +212,8 @@ CreateThread(function()
 end)
 
 -- подавление моделей не сбрасывается само: снимаем, если ресурс выключили
+AddEventHandler('QBCore:Client:OnPlayerLoaded', function() loggedAt = GetGameTimer() end)
+
 AddEventHandler('onResourceStop', function(res)
     if res ~= GetCurrentResourceName() then return end
     for _, m in ipairs(Config.SuppressVehicles) do SetVehicleModelIsSuppressed(joaat(m), false) end
