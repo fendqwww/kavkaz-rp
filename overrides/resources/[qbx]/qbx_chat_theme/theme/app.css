@@ -118,7 +118,10 @@ body[data-f="adm"] .msg:not([data-cat="adm"]) { display: none; }
     background: none;
     font-size: inherit;
 }
-.kv-tabs { display: flex; gap: 2px; margin-bottom: 6px; }
+.chat-input { display: flex; flex-direction: column; }
+.kv-tabs { display: flex; gap: 2px; margin-bottom: 6px; order: -1; }
+/* поле ввода закрыто (не нажата T) — вкладок тоже нет */
+.chat-input > div.input[style*="display: none"] + .kv-tabs { display: none; }
 .kv-tabs button {
     border: 0; cursor: pointer; padding: 6px 12px; border-radius: 4px;
     font-size: 13px; font-weight: 600; color: var(--kv-muted);

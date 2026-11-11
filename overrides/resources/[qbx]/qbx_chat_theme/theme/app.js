@@ -62,7 +62,9 @@
                 });
                 tabs.appendChild(b);
             }
-            box.insertBefore(tabs, box.firstChild);
+            // вкладки — сразу после поля ввода: чат FiveM прячет только поле (div.input), а не весь блок,
+            // и CSS «div.input скрыт + .kv-tabs» прячет вкладки вместе с ним. над полем их ставит order: -1
+            input.insertAdjacentElement('afterend', tabs);
         }
         if (!input.querySelector('.kv-mode')) {
             const m = document.createElement('span');
