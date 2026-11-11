@@ -104,11 +104,22 @@ local function canUse()
     return myVeh ~= 0 and myModel ~= nil and not IsPauseMenuActive() and not IsNuiFocused()
 end
 
-lib.addKeybind({ name = 'kavkaz_sgu_quack', description = 'СГУ: кряк', defaultKey = Config.Keys.quack, onPressed = function()
+-- кряк. клавиша G общая с меню взаимодействия (kavkaz_interact): там короткое нажатие — кряк, удержание — меню.
+-- пока kavkaz_interact запущен, кряком управляет он (через экспорт Quack); без него кряк прямо на клавише.
+local function doQuack()
     if canUse() then
         TriggerServerEvent('kavkaz_sgu:server:quack', VehToNet(myVeh))
         SendNUIMessage({ action = 'flash', which = 'quack' })
+        return true
     end
+    return false
+end
+exports('Quack', doQuack)
+exports('CanQuack', function() return canUse() end)
+
+lib.addKeybind({ name = 'kavkaz_sgu_quack', description = 'СГУ: кряк (если нет меню взаимодействия)', defaultKey = Config.Keys.quack, onPressed = function()
+    if GetResourceState('kavkaz_interact') == 'started' then return end
+    doQuack()
 end })
 
 lib.addKeybind({ name = 'kavkaz_sgu_tone', description = 'СГУ: мелодия вкл/выкл', defaultKey = Config.Keys.tone, onPressed = function()
