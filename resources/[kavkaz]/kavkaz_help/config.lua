@@ -131,3 +131,4 @@ C{ tab = 'admin', cmd = 'aresetpin', perm = 'resetpin', p = { { 'ID', '' } }, ex
 C{ tab = 'admin', cmd = 'rename', ace = 'command.rename', p = { { 'Имя', '' }, { 'Фамилия', '' } }, ex = '/rename Ахмед Исаев', desc = 'сменить имя своему персонажу (основатели)' }
 C{ tab = 'admin', cmd = 'setname', ace = 'command.setname', p = { { 'ID', '' }, { 'Имя', '' }, { 'Фамилия', '' } }, ex = '/setname 12 Ахмед Исаев', desc = 'сменить имя персонажу игрока (основатели)' }
 C{ tab = 'admin', cmd = 'intro', ace = 'command.intro', p = { { 'ID', 'необязательно' } }, ex = '/intro', desc = 'показать пролог «Домой» себе или игроку (проверить сцены)' }
+C{ tab = 'admin', cmd = 'skin', ace = 'command.skin', p = { { 'ID', 'необязательно' } }, ex = '/skin', desc = 'сменить внешность: открыть редактор персонажа себе или игроку' }

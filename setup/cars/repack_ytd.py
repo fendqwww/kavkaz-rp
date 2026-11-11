@@ -151,11 +151,32 @@ def chain(t, drop):
 
 
 def stride_of(fmt, w):
+    # 11.11: GTA хранит для DXT «байт на строку пикселей»: DXT1 — w/2, DXT5 — w (раньше тут было в 4 раза больше —
+    # у текстур нестандартной ширины выходили полосы). сверено по 2560 текстурам оригинальных модов
     if fmt in BLOCK8:
-        return max(1, (w + 3) // 4) * 8
+        return max(1, w // 2)
     if fmt in BLOCK16:
-        return max(1, (w + 3) // 4) * 16
+        return max(1, w)
     return w * RAW_BPP[struct.unpack('<I', fmt)[0]]
+
+
+def fix_strides(path):
+    """починить только поле stride (данные не трогаются). возвращает число исправленных текстур"""
+    ver, sysf, gfxf, d, vs, ps = read(path)
+    n = 0
+    for t in textures(d):
+        try:
+            good = stride_of(t['fmt'], t['w'])
+        except KeyError:
+            continue
+        if t['stride'] != good:
+            struct.pack_into('<H', d, t['off'] + 0x56, good)
+            n += 1
+    if n:
+        comp = zlib.compressobj(9, zlib.DEFLATED, -15)
+        with open(path, 'wb') as f:
+            f.write(b'RSC7' + struct.pack('<III', ver, sysf, gfxf) + comp.compress(bytes(d)) + comp.flush())
+    return n
 
 
 def halve(t):
@@ -283,6 +304,13 @@ if __name__ == '__main__':
         if k in argv:
             skip.add(argv.index(k) + 1)
     files = [a for i, a in enumerate(argv) if not a.startswith('--') and i not in skip]
+    if '--fix-stride' in argv:
+        for p in files:
+            try:
+                print('%-34s stride исправлено: %d' % (os.path.basename(p), fix_strides(p)))
+            except Exception as e:  # noqa
+                print('%-34s ошибка: %s' % (os.path.basename(p), e))
+        sys.exit(0)
     for p in files:
         try:
             before, after, n, msg = repack(p, budget, mn, info)

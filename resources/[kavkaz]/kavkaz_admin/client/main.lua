@@ -187,3 +187,8 @@ lib.callback.register('kavkaz_admin:preloadModel', function(model)
     end
     return HasModelLoaded(hash)
 end)
+
+-- /skin: полный редактор внешности illenium-appearance (тот же, что при создании персонажа)
+RegisterNetEvent('kavkaz_admin:client:skin', function()
+    TriggerEvent('qb-clothes:client:CreateFirstCharacter')
+end)

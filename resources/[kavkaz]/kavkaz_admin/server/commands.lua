@@ -403,6 +403,13 @@ local function feed(target)
     Player(target).state:set('stress', 0, true)
 end
 
+-- /skin [id] — открыть полный редактор внешности (illenium-appearance): себе или игроку
+cmd('skin', 'skin', 'Сменить внешность (редактор персонажа)', { P_TARGET_OPT }, function(src, args)
+    local target = args.target or src
+    TriggerClientEvent('kavkaz_admin:client:skin', target)
+    Admin.log(src, 'skin', target ~= src and target or nil, '')
+end)
+
 cmd('aheal', 'heal', 'Вылечить игрока: здоровье 100% (без поднятия)', { P_TARGET_OPT }, function(src, args)
     local target = args.target or src
     if target == 0 then return end

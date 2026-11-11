@@ -80,7 +80,7 @@ CreateThread(function()
     while true do
         local data
         -- от первого лица виден 3D-пульт — экранный прячем
-        if myModel and myVeh ~= 0 and not IsPauseMenuActive() and LocalPlayer.state.isLoggedIn and GetFollowVehicleCamViewMode() ~= 4 then
+        if myModel and myVeh ~= 0 and not IsPauseMenuActive() and LocalPlayer.state.isLoggedIn and GetFollowVehicleCamViewMode() ~= 4 and Config.ShowPanel then -- KAVKAZ 11.11: 2D-окно выключено (наезжало на спидометр), управление — 3D-пульт
             local m = Config.Models[myModel]
             local st = Entity(myVeh).state
             local names = {}
@@ -118,18 +118,18 @@ end
 exports('Quack', doQuack)
 exports('CanQuack', function() return canUse() end)
 
-lib.addKeybind({ name = 'kavkaz_sgu_quack', description = 'СГУ: кряк (если нет меню взаимодействия)', defaultKey = Config.Keys.quack, onPressed = function()
+if Config.KeyboardControls then lib.addKeybind({ name = 'kavkaz_sgu_quack', description = 'СГУ: кряк (если нет меню взаимодействия)', defaultKey = Config.Keys.quack, onPressed = function()
     if GetResourceState('kavkaz_interact') == 'started' then return end
     doQuack()
-end })
+end }) end
 
-lib.addKeybind({ name = 'kavkaz_sgu_tone', description = 'СГУ: мелодия вкл/выкл', defaultKey = Config.Keys.tone, onPressed = function()
+if Config.KeyboardControls then lib.addKeybind({ name = 'kavkaz_sgu_tone', description = 'СГУ: мелодия вкл/выкл', defaultKey = Config.Keys.tone, onPressed = function()
     if not canUse() then return end
     local on = Entity(myVeh).state.sgu_tone
     TriggerServerEvent('kavkaz_sgu:server:tone', VehToNet(myVeh), (not on) and model().tones[toneIndex] or false)
-end })
+end }) end
 
-lib.addKeybind({ name = 'kavkaz_sgu_next', description = 'СГУ: следующая мелодия', defaultKey = Config.Keys.next, onPressed = function()
+if Config.KeyboardControls then lib.addKeybind({ name = 'kavkaz_sgu_next', description = 'СГУ: следующая мелодия', defaultKey = Config.Keys.next, onPressed = function()
     if not canUse() then return end
     local tones = model().tones
     toneIndex = toneIndex % #tones + 1
@@ -137,9 +137,9 @@ lib.addKeybind({ name = 'kavkaz_sgu_next', description = 'СГУ: следующ
     local tone = tones[toneIndex]
     notify(('мелодия %d/%d: %s'):format(toneIndex, #tones, Config.Tones[tone]))
     if Entity(myVeh).state.sgu_tone then TriggerServerEvent('kavkaz_sgu:server:tone', VehToNet(myVeh), tone) end
-end })
+end }) end
 
-lib.addKeybind({ name = 'kavkaz_sgu_manual', description = 'СГУ: ручной тон (держать)', defaultKey = Config.Keys.manual,
+if Config.KeyboardControls then lib.addKeybind({ name = 'kavkaz_sgu_manual', description = 'СГУ: ручной тон (держать)', defaultKey = Config.Keys.manual,
     onPressed = function()
         if not canUse() or not Config.ManualModels[myModel] then return end
         TriggerServerEvent('kavkaz_sgu:server:manual', VehToNet(myVeh), true)
@@ -148,12 +148,12 @@ lib.addKeybind({ name = 'kavkaz_sgu_manual', description = 'СГУ: ручной
     onReleased = function()
         if myVeh ~= 0 and Entity(myVeh).state.sgu_man then TriggerServerEvent('kavkaz_sgu:server:manual', VehToNet(myVeh), false) end
     end,
-})
+}) end
 
-lib.addKeybind({ name = 'kavkaz_sgu_strobe', description = 'СГУ: стробоскоп', defaultKey = Config.Keys.strobe, onPressed = function()
+if Config.KeyboardControls then lib.addKeybind({ name = 'kavkaz_sgu_strobe', description = 'СГУ: стробоскоп', defaultKey = Config.Keys.strobe, onPressed = function()
     if not canUse() or not model().strobe then return end
     TriggerServerEvent('kavkaz_sgu:server:strobe', VehToNet(myVeh), not Entity(myVeh).state.sgu_strobe)
-end })
+end }) end
 
 ---------------------------------------------------------------------------
 -- звук
@@ -444,5 +444,10 @@ SGU = {
         end
         if myVeh ~= 0 then TriggerServerEvent('kavkaz_sgu:server:manual', VehToNet(myVeh), false) end
         return true
+    end,
+    -- стробоскоп: клик по второму светодиоду пульта (dash.lua)
+    strobe = function()
+        if not canUse() or not model().strobe then return end
+        TriggerServerEvent('kavkaz_sgu:server:strobe', VehToNet(myVeh), not Entity(myVeh).state.sgu_strobe)
     end,
 }

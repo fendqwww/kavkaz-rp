@@ -120,6 +120,7 @@ function voice(vol, pan, opts = {}) {
 }
 
 function stopVoice(v, t = ctx.currentTime) {
+  v.stopped = true; if (v.timer) clearInterval(v.timer);
   v.c.out.gain.cancelScheduledValues(t);
   v.c.out.gain.setTargetAtTime(0, t, 0.03);
   for (const n of v.nodes) { try { n.stop(t + 0.2); } catch (e) {} }
@@ -207,12 +208,36 @@ for (const id of ['quack', ...Object.keys(TONES)]) {
   load('ogg').then(ok => { if (!ok) load('wav'); });
 }
 
+// 11.11: записи короткие (0,3–7 с) — простой loop давал щелчок на стыке. теперь копии идут внахлёст с плавным
+// переходом (кроссфейд), и громкость без перегруза (было ×1,6 — хрипело в компрессоре)
+const XF = 0.06; // перекрытие копий, с
 function sampleVoice(buf, vol, pan, loop) {
-  const out = ctx.createGain(); out.gain.value = vol * BASE * 1.6;
+  const out = ctx.createGain(); out.gain.value = vol * BASE * 1.15;
   const p = ctx.createStereoPanner(); p.pan.value = pan;
-  const src = ctx.createBufferSource(); src.buffer = buf; src.loop = loop;
-  src.connect(out); out.connect(p); p.connect(comp); src.start();
-  return { c: { out, pan: p }, nodes: [src], sample: true };
+  out.connect(p); p.connect(comp);
+  const v = { c: { out, pan: p }, nodes: [], sample: true };
+  const play = (t) => {
+    const g = ctx.createGain();
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    src.connect(g); g.connect(out);
+    const len = buf.duration, xf = loop ? Math.min(XF, len / 4) : 0;
+    if (xf > 0) {
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(1, t + xf);
+      g.gain.setValueAtTime(1, t + len - xf); g.gain.linearRampToValueAtTime(0, t + len);
+    }
+    src.start(t);
+    v.nodes.push(src);
+    if (v.nodes.length > 4) v.nodes.shift();
+    if (loop) v.next = t + len - xf;
+  };
+  play(ctx.currentTime + 0.01);
+  if (loop) {
+    v.timer = setInterval(() => {
+      if (v.stopped) return clearInterval(v.timer);
+      while (v.next < ctx.currentTime + 0.3) play(v.next);
+    }, 50);
+  }
+  return v;
 }
 
 function startLoop(id, tone, vol, pan) {

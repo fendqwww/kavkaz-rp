@@ -13,7 +13,7 @@ local OFF = {
     kv_hazard_led_l1 = vec3(0.02475, -0.0237, -0.01392),
     kv_hazard_led_l2 = vec3(0.05325, -0.0237, -0.01392),
 }
-local HIT = { kv_hazard_knob_vol = 0.018, kv_hazard_knob_sel = 0.026, kv_hazard_btn_pa = 0.013, kv_hazard_btn_horn = 0.013 }
+local HIT = { kv_hazard_knob_vol = 0.018, kv_hazard_knob_sel = 0.026, kv_hazard_btn_pa = 0.013, kv_hazard_btn_horn = 0.013, kv_hazard_led_l2 = 0.012 }
 
 local dash = {} -- veh -> { body, parts = {name = obj}, pos, rot }
 local custom = json.decode(GetResourceKvpString('dash_custom') or '{}') or {}
@@ -199,6 +199,7 @@ local HINT = {
     kv_hazard_knob_vol = 'колесо мыши — громкость',
     kv_hazard_btn_pa = 'ЛКМ — ручной тон (держать)',
     kv_hazard_btn_horn = 'ЛКМ — кряк',
+    kv_hazard_led_l2 = 'ЛКМ — стробоскоп вкл/выкл',
 }
 
 CreateThread(function()
@@ -238,6 +239,8 @@ CreateThread(function()
             if IsDisabledControlJustPressed(0, 24) then
                 if hover == 'kv_hazard_btn_horn' then
                     SGU.quack()
+                elseif hover == 'kv_hazard_led_l2' then
+                    SGU.strobe()
                 elseif hover == 'kv_hazard_btn_pa' then
                     if not SGU.manual(true) then SGU.quack() else manHeld = true end
                 end
