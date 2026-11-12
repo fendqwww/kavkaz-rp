@@ -177,9 +177,15 @@ cmd('aveh', 'aveh', 'Заспавнить машину', { { name = 'model', typ
         return Admin.notify(src, 'модель не загрузилась (нет такой или медленный интернет) — попробуй ещё раз', 'error')
     end
     if GetVehiclePedIsIn(ped, false) ~= 0 then DeleteEntity(GetVehiclePedIsIn(ped, false)) end
+    if not exports.qbx_core:GetVehiclesByHash(joaat(model)) then
+        print(('[kavkaz_admin] aveh: модели %s нет в списке машин qbx_core (kavkaz_cars/cars.lua)'):format(model))
+    end
     local ok, netId, vehicle = pcall(qbx.spawnVehicle, { model = model, spawnSource = ped, warp = true, bucket = GetPlayerRoutingBucket(src) })
     if not ok or not vehicle or vehicle == 0 then
-        return Admin.notify(src, 'не удалось: проверь название модели', 'error')
+        -- настоящая причина — в консоль и админу (раньше терялась)
+        local why = not ok and tostring(netId) or 'машина не создалась'
+        print(('[kavkaz_admin] aveh %s: %s'):format(model, why))
+        return Admin.notify(src, ('не удалось (%s): %s'):format(model, why:sub(1, 120)), 'error')
     end
     pcall(function() exports.qbx_vehiclekeys:GiveKeys(src, vehicle) end)
     Admin.log(src, 'aveh', nil, args.model)
