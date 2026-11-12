@@ -297,6 +297,75 @@ fn open_fivem(url: &str) -> Result<(), String> {
     }
 }
 
+/// после «Играть» сворачиваем чужие окна, которые вылезают при старте FiveM:
+/// лаунчер Rockstar и вход Social Club, Epic Games, Steam, заставка и обновление FiveM.
+/// окно самой игры (…GTAProcess.exe) не трогаем; каждое окно сворачиваем один раз — если игрок его развернёт
+/// (например, чтобы войти в аккаунт Rockstar), второй раз не мешаем.
+#[cfg(windows)]
+mod quiet {
+    use std::collections::HashSet;
+    use std::time::{Duration, Instant};
+    use windows_sys::Win32::Foundation::{CloseHandle, BOOL, HWND, LPARAM};
+    use windows_sys::Win32::System::Threading::{OpenProcess, QueryFullProcessImageNameW, PROCESS_QUERY_LIMITED_INFORMATION};
+    use windows_sys::Win32::UI::WindowsAndMessaging::{EnumWindows, GetWindowThreadProcessId, IsWindowVisible, ShowWindow, SW_MINIMIZE};
+
+    const NOISY: [&str; 8] = [
+        "launcher.exe", "socialclubhelper.exe", "rockstarservice.exe", "playgtav.exe",
+        "epicgameslauncher.exe", "steam.exe", "steamwebhelper.exe", "fivem.exe",
+    ];
+
+    fn exe_name(pid: u32) -> Option<String> {
+        unsafe {
+            let h = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid);
+            if h == 0 {
+                return None;
+            }
+            let mut buf = [0u16; 512];
+            let mut len = buf.len() as u32;
+            let ok = QueryFullProcessImageNameW(h, 0, buf.as_mut_ptr(), &mut len);
+            CloseHandle(h);
+            if ok == 0 {
+                return None;
+            }
+            let path = String::from_utf16_lossy(&buf[..len as usize]).to_lowercase();
+            path.rsplit('\\').next().map(|n| n.to_string())
+        }
+    }
+
+    unsafe extern "system" fn collect(hwnd: HWND, lparam: LPARAM) -> BOOL {
+        let list = &mut *(lparam as *mut Vec<HWND>);
+        if IsWindowVisible(hwnd) != 0 {
+            list.push(hwnd);
+        }
+        1
+    }
+
+    pub fn run(seconds: u64) {
+        std::thread::spawn(move || {
+            let start = Instant::now();
+            let mut done: HashSet<HWND> = HashSet::new();
+            while start.elapsed() < Duration::from_secs(seconds) {
+                let mut wins: Vec<HWND> = Vec::new();
+                unsafe { EnumWindows(Some(collect), &mut wins as *mut Vec<HWND> as LPARAM) };
+                for hwnd in wins {
+                    if done.contains(&hwnd) {
+                        continue;
+                    }
+                    let mut pid = 0u32;
+                    unsafe { GetWindowThreadProcessId(hwnd, &mut pid) };
+                    if let Some(name) = exe_name(pid) {
+                        if NOISY.contains(&name.as_str()) && !name.contains("gtaprocess") {
+                            unsafe { ShowWindow(hwnd, SW_MINIMIZE) };
+                            done.insert(hwnd);
+                        }
+                    }
+                }
+                std::thread::sleep(Duration::from_millis(400));
+            }
+        });
+    }
+}
+
 #[tauri::command]
 fn play(app: tauri::AppHandle, address: String) -> Result<(), String> {
     let a = with_port(&address);
@@ -304,6 +373,15 @@ fn play(app: tauri::AppHandle, address: String) -> Result<(), String> {
         return Err("адрес сервера ещё не задан".into());
     }
     open_fivem(&format!("fivem://connect/{a}"))?;
+    // окна Rockstar / Epic / Steam / заставки FiveM сворачиваем первые 3 минуты, своё окно — сразу
+    #[cfg(windows)]
+    quiet::run(180);
+    {
+        use tauri::Manager;
+        if let Some(w) = app.get_webview_window("main") {
+            let _ = w.minimize();
+        }
+    }
     if read_settings().close_on_play {
         std::thread::spawn(move || {
             std::thread::sleep(Duration::from_secs(4));
