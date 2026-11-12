@@ -7,26 +7,25 @@
 <script src="plate.js"></script>
 <style>
   :root {
-    --bg: #f3f7fb; --card: #ffffff; --line: #dce5ee; --line2: #c5d3e0;
-    --text: #131b18; --muted: #607285; --sky: #2fbf8a; --sky-d: #1f8f66; --sky-l: #e6f6ef;
-    --ok: #1f9d55; --warn: #c27a00; --bad: #d23c3c;
+    --bg: #121314; --card: #1a1b1d; --line: rgba(255,255,255,.06); --line2: #2a2b2e;
+    --text: #f2f3f5; --muted: rgba(242,243,245,.55); --sky: #2fbf8a; --sky-d: #29a678; --sky-l: rgba(47,191,138,.14);
+    --ok: #2fbf8a; --warn: #e3b341; --bad: #e5534b;
     --font: "Golos Text", "Segoe UI", Arial, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
   body { font: 400 15px/1.45 var(--font); color: var(--text); user-select: none; }
-  body.preview { background: #5b6b78; }
+  body.preview { background: #2b2d30; }
   .hidden { display: none !important; }
   button, select, input { font: inherit; color: inherit; }
 
-  .overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(10, 16, 13, .45); }
+  .overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(0, 0, 0, .5); }
   .win { width: 1060px; max-width: calc(100vw - 40px); height: 680px; max-height: calc(100vh - 40px);
-    display: grid; grid-template-rows: auto 1fr; background: var(--bg); border-radius: 8px; overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, .35); }
+    display: grid; grid-template-rows: auto 1fr; background: var(--bg); border-radius: 8px; overflow: hidden; }
 
   header { display: flex; align-items: center; gap: 14px; padding: 14px 20px; background: var(--card); border-bottom: 1px solid var(--line); }
-  .emblem { width: 36px; height: 36px; border-radius: 6px; background: var(--sky); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 14px; }
-  header h1 { font-size: 18px; font-weight: 600; }
+  .emblem { width: 36px; height: 36px; border-radius: 6px; background: var(--sky); color: #0d0e0f; display: grid; place-items: center; } .emblem svg { width: 22px; height: 22px; }
+  header h1 { font: 700 18px 'Unbounded', sans-serif; letter-spacing: .05em; text-transform: uppercase; }
   header p { font-size: 13px; color: var(--muted); }
   .grow { flex: 1; }
   .close { width: 34px; height: 34px; border: 1px solid var(--line2); border-radius: 6px; background: var(--card); cursor: pointer; font-size: 18px; color: var(--muted); }
@@ -39,15 +38,15 @@
   aside button:hover { background: var(--bg); }
   aside button.on { background: var(--sky-l); color: var(--sky-d); font-weight: 600; }
   aside .cnt { color: var(--muted); font-weight: 400; }
-  aside .note { margin: 18px 12px 0; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+  aside .note { margin: 18px 12px 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
 
   main { overflow-y: auto; padding: 18px 20px 24px; min-height: 0; }
-  main::-webkit-scrollbar { width: 8px; } main::-webkit-scrollbar-thumb { background: #c8d4df; border-radius: 4px; }
+  main::-webkit-scrollbar { width: 8px; } main::-webkit-scrollbar-thumb { background: #2a2b2e; border-radius: 4px; }
   h2 { font-size: 17px; font-weight: 600; margin-bottom: 12px; }
 
   .item { display: grid; grid-template-columns: 236px 1fr auto; gap: 18px; align-items: center; padding: 14px 16px; margin-bottom: 8px;
-    background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
-  .item .plate-svg { width: 236px; display: block; filter: drop-shadow(0 1px 1px rgba(0,0,0,.15)); }
+    background: var(--card); border-radius: 6px; }
+  .item .plate-svg { width: 236px; display: block;  }
   .item .name { font-weight: 600; font-size: 16px; }
   .item .meta { margin-top: 4px; font-size: 13.5px; color: var(--muted); }
   .st { display: inline-flex; align-items: center; gap: 6px; margin-right: 14px; }
@@ -58,8 +57,8 @@
 
   .btn { padding: 8px 14px; border-radius: 6px; border: 1px solid var(--line2); background: var(--card); cursor: pointer; font-size: 14px; white-space: nowrap; }
   .btn:hover { border-color: var(--sky); color: var(--sky-d); }
-  .btn.primary { background: var(--sky); border-color: var(--sky); color: #fff; }
-  .btn.primary:hover { background: var(--sky-d); border-color: var(--sky-d); color: #fff; }
+  .btn.primary { background: var(--sky); border-color: var(--sky); color: #0d0e0f; }
+  .btn.primary:hover { background: var(--sky-d); border-color: var(--sky-d); color: #0d0e0f; }
   .btn:disabled { opacity: .45; cursor: default; }
   .empty { padding: 36px; text-align: center; color: var(--muted); background: var(--card); border: 1px dashed var(--line2); border-radius: 8px; }
   .bar { display: flex; gap: 8px; align-items: center; margin-top: 14px; color: var(--muted); font-size: 14px; }
@@ -74,31 +73,31 @@
 
   /* диалог */
   .modal { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(10, 16, 13, .35); }
-  .dlg { width: 560px; max-height: calc(100vh - 60px); overflow-y: auto; background: var(--card); border-radius: 8px; box-shadow: 0 16px 40px rgba(0,0,0,.3); }
+  .dlg { width: 560px; max-height: calc(100vh - 60px); overflow-y: auto; background: var(--card); border-radius: 8px; }
   .dlg h3 { padding: 16px 20px; font-size: 17px; font-weight: 600; border-bottom: 1px solid var(--line); }
   .dlg .in { padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; }
   .dlg .ft { padding: 12px 20px 16px; display: flex; gap: 8px; justify-content: flex-end; border-top: 1px solid var(--line); }
   .opt { display: grid; grid-template-columns: 18px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; }
   .opt:hover { border-color: var(--line2); background: var(--bg); }
   .opt.on { border-color: var(--sky); background: var(--sky-l); }
-  .opt .r { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid var(--line2); background: #fff; }
+  .opt .r { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #4a4b4f; background: transparent; }
   .opt.on .r { border: 5px solid var(--sky); }
   .opt small { display: block; color: var(--muted); font-size: 13px; }
   .opt .p { font-weight: 600; white-space: nowrap; }
   .opt .plate-svg { width: 210px; display: block; }
   .opt.wide { grid-template-columns: 18px auto 1fr; }
   label.f { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--muted); }
-  select, input { padding: 8px 10px; border: 1px solid var(--line2); border-radius: 6px; background: #fff; font-size: 14.5px; outline: none; }
-  select:focus, input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(47, 191, 138, .15); }
+  select, input { padding: 8px 10px; border: 1px solid var(--line2); border-radius: 4px; background: #222326; font-size: 14.5px; outline: none; }
+  select:focus, input:focus { border-color: var(--sky); }
   .preview-plate { display: flex; justify-content: center; padding: 6px 0 10px; } .preview-plate .plate-svg { width: 320px; }
 
   /* мастер получения номера */
   .steps { display: flex; gap: 6px; padding: 12px 20px 0; }
   .steps span { flex: 1; padding-bottom: 8px; border-bottom: 3px solid var(--line); font-size: 13px; color: var(--muted); }
   .steps span.on { border-color: var(--sky); color: var(--text); font-weight: 600; }
-  .steps span.done { border-color: #9fdcc2; color: var(--muted); }
-  .doc { display: grid; grid-template-columns: 84px 1fr; gap: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 8px; background: #fbfcfe; }
-  .doc .photo { width: 84px; height: 104px; border-radius: 4px; background: #dfe7ef; display: grid; place-items: center; color: #8aa0b5; font-size: 34px; }
+  .steps span.done { border-color: #1f7a59; color: var(--muted); }
+  .doc { display: grid; grid-template-columns: 84px 1fr; gap: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 6px; background: #222326; }
+  .doc .photo { width: 84px; height: 104px; border-radius: 4px; background: #2a2b2e; display: grid; place-items: center; color: rgba(242,243,245,.4); font-size: 34px; }
   .doc dl { display: grid; grid-template-columns: 130px 1fr; gap: 4px 10px; font-size: 14px; }
   .doc dt { color: var(--muted); } .doc dd { font-weight: 500; }
   .doc-status { margin-top: 10px; font-size: 14px; } .doc-status.ok { color: var(--ok); } .doc-status.bad { color: var(--bad); }
@@ -114,8 +113,8 @@
   .ftile .fl { margin-top: 6px; display: flex; justify-content: space-between; font-size: 13px; }
   .ftile .fl b { font-weight: 600; white-space: nowrap; }
   .dlg.wide { width: 720px; }
-  .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); padding: 10px 16px; border-radius: 6px; background: #131b18; color: #fff;
-    font-size: 14.5px; box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); padding: 10px 16px; border-radius: 6px; background: #2a2b2e; color: #f2f3f5;
+    font-size: 14.5px; }
   .toast.err { background: var(--bad); }
 </style>
 </head>
@@ -123,7 +122,7 @@
 <div class="overlay hidden" id="app">
   <div class="win">
     <header>
-      <div class="emblem">ГИ</div>
+      <div class="emblem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21h-9a3 3 0 0 1 -3 -3v-1h10v2a2 2 0 0 0 4 0v-14a2 2 0 1 1 2 2h-2m2 -4h-11a3 3 0 0 0 -3 3v11"/><path d="M9 7l4 0"/><path d="M9 11l4 0"/></svg></div>
       <div><h1>МРЭО ГИБДД</h1><p>Регистрация транспортных средств · Нагорск</p></div>
       <div class="grow"></div>
       <button class="close" id="close" title="Закрыть (Esc)">✕</button>
@@ -226,7 +225,7 @@ function stepsBar(n) {
 function registerDialog(vehicleId) {
   const d = S.passport || {}, car = S.vehicles.find((v) => v.id === vehicleId);
   modal(`<h3>${car ? 'Регистрация: ' + esc(car.label) : 'Номер на хранение'}</h3>${stepsBar(1)}<div class="in">
-      <div class="doc"><div class="photo"><svg width="46" height="56" viewBox="0 0 46 56"><circle cx="23" cy="17" r="11" fill="#9db0a7"/><path d="M2 56c0-14 9-22 21-22s21 8 21 22z" fill="#9db0a7"/></svg></div><dl>
+      <div class="doc"><div class="photo"><svg width="46" height="56" viewBox="0 0 46 56"><circle cx="23" cy="17" r="11" fill="rgba(242,243,245,.55)"/><path d="M2 56c0-14 9-22 21-22s21 8 21 22z" fill="rgba(242,243,245,.55)"/></svg></div><dl>
         <dt>Документ</dt><dd>Паспорт гражданина</dd>
         <dt>Фамилия, имя</dt><dd>${esc(d.lastname || '—')} ${esc(d.firstname || '')}</dd>
         <dt>Дата рождения</dt><dd>${esc(d.birthdate || '—')}</dd>

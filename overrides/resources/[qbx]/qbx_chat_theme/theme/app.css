@@ -18,7 +18,7 @@
     --kv-fam: #e0a8ff;
     --kv-gov: #ffd36b;
     --kv-adm: #ff6b6b;
-    --kv-sh: 0 1px 2px rgba(0, 0, 0, 0.95), 0 0 6px rgba(0, 0, 0, 0.45);
+    --kv-sh: 0 1px 2px rgba(0, 0, 0, 0.95);
 }
 
 * {
@@ -143,7 +143,7 @@ body[data-f="adm"] .msg:not([data-cat="adm"]) { display: none; }
 .prefix { display: none !important; }
 .kv-mode {
     flex: none; padding-left: 14px; padding-right: 2px;
-    font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--kv-acc);
+    font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--kv-acc);
 }
 .kv-mode.ooc { color: var(--kv-ooc); }
 .kv-mode.radio { color: var(--kv-radio); }

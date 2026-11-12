@@ -5,25 +5,25 @@
 <title>Диалог</title>
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
-  :root { --panel: rgba(15, 20, 18, .95); --line: #2a3832; --sky: #2fbf8a; --text: #e8efea; --muted: #8fa39a; --font: "Golos Text", "Segoe UI", Arial, sans-serif; }
+  :root { --panel: rgba(18, 19, 20, .97); --line: #2a2b2e; --sky: #2fbf8a; --text: #f2f3f5; --muted: rgba(242,243,245,.55); --font: "Golos Text", "Segoe UI", Arial, sans-serif; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
   body { font: 400 16px/1.5 var(--font); color: var(--text); user-select: none; }
-  body.preview { background: #55606a; }
+  body.preview { background: #2b2d30; }
   .hidden { display: none !important; }
   .dlg { position: fixed; left: 50%; bottom: 6vh; transform: translateX(-50%); width: 760px; max-width: calc(100vw - 40px);
-    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 12px 30px rgba(0,0,0,.4); }
+    background: var(--panel); border-radius: 8px; }
   .head { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-bottom: 1px solid var(--line); }
-  .head b { font-weight: 600; font-size: 16px; }
+  .head b { font: 700 14px 'Unbounded', sans-serif; letter-spacing: .06em; text-transform: uppercase; }
   .head span { color: var(--muted); font-size: 13px; }
   .grow { flex: 1; }
-  .x { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; font: inherit; }
-  .x:hover { border-color: var(--sky); color: var(--text); }
+  .x { width: 28px; height: 28px; border-radius: 4px; border: 0; background: #2a2b2e; color: var(--muted); cursor: pointer; font: inherit; }
+  .x:hover { background: #35363a; color: var(--text); }
   .text { padding: 16px 18px 6px; font-size: 16.5px; }
   .opts { padding: 8px 12px 14px; display: flex; flex-direction: column; gap: 4px; }
-  .opts button { text-align: left; padding: 9px 12px; border-radius: 6px; border: 1px solid transparent; background: transparent; color: var(--text);
-    font: 400 15px var(--font); cursor: pointer; display: flex; gap: 10px; }
-  .opts button:hover, .opts button:focus { background: #1f2b26; border-color: var(--line); outline: none; }
+  .opts button { text-align: left; padding: 10px 12px; border-radius: 4px; border: 0; background: transparent; color: var(--text);
+    font: 500 16px var(--font); cursor: pointer; display: flex; gap: 10px; }
+  .opts button:hover, .opts button:focus { background: #2a2b2e; outline: none; }
   .opts button i { font-style: normal; color: var(--sky); font-weight: 600; min-width: 14px; }
 </style>
 </head>
