@@ -13,7 +13,8 @@ local loaded = {}
 local retex = {}
 for _, n in ipairs(Config.RetexImages or {}) do retex[n] = true end
 for _, n in ipairs(Config.SignImages or {}) do retex[n] = true end
-for _, n in ipairs(Config.Sign2Images or {}) do retex[n] = true end -- вывески по фото (setup/retex/shop_signs.py) -- знаки ГОСТ (setup/retex/road_signs.py)
+for _, n in ipairs(Config.Sign2Images or {}) do retex[n] = true end
+for _, n in ipairs(Config.UsSignImages or {}) do retex[n] = true end -- американские знаки GTA → ГОСТ (setup/retex/us_signs.py)
 local function ensureImage(name)
     if loaded[name] then return true end
     -- 'local/имя' — вывеска, собранная из текстуры игры (images/local, не в git); retex — наша; иначе images/
@@ -24,11 +25,13 @@ end
 
 CreateThread(function()
     txd = CreateRuntimeTxd(txdName)
-    for _, r in ipairs(Config.Textures) do
-        if ensureImage(r.image) then
-            AddReplaceTexture(r.txd, r.txn, txdName, r.image)
-        else
-            print(('[kavkaz_world] нет картинки %s для %s/%s'):format(r.image, r.txd, r.txn))
+    for _, list in ipairs({ Config.Textures, Config.UsSigns or {} }) do
+        for _, r in ipairs(list) do
+            if ensureImage(r.image) then
+                AddReplaceTexture(r.txd, r.txn, txdName, r.image)
+            else
+                print(('[kavkaz_world] нет картинки %s для %s/%s'):format(r.image, r.txd, r.txn))
+            end
         end
     end
 end)

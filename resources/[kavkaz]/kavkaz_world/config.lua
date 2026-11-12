@@ -48,6 +48,12 @@ Config.HideEverywhere = {
     'prop_news_disp_01a', 'prop_news_disp_02a', 'prop_news_disp_02b', 'prop_news_disp_02c', 'prop_news_disp_02d',
     'prop_news_disp_02e', 'prop_news_disp_03a', 'prop_news_disp_03c', 'prop_news_disp_05a', 'prop_news_disp_06a',
     'prop_phonebox_01a', 'prop_phonebox_01b', 'prop_phonebox_01c', 'prop_phonebox_02', 'prop_phonebox_03', 'prop_phonebox_04',
+    -- по скану карты 12.11 (setup/maps/scan_entities_blender.py): ещё ~2700 штук — почтовые ящики у частных домов,
+    -- американские пожарные гидранты, газетный автомат-малыш, таксофон, флаг полиции Сан-Андреаса
+    'prop_postbox_ss_01a', 'prop_news_disp_02a_s', 'prop_phonebox_05a',
+    'prop_letterbox_01', 'prop_letterbox_02', 'prop_letterbox_03',
+    'prop_fire_hydrant_1', 'prop_fire_hydrant_2', 'prop_fire_hydrant_4',
+    'prop_flag_sapd',
 }
 
 ---------------------------------------------------------------------------

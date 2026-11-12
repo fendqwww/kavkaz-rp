@@ -12,6 +12,7 @@ shared_scripts {
     'retex_list.lua',
     'signs_list.lua',
     'signs2_list.lua',
+    'us_signs_list.lua',
 }
 
 client_script 'client.lua'
