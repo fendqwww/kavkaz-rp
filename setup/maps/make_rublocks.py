@@ -17,13 +17,24 @@ OUT = root / 'resources' / '[kavkaz]' / 'kavkaz_replace' / 'data_rublocks.lua'
 # районы: центр (вокруг него — в первую очередь), радиус, сколько домов максимум
 AREAS = [
     {'name': 'Песчаный', 'c': (1850.0, 3700.0), 'r': 650.0, 'max': 34},
+    # 12.11 вечер: основатель — «ненавижу пустыню и пустующие места, везде расставь»
+    {'name': 'Гармония', 'c': (560.0, 2700.0), 'r': 450.0, 'max': 14},
+    {'name': 'юг пустыни', 'c': (1300.0, 2950.0), 'r': 550.0, 'max': 16},
+    {'name': 'Аламо-восток', 'c': (2500.0, 3550.0), 'r': 400.0, 'max': 10},
+    {'name': 'Грейпсид', 'c': (1900.0, 4900.0), 'r': 500.0, 'max': 18},
+    {'name': 'Палето', 'c': (-150.0, 6350.0), 'r': 500.0, 'max': 16},
 ]
+# рощи на пустырях: прямоугольники (x0, y0, x1, y1), сколько рощ; деревья — модели GTA, есть у всех
+GROVE_BOXES = [((300, 2400, 2900, 3950), 70), ((-1300, 1900, 300, 2900), 25), ((1300, 4300, 2600, 5300), 25)]
+TREES = ['prop_tree_birch_01', 'prop_tree_birch_02', 'prop_tree_birch_03', 'prop_tree_oak_01', 'prop_tree_maple_02',
+         'prop_tree_pine_01', 'prop_tree_pine_02', 'prop_tree_cedar_02']
 # модели (половины размеров, м: из ydr) и доля в квартале
 BUILD = [
     ('kv_p_soviet_residential_building', 27.7, 6.5, 3),
     ('kv_p_khrushchevka', 6.3, 15.3, 3),
     ('kv_p_russian_panel_house', 10.5, 4.7, 2),
     ('kv_p_soviet_garages_block', 2.1, 6.5, 1),
+    ('kv_p_simple_90s_kiosk', 2.8, 3.0, 1),
 ]
 MARGIN = 7.0        # м свободной земли вокруг дома
 ROAD_NEAR = (18.0, 75.0)  # до ближайшего столба/фонаря: не на дороге, но и не в чистом поле
@@ -73,13 +84,13 @@ class Grid:
                 yield from self.g.get((i, j), ())
 
 
-def free(occ, x, y, hx, hy, yaw):
+def free(occ, x, y, hx, hy, yaw, margin=MARGIN):
     cs, sn = math.cos(yaw), math.sin(yaw)
-    r = math.hypot(hx, hy) + MARGIN
+    r = math.hypot(hx, hy) + margin
     for px, py in occ.near(x, y, r):
         dx, dy = px - x, py - y
         lx, ly = dx * cs + dy * sn, -dx * sn + dy * cs  # в осях дома
-        if abs(lx) < hx + MARGIN and abs(ly) < hy + MARGIN:
+        if abs(lx) < hx + margin and abs(ly) < hy + margin:
             return False
     return True
 
@@ -119,6 +130,31 @@ def main():
                     placed += 1
                     break
         print(f"{a['name']}: кандидатов {len(cand)}, поставлено {placed}")
+    # рощи: 8–14 деревьев в круге 20 м, не ближе 15 м к столбам/знакам (дороге) и с отступом от всего
+    import random
+    rnd = random.Random(12)
+    groves = trees = 0
+    for (x0, y0, x1, y1), want in GROVE_BOXES:
+        tries = 0
+        made = 0
+        while made < want and tries < want * 60:
+            tries += 1
+            gx, gy = rnd.uniform(x0, x1), rnd.uniform(y0, y1)
+            if not free(occ, gx, gy, 12, 12, 0.0, 4.0):
+                continue
+            if any(True for _ in rg.near(gx, gy, 30.0) if math.hypot(_[0] - gx, _[1] - gy) < 30.0):
+                continue
+            n = rnd.randint(8, 14)
+            for _ in range(n):
+                a_, r_ = rnd.uniform(0, 2 * math.pi), rnd.uniform(0, 20)
+                tx, ty = gx + r_ * math.cos(a_), gy + r_ * math.sin(a_)
+                if free(occ, tx, ty, 1.0, 1.0, 0.0, 2.5):
+                    rows.append((rnd.choice(TREES), tx, ty, rnd.uniform(0, 360)))
+                    occ.add((tx, ty))
+                    trees += 1
+            made += 1
+            groves += 1
+    print('рощ:', groves, 'деревьев:', trees)
     lines = ['-- KAVKAZ RP: русские кварталы. генерирует setup/maps/make_rublocks.py, руками не править.',
              '-- { модель, x, y, курс } — высоту игра берёт с земли (kavkaz_replace/client.lua, groundFor)',
              'RuBlocksData = {']
