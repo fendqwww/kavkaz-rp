@@ -2,7 +2,7 @@
 
 local office = Config.Office
 
--- русские номера на всех машинах: фоны GTA plate01…05 (vehshare) -> наши (html/tex, setup/retex/plates.py).
+-- русские номера на всех машинах: фоны GTA plate01…05 (vehshare) -> наши (html/tex, setup/retex/plate_textures.py).
 -- символы рисует GTA, фон — наш: белый Россия, чёрный военный, синий полиция, жёлтый такси, белый без флага
 CreateThread(function()
     local txd = CreateRuntimeTxd('kavkaz_plates_tex')

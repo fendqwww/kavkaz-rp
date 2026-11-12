@@ -33,7 +33,7 @@ Config.Prices = {
 
 -- виды номеров. sale: 'window' — продаётся всем в МРЭО, 'foreign' — иностранный (дороже), 'job' — только своим работам.
 -- index — какой фон номера ставить машине в GTA (SetVehicleNumberPlateTextIndex): 0 белый, 1 жёлтый/чёрный,
--- 2 жёлтый/синий, 3 и 4 белые варианты. 12.11: фоны заменены на русские (client/main.lua, setup/retex/plates.py):
+-- 2 жёлтый/синий, 3 и 4 белые варианты. 12.11: фоны заменены на русские (client/main.lua, setup/retex/plate_textures.py):
 -- 0 белый Россия, 1 чёрный военный, 2 синий полиция, 3 жёлтый такси, 4 белый без флага
 Config.Styles = {
     { id = 'ru',        label = 'Россия',           sale = 'window',  index = 0 },

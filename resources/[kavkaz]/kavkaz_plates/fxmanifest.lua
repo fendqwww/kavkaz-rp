@@ -22,7 +22,7 @@ client_script 'client/main.lua'
 ui_page 'html/index.html'
 
 files {
-    'html/tex/*.png', -- русские фоны номеров вместо «San Andreas» (setup/retex/plates.py)
+    'html/tex/*.png', -- русские фоны номеров вместо «San Andreas» (setup/retex/plate_textures.py)
     'html/index.html',
     'html/plate.js',
     'html/fonts/*.woff2',
