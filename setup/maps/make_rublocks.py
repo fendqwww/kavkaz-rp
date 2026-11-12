@@ -23,7 +23,16 @@ AREAS = [
     {'name': 'Аламо-восток', 'c': (2500.0, 3550.0), 'r': 400.0, 'max': 10},
     {'name': 'Грейпсид', 'c': (1900.0, 4900.0), 'r': 500.0, 'max': 18},
     {'name': 'Палето', 'c': (-150.0, 6350.0), 'r': 500.0, 'max': 16},
+    # 13.11: город (Нагорск) — пустыри промзон и окраин; рядом не ставим к точкам скриптов (гаражи, работы, участки)
+    {'name': 'Сайпресс-Флэтс', 'c': (850.0, -2200.0), 'r': 450.0, 'max': 14},
+    {'name': 'Эль-Бурро', 'c': (1350.0, -1800.0), 'r': 450.0, 'max': 14},
+    {'name': 'Ранчо', 'c': (450.0, -1850.0), 'r': 350.0, 'max': 10},
+    {'name': 'Дэвис', 'c': (100.0, -1700.0), 'r': 350.0, 'max': 10},
+    {'name': 'Ла-Меса', 'c': (850.0, -1050.0), 'r': 350.0, 'max': 10},
+    {'name': 'Мирор-Парк', 'c': (1150.0, -600.0), 'r': 350.0, 'max': 8},
+    {'name': 'порт', 'c': (500.0, -2900.0), 'r': 450.0, 'max': 10},
 ]
+SCRIPT_POINTS = root.parent / 'incoming-terrain' / 'script_points.txt'  # координаты из скриптов сервера (grep vec3/vec4)
 # рощи на пустырях: прямоугольники (x0, y0, x1, y1), сколько рощ; деревья — модели GTA, есть у всех
 GROVE_BOXES = [((300, 2400, 2900, 3950), 70), ((-1300, 1900, 300, 2900), 25), ((1300, 4300, 2600, 5300), 25)]
 TREES = ['prop_tree_birch_01', 'prop_tree_birch_02', 'prop_tree_birch_03', 'prop_tree_oak_01', 'prop_tree_maple_02',
@@ -59,6 +68,18 @@ def load(paths):
     rub = root / 'resources' / '[kavkaz]' / 'kavkaz_replace' / 'data_rublevka.lua'
     for m in re.finditer(r'\{-?\d+,(-?[\d.]+),(-?[\d.]+),', rub.read_text(encoding='utf-8')):
         pts.append((float(m.group(1)), float(m.group(2))))
+    # точки скриптов (гаражи, работы, магазины, участки) — круг 25 м свободным
+    if SCRIPT_POINTS.exists():
+        for line in SCRIPT_POINTS.read_text(encoding='utf-8').split():
+            try:
+                px, py = (float(v) for v in line.split(',')[:2])
+            except ValueError:
+                continue
+            if abs(px) < 50 and abs(py) < 50:
+                continue  # это смещения, а не места
+            for a in range(0, 360, 30):
+                for r in (0, 10, 20, 25):
+                    pts.append((px + r * math.cos(math.radians(a)), py + r * math.sin(math.radians(a))))
     # посты ДПС (kavkaz_world) — тоже заняты: круг 25 м
     for px, py in ((1511.9, 3472.0), (2139.4, 3778.6)):
         for a in range(0, 360, 20):

@@ -72,6 +72,8 @@ local function groundFor(hash, x, y, yaw)
     -- ближайшая полоса не ближе 6 м от стены (по самой длинной стороне дома)
     local found, node = GetClosestVehicleNode(x, y, zs[1], 1, 3.0, 0)
     if found and #(vec2(node.x, node.y) - vec2(x, y)) < math.max(mx.x - mn.x, mx.y - mn.y) / 2 + 6.0 then return false end
+    -- земля сильно выше/ниже улицы — это крыша чужого здания или обрыв: не ставим
+    if found and math.abs(zs[1] - node.z) > 6.0 then return false end
     local lo, hi = math.huge, -math.huge
     for _, z in ipairs(zs) do lo, hi = math.min(lo, z), math.max(hi, z) end
     if hi - lo > (Config.MaxSlope or 2.0) then return false end

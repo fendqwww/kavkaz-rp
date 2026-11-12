@@ -20,6 +20,15 @@ DESERT = re.compile(r'dune|deshill|desert|desgr|sand(?!bag)|_dry|dryg|scrub|redg
 ONLY = set(argv[argv.index('--only') + 1].split(',')) if '--only' in argv else None
 SKIP = re.compile(r'_n$|_nrm|_normal|_s$|_spec|_lod|_slod|mask|msk', re.I)
 AREAS = re.compile(r'/(country_0\d|_hills/country|desert)', re.I)
+# --wide (13.11): все словари загородных районов (cs*, ch*, lr_cs*, hei_cs*) и их дальние версии (*lod*) — песок, видный
+# издалека, лежит в LOD-словарях, прошлый проход их пропускал. --skip-done <папка>: словари, которые уже есть в степи
+WIDE = '--wide' in argv
+YTD_WIDE = re.compile(r'^(hei_|lr_)?(cs[1-6]|ch[1-3])_', re.I)
+LODTEX = re.compile(r'_n$|_nrm|_normal|_s$|_spec|mask|msk', re.I)
+BUILDING = re.compile(r'wall|brick|wood|roof|door|window|metal|plaster|concrete|tile|sign|decal|graff|paint|plank|fence|pipe|rust', re.I)
+DONE = set()
+if '--skip-done' in argv:
+    DONE = {f.split('.')[0].lower() for f in os.listdir(argv[argv.index('--skip-done') + 1]) if f.endswith('.ytd')}
 
 gf = GameFiles(GAME)
 idx = gf.read_asset_filelist()
@@ -28,8 +37,12 @@ listing = {}
 for n, paths in ytd.items():
     name = str(n)
     p = paths[0] if isinstance(paths, (list, tuple)) else paths
+    is_lod = 'lod' in name.lower()
     if ONLY is not None:
         if name not in ONLY:
+            continue
+    elif WIDE:
+        if not YTD_WIDE.match(name) or name.lower() in DONE:
             continue
     elif 'terrain' not in name.lower() or not AREAS.search(str(p).replace('\\', '/')):
         continue
@@ -40,7 +53,13 @@ for n, paths in ytd.items():
         continue
     picked = []
     for tname, t in a.textures.items():
-        if DESERT.search(tname) and not SKIP.search(tname) and t.data is not None:
+        if WIDE and is_lod:  # в дальних словарях земля — запечённые картинки без «говорящих» имён: берём все цветные
+            ok = not LODTEX.search(tname)
+        elif WIDE:  # ближние словари: только земля, не стены домов с «грязью» в имени
+            ok = DESERT.search(tname) and not SKIP.search(tname) and not BUILDING.search(tname)
+        else:
+            ok = DESERT.search(tname) and not SKIP.search(tname)
+        if ok and t.data is not None:
             d = os.path.join(OUT, name)
             os.makedirs(d, exist_ok=True)
             raw = t.data.read_bytes()
