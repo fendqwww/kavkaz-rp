@@ -15,3 +15,6 @@
 | stop_bus_ussr | Stop Bus USSR | gloomDelusion (https://sketchfab.com/GlomDel) | CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/) https://sketchfab.com/3d-models/stop-bus-ussr-807007d34e1244c4a9abbe5f002840e1 |
 | traffic_light | Traffic Light | MRXZGAMER (https://sketchfab.com/MRXZGAMER) | CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/) https://sketchfab.com/3d-models/traffic-light-248d06eb61644befbd0bc737e0bf3a68 |
 | ussr_props | USSR Props | SuperMopsek (https://sketchfab.com/pajamakeke) | CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/) https://sketchfab.com/3d-models/ussr-props-43c986305bbd438188b9f153b93e8863 |
+
+## Расстановки
+- «Рублёвка 1.1» (Map Editor XML, бесплатный мод с gta5-mods, автор указан в архиве) — `kavkaz_replace/data_rublevka.lua`, только модели GTA.

@@ -33,16 +33,25 @@ CreateThread(function()
             cells[k][#cells[k] + 1] = { with, e[2], e[3], e[4], (e[5] + yaw) % 360.0 }
         end
     end
+    -- готовые расстановки (Map Editor): { хэш, x, y, z, rx, ry, rz } — поворот целиком, а не только курс
+    for _, e in ipairs(Config.Placements and RublevkaData or {}) do
+        local k = cellKey(e[2], e[3])
+        cells[k] = cells[k] or {}
+        cells[k][#cells[k] + 1] = { e[1], e[2], e[3], e[4], e[7], e[5], e[6] }
+    end
+    for _, h in ipairs(Config.Placements and RublevkaHide or {}) do
+        CreateModelHide(h[2], h[3], h[4], 3.0, h[1], true)
+    end
 end)
 
 local function spawnCell(k)
     local list, objs = cells[k], {}
     for _, o in ipairs(list or {}) do
-        local hash = joaat(o[1])
+        local hash = type(o[1]) == 'number' and o[1] or joaat(o[1])
         if IsModelInCdimage(hash) then
             lib.requestModel(hash, 3000)
             local ob = CreateObjectNoOffset(hash, o[2], o[3], o[4], false, false, false)
-            SetEntityHeading(ob, o[5])
+            if o[6] then SetEntityRotation(ob, o[6], o[7], o[5], 2, true) else SetEntityHeading(ob, o[5]) end
             FreezeEntityPosition(ob, true)
             SetModelAsNoLongerNeeded(hash)
             objs[#objs + 1] = ob

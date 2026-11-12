@@ -18,3 +18,6 @@ Config.SmallPalm = { '^prop_palm_fan_0[34]', '^prop_palm_sm_', '^prop_fan_palm' 
 
 Config.Radius = 250.0 -- в каком радиусе от игрока ставим наши объекты
 Config.Cell = 200.0   -- размер клетки сетки
+
+-- готовые расстановки объектов (data_rublevka.lua — «Рублёвка» у Песчаного, 1760 объектов GTA). false — выключить
+Config.Placements = true
