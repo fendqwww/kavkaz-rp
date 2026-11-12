@@ -110,6 +110,61 @@ Config.Posts = {
 -- всё помечено «сверить»: координаты по карте, без проверки в игре. встань на место, /mypos, пришли — поправим.
 ---------------------------------------------------------------------------
 Config.Scenes = {
+    -- 12.11: места на горах — чтобы знакомые по GTA вершины стали своими. snap — высота с земли на месте
+    {
+        id = 'chiliad_top', label = 'Вершина Шат-горы', snap = true,
+        coords = vec4(501.7, 5604.5, 797.9, 160.0),
+        blip = { sprite = 141, color = 25 },
+        props = {
+            { model = 'prop_flag_russia', offset = vec3(0.0, 4.0, 0.0) },
+            { model = 'prop_skid_tent_01', offset = vec3(-7.0, -2.0, 0.0), heading = 70.0 },
+            { model = 'prop_skid_tent_01', offset = vec3(-9.0, 4.0, 0.0), heading = 110.0 },
+            { model = 'prop_beach_fire', offset = vec3(-4.0, 1.0, 0.0) },
+            { model = 'prop_bench_05', offset = vec3(-2.5, 1.0, 0.0), heading = 90.0 },
+            { model = 'prop_bench_05', offset = vec3(-5.5, 1.0, 0.0), heading = 270.0 },
+            { model = 'prop_telescope_01', offset = vec3(3.5, 2.0, 0.0), heading = 0.0 },
+        },
+        peds = {
+            { model = 'a_m_y_hiker_01', offset = vec3(-3.0, 2.5, 0.0), heading = 200.0, scenario = 'WORLD_HUMAN_HIKER_STANDING' },
+            { model = 'a_f_y_hiker_01', offset = vec3(3.0, 3.5, 0.0), heading = 10.0, scenario = 'WORLD_HUMAN_BINOCULARS' },
+            { model = 'a_m_m_farmer_01', offset = vec3(-5.0, -0.5, 0.0), heading = 40.0, scenario = 'WORLD_HUMAN_STAND_FIRE' },
+        },
+    },
+    {
+        id = 'galileo_shashlik', label = 'Шашлычная «Смотровая»', snap = true,
+        coords = vec4(-426.0, 1110.0, 327.0, 340.0), -- лужайка у обсерватории над городом
+        blip = { sprite = 93, color = 47 },
+        props = {
+            { model = 'prop_gazebo_02', offset = vec3(0.0, 0.0, 0.0) },
+            { model = 'prop_bbq_1', offset = vec3(4.0, -1.0, 0.0), heading = 90.0 },
+            { model = 'prop_table_03', offset = vec3(-1.2, 0.8, 0.0) },
+            { model = 'prop_chair_01a', offset = vec3(-2.2, 0.8, 0.0), heading = 90.0 },
+            { model = 'prop_chair_01a', offset = vec3(-0.2, 0.8, 0.0), heading = 270.0 },
+            { model = 'prop_table_03', offset = vec3(1.4, -1.6, 0.0) },
+            { model = 'prop_chair_01a', offset = vec3(0.4, -1.6, 0.0), heading = 90.0 },
+            { model = 'prop_chair_01a', offset = vec3(2.4, -1.6, 0.0), heading = 270.0 },
+            { model = 'prop_flag_russia', offset = vec3(-5.0, 3.0, 0.0) },
+        },
+        peds = {
+            { model = 'a_m_m_eastsa_01', offset = vec3(4.0, 0.2, 0.0), heading = 270.0, scenario = 'PROP_HUMAN_BBQ' },
+            { model = 'a_m_o_genstreet_01', offset = vec3(-1.2, 2.0, 0.0), heading = 180.0, scenario = 'WORLD_HUMAN_DRINKING' },
+            { model = 'a_f_m_eastsa_01', offset = vec3(1.4, -0.4, 0.0), heading = 180.0, scenario = 'WORLD_HUMAN_TOURIST_MOBILE' },
+        },
+    },
+    {
+        id = 'konyak', label = 'Коньячный завод Нагорья', snap = true,
+        coords = vec4(-1888.0, 2050.0, 140.8, 160.0), -- бывшая винодельня на холмах
+        blip = { sprite = 93, color = 21 },
+        props = {
+            { model = 'prop_wooden_barrel', offset = vec3(-3.0, 2.0, 0.0) },
+            { model = 'prop_wooden_barrel', offset = vec3(-2.0, 2.0, 0.0) },
+            { model = 'prop_wooden_barrel', offset = vec3(-2.5, 3.0, 0.0) },
+            { model = 'prop_flag_russia', offset = vec3(5.0, 3.0, 0.0) },
+        },
+        peds = {
+            { model = 'a_m_m_farmer_01', offset = vec3(-1.0, 1.0, 0.0), heading = 180.0, scenario = 'WORLD_HUMAN_CLIPBOARD' },
+        },
+    },
     {
         id = 'avtovokzal',
         label = 'Автовокзал Нагорска',

@@ -127,6 +127,16 @@ end
 local function spawnPost(post)
     local list = {}
     local out
+    if post.snap then -- место на горе: высоту берём с земли (коллизия под точкой)
+        local c = post.coords
+        RequestCollisionAtCoord(c.x, c.y, c.z)
+        local untilT, gz = GetGameTimer() + 4000, nil
+        repeat
+            local ok, z = GetGroundZFor_3dCoord(c.x, c.y, c.z + 60.0, false)
+            if ok then gz = z else Wait(150) end
+        until gz or GetGameTimer() > untilT
+        if gz then post = setmetatable({ coords = vec4(c.x, c.y, gz, c.w) }, { __index = post }) end
+    end
     if post.auto then
         local coords, node, o = placeByRoad(post)
         if not coords then
