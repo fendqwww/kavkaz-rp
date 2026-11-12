@@ -66,6 +66,12 @@ Config.SuppressPeds = {
     'a_m_m_rurmeth_01', 'a_m_y_methhead_01', 'a_f_y_rurmeth_01',
 }
 
+-- группы NPC, которые в GTA сами нападают на игрока (Лост, деревенщины, сектанты Альтруистов и т. п.) — делаем нейтральными
+Config.CalmGroups = {
+    'AMBIENT_GANG_LOST', 'AMBIENT_GANG_HILLBILLY', 'AMBIENT_GANG_MEXICAN', 'AMBIENT_GANG_FAMILY', 'AMBIENT_GANG_BALLAS',
+    'AMBIENT_GANG_MARABUNTE', 'AMBIENT_GANG_CULT', 'AMBIENT_GANG_SALVA', 'AMBIENT_GANG_WEICHENG', 'GANG_1', 'GANG_2', 'GANG_9', 'GANG_10',
+}
+
 -- русские номера NPC: буквы, которые есть и в кириллице, и в латинице; регион — по весу
 Config.PlateLetters = 'ABEKMHOPCTYX'
 Config.Regions = { ['95'] = 10, ['05'] = 3, ['06'] = 2, ['07'] = 2, ['09'] = 1, ['15'] = 2, ['20'] = 3, ['26'] = 2, ['77'] = 1 }

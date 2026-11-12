@@ -76,9 +76,15 @@ local function at(post, offset)
     return vec3(c.x + offset.x * cs - offset.y * sn, c.y + offset.x * sn + offset.y * cs, c.z + (offset.z or 0.0))
 end
 
+-- земля под точкой. коллизия вдали от игрока ещё не загружена — ждём до 3 с, иначе люди висят или проваливаются
 local function ground(p)
-    local found, z = GetGroundZFor_3dCoord(p.x, p.y, p.z + 3.0, false)
-    if found and math.abs(z - p.z) < 6.0 then return vec3(p.x, p.y, z) end
+    RequestCollisionAtCoord(p.x, p.y, p.z)
+    local untilT = GetGameTimer() + 3000
+    repeat
+        local found, z = GetGroundZFor_3dCoord(p.x, p.y, p.z + 3.0, false)
+        if found and math.abs(z - p.z) < 6.0 then return vec3(p.x, p.y, z) end
+        Wait(100)
+    until GetGameTimer() > untilT
     return p
 end
 
@@ -123,13 +129,29 @@ local function spawnPost(post)
         if m then
             local pos = ground(at(post, pd.offset))
             local ped = CreatePed(4, m, pos.x, pos.y, pos.z, post.coords.w + (pd.heading or 0.0), false, true)
+            -- 12.11: раньше замораживали — со сценарием они «скользили», дёргались и уходили в сторону.
+            -- теперь стоят сами: не пугаются, не дерутся, не убегают, не падают от толчка
             SetEntityInvincible(ped, true)
             SetBlockingOfNonTemporaryEvents(ped, true)
-            FreezeEntityPosition(ped, true)
-            if pd.scenario then TaskStartScenarioInPlace(ped, pd.scenario, 0, true) end
+            SetPedFleeAttributes(ped, 0, false)
+            SetPedCombatAttributes(ped, 17, true)  -- не нападать
+            SetPedCanRagdoll(ped, false)
+            SetPedCanBeTargetted(ped, false)
+            SetPedDiesWhenInjured(ped, false)
+            SetPedConfigFlag(ped, 208, true)       -- не уходить с места при столкновении
+            SetPedKeepTask(ped, true)
+            if pd.scenario then
+                TaskStartScenarioInPlace(ped, pd.scenario, 0, true)
+            else
+                FreezeEntityPosition(ped, true)
+            end
             SetModelAsNoLongerNeeded(m)
             list[#list + 1] = ped
         end
+    end
+    if not spawned[post.id] then -- игрок уехал, пока ждали коллизию
+        for _, e in ipairs(list) do if DoesEntityExist(e) then DeleteEntity(e) end end
+        return
     end
     spawned[post.id] = list
 end
@@ -161,7 +183,11 @@ CreateThread(function()
         end
         lib.points.new({
             coords = post.coords.xyz, distance = 150.0,
-            onEnter = function() if not spawned[post.id] then spawnPost(post) end end,
+            onEnter = function()
+                if spawned[post.id] then return end
+                spawned[post.id] = {}
+                CreateThread(function() spawnPost(post) end) -- ждёт коллизию — не в потоке точек
+            end,
             onExit = function() despawnPost(post.id) end,
         })
     end

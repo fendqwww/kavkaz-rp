@@ -213,6 +213,11 @@ end
 CreateThread(function()
     for _, m in ipairs(Config.SuppressVehicles) do SetVehicleModelIsSuppressed(joaat(m), true) end
     for _, m in ipairs(Config.SuppressPeds) do SetPedModelIsSuppressed(joaat(m), true) end
+    -- 12.11: за городом сценарные бандиты (байкеры, деревенщины, сектанты) стреляли в игроков. теперь нейтральны
+    for _, g in ipairs(Config.CalmGroups or {}) do
+        SetRelationshipBetweenGroups(1, joaat(g), `PLAYER`)
+        SetRelationshipBetweenGroups(1, `PLAYER`, joaat(g))
+    end
     buildPool()
     while true do
         Wait(Config.Interval)

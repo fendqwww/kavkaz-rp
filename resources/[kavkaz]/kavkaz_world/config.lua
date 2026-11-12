@@ -60,30 +60,37 @@ Config.HideEverywhere = {
 -- 3. посты ДПС: будка, шлагбаум, конусы, флаг России, инспекторы, машина
 -- offset — от точки поста (x вправо, y вперёд по направлению heading), heading — поворот относительно поста
 ---------------------------------------------------------------------------
-Config.Posts = {
-    {
-        id = 'peschany',
-        label = 'Пост ДПС «Песчаный»',
-        coords = vec4(1866.0, 3680.0, 33.7, 210.0), -- сверить: лучше на въезде в город, у края дороги
+-- 12.11: пост стоял прямо на улице у участка шерифа (инспекторы и УАЗ на проезжей части, трафик в них врезался).
+-- теперь — на обочине трассы на въездах в Песчаный. место найдено по американским знакам скорости из скана карты
+-- (setup/maps/scan_entities_blender.py): знак стоит у края дороги, пост — в 10 м за ним, лицом к дороге.
+-- всё стоит до края асфальта: конусы — на обочине, машина и инспекторы — не на полосе.
+local function post(id, label, coords)
+    return {
+        id = id, label = label, coords = coords,
         blip = { sprite = 60, color = 38 },
         props = {
-            { model = 'prop_portacabin01', offset = vec3(-6.0, 0.0, 0.0), heading = 90.0 },
-            { model = 'prop_sec_barrier_ld_01a', offset = vec3(0.0, 4.0, 0.0), heading = 90.0 },
-            { model = 'prop_flag_russia', offset = vec3(-9.5, 3.0, 0.0), heading = 0.0 },
-            { model = 'prop_roadcone02a', offset = vec3(2.0, 8.0, 0.0) },
-            { model = 'prop_roadcone02a', offset = vec3(3.0, 11.0, 0.0) },
-            { model = 'prop_roadcone02a', offset = vec3(4.0, 14.0, 0.0) },
-            { model = 'prop_worklight_03b', offset = vec3(-3.0, 6.0, 0.0), heading = 30.0 },
+            { model = 'prop_portacabin01', offset = vec3(-6.0, -1.0, 0.0), heading = 90.0 },
+            { model = 'prop_flag_russia', offset = vec3(-9.5, 2.0, 0.0), heading = 0.0 },
+            { model = 'prop_sec_barrier_ld_01a', offset = vec3(1.5, 4.0, 0.0), heading = 90.0 },
+            { model = 'prop_roadcone02a', offset = vec3(3.0, 7.0, 0.0) },
+            { model = 'prop_roadcone02a', offset = vec3(5.0, 7.5, 0.0) },
+            { model = 'prop_roadcone02a', offset = vec3(7.0, 8.0, 0.0) },
+            { model = 'prop_worklight_03b', offset = vec3(-2.5, 3.0, 0.0), heading = 20.0 },
         },
         peds = {
             -- s_m_y_ranger_01 в нашей сборке одет в форму ДПС (kv_peds)
-            { model = 's_m_y_ranger_01', offset = vec3(-1.5, 6.5, 0.0), heading = 0.0, scenario = 'WORLD_HUMAN_COP_IDLES' },
-            { model = 's_m_y_ranger_01', offset = vec3(-4.0, 1.5, 0.0), heading = 270.0, scenario = 'WORLD_HUMAN_CLIPBOARD' },
+            { model = 's_m_y_ranger_01', offset = vec3(0.5, 7.0, 0.0), heading = 0.0, scenario = 'WORLD_HUMAN_COP_IDLES' },
+            { model = 's_m_y_ranger_01', offset = vec3(-4.0, 0.8, 0.0), heading = 270.0, scenario = 'WORLD_HUMAN_CLIPBOARD' },
         },
         vehicles = {
-            { model = 'kv_uaz_dps', fallback = 'sheriff2', offset = vec3(-5.5, 9.5, 0.0), heading = 20.0 },
+            { model = 'kv_uaz_dps', fallback = 'sheriff2', offset = vec3(-5.0, 6.0, 0.0), heading = 70.0 },
         },
-    },
+    }
+end
+
+Config.Posts = {
+    post('peschany', 'Пост ДПС «Песчаный»', vec4(1511.9, 3472.0, 35.2, 16.0)),          -- трасса с запада, у знака скорости
+    post('peschany_east', 'Пост ДПС «Песчаный-Восток»', vec4(2139.4, 3778.6, 32.0, 210.0)), -- выезд на восток
 }
 
 ---------------------------------------------------------------------------
