@@ -152,7 +152,7 @@ Config.Scenes = {
         },
     },
     {
-        id = 'konyak', label = 'Коньячный завод Нагорья', snap = true,
+        id = 'konyak', label = 'Коньячный завод', snap = true,
         coords = vec4(-1888.0, 2050.0, 140.8, 160.0), -- бывшая винодельня на холмах
         blip = { sprite = 93, color = 21 },
         props = {

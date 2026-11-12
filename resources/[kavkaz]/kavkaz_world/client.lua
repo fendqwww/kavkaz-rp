@@ -15,6 +15,7 @@ for _, n in ipairs(Config.RetexImages or {}) do retex[n] = true end
 for _, n in ipairs(Config.SignImages or {}) do retex[n] = true end
 for _, n in ipairs(Config.Sign2Images or {}) do retex[n] = true end
 for _, n in ipairs(Config.UsSignImages or {}) do retex[n] = true end -- американские знаки GTA → ГОСТ (setup/retex/us_signs.py)
+for _, n in ipairs(Config.BrandImages or {}) do retex[n] = true end -- вывески GTA → наши (setup/retex/brands.py)
 local function ensureImage(name)
     if loaded[name] then return true end
     -- 'local/имя' — вывеска, собранная из текстуры игры (images/local, не в git); retex — наша; иначе images/
@@ -25,7 +26,7 @@ end
 
 CreateThread(function()
     txd = CreateRuntimeTxd(txdName)
-    for _, list in ipairs({ Config.Textures, Config.UsSigns or {} }) do
+    for _, list in ipairs({ Config.Textures, Config.UsSigns or {}, Config.Brands or {} }) do
         for _, r in ipairs(list) do
             if ensureImage(r.image) then
                 AddReplaceTexture(r.txd, r.txn, txdName, r.image)
@@ -251,7 +252,9 @@ AddEventHandler('onResourceStop', function(res)
     if res ~= RES then return end
     for id in pairs(spawned) do despawnPost(id) end
     for _, b in ipairs(blips) do RemoveBlip(b) end
-    for _, r in ipairs(Config.Textures) do RemoveReplaceTexture(r.txd, r.txn) end
+    for _, list in ipairs({ Config.Textures, Config.UsSigns or {}, Config.Brands or {} }) do
+        for _, r in ipairs(list) do RemoveReplaceTexture(r.txd, r.txn) end
+    end
     hideAll(false)
 end)
 
