@@ -197,6 +197,11 @@ local function aveh(src, args)
         print(('[kavkaz_admin] aveh %s: %s'):format(model, why))
         return Admin.notify(src, ('не удалось (%s): %s'):format(model, why:sub(1, 120)), 'error')
     end
+    -- русский номер, а не случайный GTA «46EEK572»
+    local L = 'ABEKMHOPCTYX'
+    local function ch() local i = math.random(#L) return L:sub(i, i) end
+    SetVehicleNumberPlateText(vehicle, ('%s%03d%s%s95'):format(ch(), math.random(11, 989), ch(), ch()))
+    SetVehicleNumberPlateTextIndex(vehicle, 0)
     pcall(function() exports.qbx_vehiclekeys:GiveKeys(src, vehicle) end)
     Admin.log(src, 'aveh', nil, car and car.spawn or args.model)
 end
