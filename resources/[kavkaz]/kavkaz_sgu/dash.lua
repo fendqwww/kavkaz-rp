@@ -172,85 +172,145 @@ end)
 -- мышь: от первого лица наводишь взгляд — колесо крутит, клик нажимает
 ---------------------------------------------------------------------------
 
-local BLOCK = { 14, 15, 16, 17, 24, 25, 68, 69, 70, 81, 82, 91, 92, 99, 100, 241, 242, 257, 261, 262, 330, 331 }
+-- режим пульта (11.12): X — камера наезжает на пульт, появляется курсор. мышь: колесо над ручкой — крутить,
+-- ЛКМ по кнопкам — нажать (ручной тон — держать). X / ПКМ / Esc — выйти. голову крутить не нужно, случайных кряков нет.
+local BLOCK = { 1, 2, 14, 15, 16, 17, 24, 25, 37, 68, 69, 70, 73, 81, 82, 85, 91, 92, 99, 100, 106, 114, 140, 141, 142, 177, 199, 200, 241, 242, 257, 261, 262, 330, 331 }
 
-local function camDir()
-    local r = GetFinalRenderedCamRot(2)
+local function rotDir(r)
     local x, z = math.rad(r.x), math.rad(r.z)
     return vec3(-math.sin(z) * math.cos(x), math.cos(z) * math.cos(x), math.sin(x))
 end
 
-local function aimed(d)
-    local c, dir = GetFinalRenderedCamCoord(), camDir()
+local function cross(a, b)
+    return vec3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x)
+end
+
+-- луч из камеры через точку курсора
+local function cursorRay(cam)
+    local pos, rot, fov = GetCamCoord(cam), GetCamRot(cam, 2), GetCamFov(cam)
+    local fwd = rotDir(rot)
+    local right = cross(fwd, vec3(0.0, 0.0, 1.0))
+    right = right / #right
+    local up = cross(right, fwd)
+    local cx, cy = GetControlNormal(0, 239), GetControlNormal(0, 240)
+    local sw, sh = GetActiveScreenResolution()
+    local th = math.tan(math.rad(fov) / 2)
+    local nx, ny = (cx * 2 - 1) * th * (sw / sh), (1 - cy * 2) * th
+    local dir = fwd + right * nx + up * ny
+    return pos, dir / #dir
+end
+
+local function pick(d, origin, dir)
     local best, bestT
     for name, r in pairs(HIT) do
         local o = d.parts[name]
         if o then
-            local v = GetEntityCoords(o) - c
+            local v = GetEntityCoords(o) - origin
             local t = v.x * dir.x + v.y * dir.y + v.z * dir.z
-            if t > 0 and t < 1.5 and #(v - dir * t) < r and (not bestT or t < bestT) then best, bestT = name, t end
+            if t > 0 and t < 2.0 and #(v - dir * t) < r * 1.3 and (not bestT or t < bestT) then best, bestT = name, t end
         end
     end
     return best
 end
 
 local HINT = {
-    kv_hazard_knob_sel = 'колесо мыши — мелодия',
+    kv_hazard_knob_sel = 'колесо мыши — мелодия (до упора влево — выкл)',
     kv_hazard_knob_vol = 'колесо мыши — громкость',
     kv_hazard_btn_pa = 'ЛКМ — ручной тон (держать)',
     kv_hazard_btn_horn = 'ЛКМ — кряк',
     kv_hazard_led_l2 = 'ЛКМ — стробоскоп вкл/выкл',
 }
 
+local panel -- { cam, veh } — режим пульта включён
+
+local function closePanel()
+    if not panel then return end
+    RenderScriptCams(false, true, 300, true, true)
+    DestroyCam(panel.cam, false)
+    panel = nil
+    lib.hideTextUI()
+end
+
+local function openPanel()
+    local myVeh, myModel = SGU.get()
+    local d = myVeh ~= 0 and dash[myVeh]
+    if not d or not myModel or not DoesEntityExist(d.body) then
+        return lib.notify({ title = 'СГУ', description = 'в этой машине нет пульта «Хазард»', type = 'error' })
+    end
+    -- камера перед лицевой панелью пульта (лицо пульта смотрит в −Y корпуса)
+    local at = GetOffsetFromEntityInWorldCoords(d.body, 0.0, -0.30, 0.03)
+    local cam = CreateCamWithParams('DEFAULT_SCRIPTED_CAMERA', at.x, at.y, at.z, 0.0, 0.0, 0.0, 38.0, false, 0)
+    PointCamAtEntity(cam, d.body, 0.0, 0.0, 0.0, true)
+    SetCamActive(cam, true)
+    RenderScriptCams(true, true, 350, true, true)
+    panel = { cam = cam, veh = myVeh }
+    lib.showTextUI('Пульт «Хазард»: мышь — ручки и кнопки · X / ПКМ — выйти', { position = 'top-center' })
+end
+
+lib.addKeybind({ name = 'kavkaz_sgu_panel', description = 'СГУ: пульт «Хазард» (мышью)', defaultKey = Config.PanelKey or 'X',
+    onPressed = function() if panel then closePanel() elseif cache.vehicle then openPanel() end end })
+
 CreateThread(function()
-    local hover, shown, manHeld
+    local hover, manHeld
     while true do
-        local sleep = 300
-        local myVeh, myModel = SGU.get()
-        local d = myVeh ~= 0 and dash[myVeh]
-        local target
-        if d and myModel and GetFollowVehicleCamViewMode() == 4 and not IsNuiFocused() and not IsPauseMenuActive() then
-            sleep = 0
-            target = aimed(d)
-        end
-        if target ~= hover then
-            if hover and d and d.parts[hover] then SetEntityDrawOutline(d.parts[hover], false) end
-            hover = target
-            if hover then
-                SetEntityDrawOutline(d.parts[hover], true)
-                SetEntityDrawOutlineColor(255, 196, 60, 255)
-                lib.showTextUI(HINT[hover], { position = 'right-center' })
-                shown = true
-            elseif shown then
-                lib.hideTextUI()
-                shown = false
-            end
-        end
-        if hover then
-            for _, c in ipairs(BLOCK) do DisableControlAction(0, c, true) end
-            local up = IsDisabledControlJustPressed(0, 241) or IsDisabledControlJustPressed(0, 15)
-            local down = IsDisabledControlJustPressed(0, 242) or IsDisabledControlJustPressed(0, 14)
-            local step = up and 1 or (down and -1 or 0)
-            if step ~= 0 and hover == 'kv_hazard_knob_sel' then
-                SGU.turn(step)
-            elseif step ~= 0 and hover == 'kv_hazard_knob_vol' then
-                exports.kavkaz_sgu:SetVolume(exports.kavkaz_sgu:GetVolume() + step * 10)
-            end
-            if IsDisabledControlJustPressed(0, 24) then
-                if hover == 'kv_hazard_btn_horn' then
-                    SGU.quack()
-                elseif hover == 'kv_hazard_led_l2' then
-                    SGU.strobe()
-                elseif hover == 'kv_hazard_btn_pa' then
-                    if not SGU.manual(true) then SGU.quack() else manHeld = true end
+        if not panel then
+            hover = nil
+            Wait(250)
+        else
+            local d = dash[panel.veh]
+            if not d or cache.vehicle ~= panel.veh or IsPauseMenuActive() then
+                closePanel()
+            else
+                for _, c in ipairs(BLOCK) do DisableControlAction(0, c, true) end
+                SetMouseCursorActiveThisFrame()
+                local origin, dir = cursorRay(panel.cam)
+                local target = pick(d, origin, dir)
+                if target ~= hover then
+                    if hover and d.parts[hover] then SetEntityDrawOutline(d.parts[hover], false) end
+                    hover = target
+                    if hover then
+                        SetEntityDrawOutline(d.parts[hover], true)
+                        SetEntityDrawOutlineColor(255, 196, 60, 255)
+                        SetMouseCursorSprite(5)
+                    else
+                        SetMouseCursorSprite(1)
+                    end
+                end
+                if hover then
+                    -- подсказка у курсора
+                    SetTextFont(4) SetTextScale(0.0, 0.36) SetTextColour(255, 255, 255, 230) SetTextOutline()
+                    BeginTextCommandDisplayText('STRING') AddTextComponentSubstringPlayerName(HINT[hover] or '')
+                    EndTextCommandDisplayText(GetControlNormal(0, 239) + 0.012, GetControlNormal(0, 240) + 0.012)
+                    local up = IsDisabledControlJustPressed(0, 241) or IsDisabledControlJustPressed(0, 15)
+                    local down = IsDisabledControlJustPressed(0, 242) or IsDisabledControlJustPressed(0, 14)
+                    local step = up and 1 or (down and -1 or 0)
+                    if step ~= 0 and hover == 'kv_hazard_knob_sel' then
+                        SGU.turn(step)
+                    elseif step ~= 0 and hover == 'kv_hazard_knob_vol' then
+                        exports.kavkaz_sgu:SetVolume(exports.kavkaz_sgu:GetVolume() + step * 10)
+                    end
+                    if IsDisabledControlJustPressed(0, 24) then
+                        if hover == 'kv_hazard_btn_horn' then
+                            SGU.quack()
+                        elseif hover == 'kv_hazard_led_l2' then
+                            SGU.strobe()
+                        elseif hover == 'kv_hazard_btn_pa' then
+                            if not SGU.manual(true) then SGU.quack() else manHeld = true end
+                        end
+                    end
+                end
+                if manHeld and not IsDisabledControlPressed(0, 24) then
+                    manHeld = false
+                    SGU.manual(false)
+                end
+                if IsDisabledControlJustPressed(0, 25) or IsDisabledControlJustPressed(0, 200) or IsDisabledControlJustPressed(0, 177) then
+                    if hover and d.parts[hover] then SetEntityDrawOutline(d.parts[hover], false) end
+                    hover = nil
+                    closePanel()
                 end
             end
+            Wait(0)
         end
-        if manHeld and not IsDisabledControlPressed(0, 24) then
-            manHeld = false
-            SGU.manual(false)
-        end
-        Wait(sleep)
     end
 end)
 
@@ -307,5 +367,6 @@ end, false)
 
 AddEventHandler('onResourceStop', function(res)
     if res ~= GetCurrentResourceName() then return end
+    closePanel()
     for veh in pairs(dash) do destroy(veh) end
 end)

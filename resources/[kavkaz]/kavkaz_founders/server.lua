@@ -136,6 +136,13 @@ end, true)
 CreateThread(function()
     Wait(15000)
     if GetResourceState('qbx_vehicles') ~= 'started' then return end
+    -- после перезапуска сервера машин в мире нет, а в базе они могли остаться «выгнанными» (state 0) и пропасть из списка.
+    -- возвращаем их в гараж усадьбы (только машины основателей и только при старте)
+    local cids = {}
+    for _, f in ipairs(Config.Founders) do cids[#cids + 1] = f.citizenid end
+    local back = MySQL.update.await(('UPDATE player_vehicles SET state = 1 WHERE state = 0 AND garage = ? AND citizenid IN (%s)')
+        :format(string.rep('?', #cids, ',')), { Config.Garage.name, table.unpack(cids) })
+    if back and back > 0 then print(('[kavkaz_founders] вернул в гараж усадьбы машин: %d'):format(back)) end
     local byName = exports.qbx_core:GetVehiclesByName() or {}
     for _, f in ipairs(Config.Founders) do
         local all = exports.qbx_vehicles:GetPlayerVehicles({ citizenid = f.citizenid }) or {}
