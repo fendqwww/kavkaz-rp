@@ -42,8 +42,9 @@
   .chip.acc { background: var(--acc); color: var(--on-acc); }
   .news h3 { padding: 14px 20px 8px; font-size: 19px; font-weight: 700; line-height: 1.3; }
   .news p { padding: 0 20px 20px; color: var(--muted); font-size: 14.5px; }
-  /* персонажи справа, как у Rejoin: img/hero.png (PNG с прозрачным фоном, ~1200×1100). нет файла — блок прячется */
+  /* персонажи справа, как у Rejoin: img/hero.webp (с прозрачным фоном). нет файла — блок прячется */
   .heroimg { position: absolute; right: -10px; bottom: 0; height: 100%; max-width: 70%; object-fit: contain; object-position: right bottom; pointer-events: none; }
+  .fade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(11,12,14,.92) 0%, rgba(11,12,14,.55) 38%, transparent 62%), linear-gradient(0deg, rgba(11,12,14,.85), transparent 30%); }
   .right { position: absolute; left: 32px; bottom: 34px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; z-index: 2; }
   .right .logo { height: 64px; }
   .playwrap { position: absolute; right: 36px; bottom: 34px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
@@ -131,7 +132,8 @@
     </svg>
   </div>
   <section class="news" id="news"><div class="head"><span class="chip" id="newsDate"></span><span class="chip acc">Новости</span></div><h3 id="newsTitle"></h3><p id="newsText"></p></section>
-  <img class="heroimg" src="img/hero.png" alt="" onerror="this.remove()">
+  <img class="heroimg" src="img/hero.webp" alt="" onerror="this.remove()">
+  <div class="fade"></div>
   <section class="right">
     <img class="logo" src="img/logo.svg" alt="KAVKAZ RP">
     <div class="tagline">дорога домой начинается здесь</div>
