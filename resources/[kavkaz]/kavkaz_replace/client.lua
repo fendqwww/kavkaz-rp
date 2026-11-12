@@ -42,22 +42,74 @@ CreateThread(function()
     for _, h in ipairs(Config.Placements and RublevkaHide or {}) do
         CreateModelHide(h[2], h[3], h[4], 3.0, h[1], true)
     end
+    -- русские кварталы (setup/maps/make_rublocks.py): { модель, x, y, курс } — высоту берём с земли на месте
+    for _, e in ipairs(Config.RuBlocks and RuBlocksData or {}) do
+        local k = cellKey(e[2], e[3])
+        cells[k] = cells[k] or {}
+        cells[k][#cells[k] + 1] = { e[1], e[2], e[3], false, e[4] }
+    end
 end)
 
+-- высота дома по земле: углы и центр. склон больше Config.MaxSlope — место пропускаем (дом не висит и не тонет).
+-- nil — коллизия ещё не загрузилась (далеко), попробуем позже; false — место не подходит
+local function groundFor(hash, x, y, yaw)
+    local mn, mx = GetModelDimensions(hash)
+    local r = math.rad(yaw)
+    local cs, sn = math.cos(r), math.sin(r)
+    local zs = {}
+    for _, c in ipairs({ { 0, 0 }, { mn.x, mn.y }, { mx.x, mn.y }, { mn.x, mx.y }, { mx.x, mx.y } }) do
+        local px, py = x + c[1] * cs - c[2] * sn, y + c[1] * sn + c[2] * cs
+        RequestCollisionAtCoord(px, py, 100.0)
+        local ok, z = GetGroundZFor_3dCoord(px, py, 1000.0, false)
+        if not ok then return nil end
+        zs[#zs + 1] = z
+    end
+    local lo, hi = math.huge, -math.huge
+    for _, z in ipairs(zs) do lo, hi = math.min(lo, z), math.max(hi, z) end
+    if hi - lo > (Config.MaxSlope or 2.0) then return false end
+    local wet, wz = GetWaterHeight(x, y, hi + 20.0)
+    if wet and wz > lo - 1.0 then return false end -- берег озера: не в воду
+    return lo - 0.15
+end
+
+local skip = {} -- места русских кварталов, где земля оказалась неровной
+local function spawnOne(o)
+    local hash = type(o[1]) == 'number' and o[1] or joaat(o[1])
+    if not IsModelInCdimage(hash) or skip[o] then return true end
+    lib.requestModel(hash, 3000)
+    local z = o[4]
+    if z == false then
+        z = groundFor(hash, o[2], o[3], o[5])
+        if z == nil then SetModelAsNoLongerNeeded(hash) return false end -- позже
+        if z == false then skip[o] = true SetModelAsNoLongerNeeded(hash) return true end
+    end
+    local ob = CreateObjectNoOffset(hash, o[2], o[3], z, false, false, false)
+    if o[6] then SetEntityRotation(ob, o[6], o[7], o[5], 2, true) else SetEntityHeading(ob, o[5]) end
+    FreezeEntityPosition(ob, true)
+    SetModelAsNoLongerNeeded(hash)
+    return true, ob
+end
+
 local function spawnCell(k)
-    local list, objs = cells[k], {}
-    for _, o in ipairs(list or {}) do
-        local hash = type(o[1]) == 'number' and o[1] or joaat(o[1])
-        if IsModelInCdimage(hash) then
-            lib.requestModel(hash, 3000)
-            local ob = CreateObjectNoOffset(hash, o[2], o[3], o[4], false, false, false)
-            if o[6] then SetEntityRotation(ob, o[6], o[7], o[5], 2, true) else SetEntityHeading(ob, o[5]) end
-            FreezeEntityPosition(ob, true)
-            SetModelAsNoLongerNeeded(hash)
-            objs[#objs + 1] = ob
-        end
+    local objs, wait = {}, {}
+    for _, o in ipairs(cells[k] or {}) do
+        local done, ob = spawnOne(o)
+        if ob then objs[#objs + 1] = ob elseif not done then wait[#wait + 1] = o end
     end
     spawned[k] = objs
+    spawned[k].wait = wait
+end
+
+-- дома, под которыми земля ещё не загрузилась, — пробуем снова, пока игрок рядом
+local function retryCell(k)
+    local objs = spawned[k]
+    if not objs.wait or #objs.wait == 0 then return end
+    local still = {}
+    for _, o in ipairs(objs.wait) do
+        local done, ob = spawnOne(o)
+        if ob then objs[#objs + 1] = ob elseif not done then still[#still + 1] = o end
+    end
+    objs.wait = still
 end
 
 local function clearCell(k)
@@ -78,7 +130,7 @@ CreateThread(function()
                 if cells[k] then want[k] = true end
             end
         end
-        for k in pairs(want) do if not spawned[k] then spawnCell(k) end end
+        for k in pairs(want) do if not spawned[k] then spawnCell(k) else retryCell(k) end end
         for k in pairs(spawned) do if not want[k] then clearCell(k) end end
         Wait(1500)
     end

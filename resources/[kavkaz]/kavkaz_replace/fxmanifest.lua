@@ -7,5 +7,5 @@ description 'KAVKAZ RP — замена американских объекто�
 author 'KAVKAZ RP'
 
 shared_script '@ox_lib/init.lua'
-client_scripts { 'config.lua', 'data.lua', 'data_rublevka.lua', 'client.lua' }
+client_scripts { 'config.lua', 'data.lua', 'data_rublevka.lua', 'data_rublocks.lua', 'client.lua' }
 dependency 'ox_lib'

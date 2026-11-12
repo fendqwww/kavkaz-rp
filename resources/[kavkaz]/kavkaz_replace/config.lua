@@ -21,3 +21,7 @@ Config.Cell = 200.0   -- размер клетки сетки
 
 -- готовые расстановки объектов (data_rublevka.lua — «Рублёвка» у Песчаного, 1760 объектов GTA). false — выключить
 Config.Placements = true
+
+-- русские кварталы: хрущёвки, панельки, гаражи, киоски на пустых местах (data_rublocks.lua, setup/maps/make_rublocks.py)
+Config.RuBlocks = true
+Config.MaxSlope = 2.0 -- м: если земля под домом неровнее — место пропускаем
