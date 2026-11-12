@@ -1,5 +1,5 @@
 /* KAVKAZ RP — тема ox_lib (уведомления, меню гаражей и салона, списки, диалоги, подсказка [E], прогресс) по скиллу kavkaz-ui.
-   графит #121314/#1a1b1d/#222326, один акцент изумруд #ff7a1a, без цветных кружков и свечений, радиусы 4–8 px.
+   графит #121314/#1a1b1d/#222326, один акцент изумруд #3dcc5c, без цветных кружков и свечений, радиусы 4–8 px.
    классы mantine-xxxx — из сборки ox_lib 3.42 (проверено скриншотом); если после обновления ox_lib что-то стало по-старому,
    снять дамп классов заново (docs: setup/build-theme.py). ключевые элементы опираются на стабильные имена Mantine.
    сборка со шрифтами: python setup/build-theme.py */
@@ -19,25 +19,25 @@ body, body * { font-family: "Golos Text", "Segoe UI", Arial, sans-serif !importa
   background-color: #222326 !important; border: 1px solid transparent !important; border-radius: 4px !important;
   color: #f2f3f5 !important; font-size: 15px !important;
 }
-.mantine-Input-input:focus, .mantine-Input-input:focus-within { border-color: #ff7a1a !important; }
+.mantine-Input-input:focus, .mantine-Input-input:focus-within { border-color: #3dcc5c !important; }
 .mantine-InputWrapper-description { color: rgba(242, 243, 245, 0.5) !important; font-size: 13px !important; }
 .mantine-Checkbox-input { background-color: #222326 !important; border: 1px solid #3a3b3f !important; border-radius: 4px !important; }
-.mantine-Checkbox-input:checked { background-color: #ff7a1a !important; border-color: #ff7a1a !important; }
+.mantine-Checkbox-input:checked { background-color: #3dcc5c !important; border-color: #3dcc5c !important; }
 .mantine-Checkbox-icon { color: #0d0e0f !important; }
-.mantine-Slider-bar, .mantine-Progress-bar { background-color: #ff7a1a !important; }
+.mantine-Slider-bar, .mantine-Progress-bar { background-color: #3dcc5c !important; }
 .mantine-Slider-track::before, .mantine-Progress-root { background-color: #2a2b2e !important; }
-.mantine-Slider-thumb { border-color: #ff7a1a !important; background: #f2f3f5 !important; }
+.mantine-Slider-thumb { border-color: #3dcc5c !important; background: #f2f3f5 !important; }
 .mantine-Select-dropdown, .mantine-MultiSelect-dropdown, .mantine-Popover-dropdown {
   background: #222326 !important; border: 0 !important; border-radius: 4px !important; box-shadow: none !important;
 }
-.mantine-Select-item[data-selected] { background: #ff7a1a !important; color: #0d0e0f !important; }
+.mantine-Select-item[data-selected] { background: #3dcc5c !important; color: #0d0e0f !important; }
 .mantine-Select-item[data-hovered] { background: #2a2b2e !important; }
 .mantine-Tooltip-tooltip { background: #222326 !important; color: #f2f3f5 !important; border-radius: 4px !important; font-size: 14px !important; }
 .mantine-Button-root { border-radius: 4px !important; font-weight: 600 !important; font-size: 15px !important; text-transform: none !important; letter-spacing: 0 !important; }
 
 /* кнопки диалогов (ввод, «вы уверены?»): последняя — главная, залита акцентом; остальные серые */
 .mantine-Modal-body .mantine-Button-root { background: #2a2b2e !important; color: #f2f3f5 !important; border: 0 !important; height: 40px; padding: 0 22px; }
-.mantine-Modal-body .mantine-Button-root:last-of-type { background: #ff7a1a !important; color: #0d0e0f !important; }
+.mantine-Modal-body .mantine-Button-root:last-of-type { background: #3dcc5c !important; color: #0d0e0f !important; }
 .mantine-Modal-body .mantine-Button-root:last-of-type * { color: #0d0e0f !important; }
 .mantine-Modal-close { color: rgba(242, 243, 245, 0.6) !important; }
 
@@ -53,7 +53,7 @@ body, body * { font-family: "Golos Text", "Segoe UI", Arial, sans-serif !importa
 .mantine-RingProgress-root > svg { display: none !important; }
 .mantine-ThemeIcon-root { background: transparent !important; }
 .mantine-ttiaoc { color: #f2f3f5 !important; }
-.mantine-13hz1p7 { color: #ff7a1a !important; }
+.mantine-13hz1p7 { color: #3dcc5c !important; }
 .mantine-88f03t { color: #e5534b !important; }
 
 /* ---------- подсказка «[E] Открыть гараж» ---------- */
@@ -62,11 +62,11 @@ body, body * { font-family: "Golos Text", "Segoe UI", Arial, sans-serif !importa
   padding: 10px 16px !important;
 }
 .mantine-mao4ly p { color: #f2f3f5 !important; font-size: 15px !important; font-weight: 600 !important; }
-.mantine-mao4ly svg { color: #ff7a1a !important; }
+.mantine-mao4ly svg { color: #3dcc5c !important; }
 
 /* ---------- полоска прогресса (ремонт, обыск, еда) ---------- */
 .mantine-1olnuag { background-color: rgba(18, 19, 20, 0.92) !important; border-radius: 4px !important; box-shadow: none !important; height: 44px !important; }
-.mantine-1olnuag > div { background-color: #ff7a1a !important; opacity: 0.9; }
+.mantine-1olnuag > div { background-color: #3dcc5c !important; opacity: 0.9; }
 .mantine-1sz6a8g { color: #f2f3f5 !important; font-size: 16px !important; font-weight: 600 !important; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9) !important; }
 
 /* ---------- списки (гараж, мэрия, выбор персонажа) ---------- */
@@ -94,7 +94,7 @@ body, body * { font-family: "Golos Text", "Segoe UI", Arial, sans-serif !importa
 }
 .mantine-13t44ib { background-color: rgba(18, 19, 20, 0.95) !important; border-radius: 0 0 6px 6px !important; }
 .mantine-axjwg1 { background-color: #1f2023 !important; border-radius: 4px !important; box-shadow: none !important; }
-.mantine-axjwg1:focus { background-color: #ff7a1a !important; outline: none !important; }
+.mantine-axjwg1:focus { background-color: #3dcc5c !important; outline: none !important; }
 .mantine-axjwg1:focus *, .mantine-axjwg1:focus svg { color: #0d0e0f !important; }
 .mantine-18bbwl5 { color: #f2f3f5; font-size: 15px !important; font-weight: 600 !important; }
 .mantine-17hkov1 { color: rgba(242, 243, 245, 0.55); font-size: 13px !important; font-weight: 600 !important; }
@@ -104,7 +104,7 @@ body, body * { font-family: "Golos Text", "Segoe UI", Arial, sans-serif !importa
 /* ---------- радиальное меню (Z) ---------- */
 .mantine-u3jc7n { fill: rgba(18, 19, 20, 0.94) !important; }
 .mantine-1jhs65m path { fill: rgba(18, 19, 20, 0.94) !important; }
-.mantine-1jhs65m:hover path, .mantine-1jhs65m:hover svg path { fill: #ff7a1a !important; }
+.mantine-1jhs65m:hover path, .mantine-1jhs65m:hover svg path { fill: #3dcc5c !important; }
 .mantine-1jhs65m:hover svg path, .mantine-1jhs65m:hover text, .mantine-1jhs65m:hover tspan { fill: #0d0e0f !important; }
 .mantine-1jhs65m text, .mantine-1jhs65m tspan { fill: #f2f3f5 !important; font-size: 13px !important; font-weight: 600 !important; }
 .mantine-1jhs65m svg path { fill: rgba(242, 243, 245, 0.85) !important; }

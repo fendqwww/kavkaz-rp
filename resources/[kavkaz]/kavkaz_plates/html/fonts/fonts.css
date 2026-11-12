@@ -4,7 +4,7 @@
 @font-face{font-family:'Plate Font';font-style:normal;font-weight:500;font-display:block;src:url(plate-font.woff2) format('woff2');}
 :root{
   --kv-bg:#121314; --kv-panel:#1a1b1d; --kv-surface:#222326; --kv-btn:#2a2b2e; --kv-line:rgba(255,255,255,.06);
-  --kv-text:#f2f3f5; --kv-muted:rgba(242,243,245,.55); --kv-acc:#ff7a1a; --kv-acc-dark:#0d0e0f; --kv-red:#e5534b; --kv-gold:#e3b341;
+  --kv-text:#f2f3f5; --kv-muted:rgba(242,243,245,.55); --kv-acc:#3dcc5c; --kv-acc-dark:#0d0e0f; --kv-red:#e5534b; --kv-gold:#e3b341;
   --kv-f:'Onest','Segoe UI',sans-serif; --kv-fh:'Onest','Segoe UI',sans-serif; --kv-fn:'Saira','Golos Text',sans-serif;
 }
 @font-face{font-family:'Plate Font';font-style:normal;font-weight:500;font-display:block;src:url(plate-font.woff2) format('woff2');}
