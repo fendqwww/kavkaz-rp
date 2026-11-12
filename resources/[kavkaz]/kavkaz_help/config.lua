@@ -22,6 +22,20 @@ Config.Tabs = {
     { id = 'admin',   label = 'Админ' }, -- вкладка видна только на админ-смене
 }
 
+-- 12.11: админ-команды по разделам (основатель: «список непонятен»). порядок разделов = порядок здесь.
+-- команда без раздела попадёт в «Прочее»
+Config.AdminGroups = {
+    { label = 'Смена и панель',          cmds = { 'F10', 'alogin', 'alogout', 'apin', 'apanel', 'admins', 'a' } },
+    { label = 'Телепорт и полёт',        cmds = { 'goto', 'bring', 'atpm', 'tpc', 'clicktp', 'noclip', 'F2', 'spec', 'invis', 'mypos' } },
+    { label = 'Машины',                  cmds = { 'aveh', 'afix', 'aflip', 'adv', 'agivecar', 'asgu', 'kavkaz_cars', 'kavkaz_cars_migrate' } },
+    { label = 'Помочь игроку',           cmds = { 'arevive', 'aheal', 'afeed', 'aarmor', 'ahealall', 'freeze', 'check', 'skin', 'intro' } },
+    { label = 'Наказания',               cmds = { 'warn', 'mute', 'unmute', 'kick', 'ajail', 'unjail', 'ban', 'unban', 'disarm' } },
+    { label = 'Выдать: деньги, вещи, оружие', cmds = { 'agivemoney', 'asetmoney', 'agiveitem', 'aweapon', 'apromo', 'aconfirm' } },
+    { label = 'Работы, банды, имена',    cmds = { 'asetjob', 'asetgang', 'setleader', 'rename', 'setname' } },
+    { label = 'Сервер и погода',         cmds = { 'aweather', 'atime', 'announce' } },
+    { label = 'Основатели',              cmds = { 'setadmin', 'aresetpin', 'kavkaz_founders' } },
+}
+
 Config.Commands = {}
 local function C(t) Config.Commands[#Config.Commands + 1] = t end
 

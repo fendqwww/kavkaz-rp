@@ -40,6 +40,12 @@
   .list { flex: 1; overflow-y: auto; margin-top: 6px; padding-right: 6px; }
   .list::-webkit-scrollbar { width: 6px; }
   .list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+  .grp { margin: 18px 0 2px; font: 700 13px var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: #2fbf8a; }
+  .grp:first-child { margin-top: 4px; }
+  .search { width: 100%; margin-top: 10px; padding: 9px 12px; border-radius: 6px; border: 1px solid #2a3832; background: #0f1513;
+    color: inherit; font: 500 15px var(--f-ui); outline: none; }
+  .search:focus { border-color: #2fbf8a; }
+  .empty { padding: 20px 0; opacity: .6; }
   .row { display: grid; grid-template-columns: 300px 1fr; gap: 4px 24px; padding: 12px 0; border-bottom: 1px solid #1d2a25; }
   .cmd { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font: 600 15px var(--f-ui); }
   .cmd code { font: 600 15px var(--f-ui); color: #d3f2e4; }
@@ -64,6 +70,7 @@
     <div class="brand"><span class="logo">KAVKAZ</span><span class="rp">RP</span></div>
     <h1 id="title">Команды</h1>
     <div class="tabs" id="tabs" role="tablist"></div>
+    <input class="search" id="search" placeholder="поиск: машина, бан, телепорт, деньги…" autocomplete="off">
     <div class="list" id="list"></div>
     <div class="foot">
       <div class="note">Пиши в чат (<b>T</b>), после «/» появятся подсказки. Открыть снова: <b>/help</b></div>
@@ -92,7 +99,12 @@
     for (const b of tabsEl.children) b.classList.toggle('on', b.dataset.id === id);
     const tab = tabs.find(t => t.id === id);
     listEl.replaceChildren();
+    const q = (document.getElementById('search').value || '').trim().toLowerCase();
+    let lastGroup = null, shown = 0;
     for (const r of (tab ? tab.rows : [])) {
+      if (q && ![r.cmd, r.key, r.desc, r.ex, r.group].join(' ').toLowerCase().includes(q)) continue;
+      if (r.group && r.group !== lastGroup) { listEl.append(el('div', 'grp', r.group)); lastGroup = r.group; }
+      shown++;
       const row = el('div', 'row');
       const cmd = el('div', 'cmd');
       if (r.key) cmd.append(el('kbd', null, r.key));
@@ -106,6 +118,7 @@
       }
       listEl.append(row);
     }
+    if (!shown) listEl.append(el('div', 'empty', 'ничего не нашлось'));
     listEl.scrollTop = 0;
   }
 
@@ -119,6 +132,7 @@
       b.addEventListener('click', () => showTab(t.id));
       tabsEl.append(b);
     }
+    document.getElementById('search').value = '';
     showTab(tabs.length ? tabs[0].id : null);
     shade.classList.add('open');
     document.getElementById('ok').focus();
@@ -129,11 +143,12 @@
     if (isGame) fetch(`https://${resource}/close`, { method: 'POST', body: '{}' }).catch(() => {});
   }
 
+  document.getElementById('search').addEventListener('input', () => showTab(current));
   window.addEventListener('message', e => { if (e.data && e.data.action === 'open') open(e.data); });
   document.getElementById('ok').addEventListener('click', close);
   window.addEventListener('keydown', e => {
-    if (e.key === 'Escape' || e.key === 'Enter') close();
-    if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && tabs.length) {
+    if (e.key === 'Escape' || (e.key === 'Enter' && document.activeElement.id !== 'search')) close();
+    if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && tabs.length && document.activeElement.id !== 'search') {
       const i = tabs.findIndex(t => t.id === current);
       const n = (i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
       showTab(tabs[n].id);
