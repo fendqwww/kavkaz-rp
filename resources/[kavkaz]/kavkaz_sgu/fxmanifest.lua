@@ -12,7 +12,7 @@ client_scripts { 'client.lua', 'dash.lua' }
 server_scripts { '@oxmysql/lib/MySQL.lua', 'server.lua' }
 
 ui_page 'html/index.html'
-files { 'html/index.html', 'html/golos-text.woff2', 'html/manrope-*.woff2', 'html/unit.png', 'html/sounds/*.ogg', 'html/sounds/*.wav' }
+files { 'html/index.html', 'html/golos-text.woff2', 'html/manrope-*.woff2', 'html/ui/*.png' } -- записи html/sounds (8 кГц) не грузим: звук — синтез
 
 data_file 'DLC_ITYP_REQUEST' 'stream/kavkaz_sgu.ytyp'
 

@@ -12,50 +12,56 @@
 @font-face{font-family:'Golos Text';font-style:normal;font-weight:100 900;font-display:block;src:url(manrope-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD, U+20BD;}
 html { font-size: 1.48vh; }
 body { margin: 0; overflow: hidden; font-family: 'Golos Text', sans-serif; user-select: none; }
-/* пульт «Хазард 7007» — настоящая фотография блока (unit.png), поверх: поворот ручки, лампы, нажатия */
-#unit { position: absolute; right: calc(1.6vw + 12.4rem); bottom: 2.6vh; width: 22rem;
-  filter: drop-shadow(0 .5rem .8rem rgba(0,0,0,.65)); transition: opacity .25s, transform .25s; }
-#unit.off { opacity: 0; transform: translateY(1rem); }
-#unit .photo { position: relative; width: 100%; aspect-ratio: 656 / 358; }
+/* пульт «Хазард 7007» — та же 3D-модель, что в салоне (рендер setup/models/render_hazard_ui.py, html/ui/*.png).
+   стоит слева от спидометра kavkaz_hud (спидометр: right 1.4vw, ширина 23.5rem) и не наезжает на него */
+#unit { position: absolute; right: calc(1.4vw + 24.6rem); bottom: 2.4vh; width: 21rem;
+  filter: drop-shadow(0 .5rem .9rem rgba(0,0,0,.6)); transition: opacity .25s, transform .25s; }
+#unit.off { opacity: 0; transform: translateY(1rem); pointer-events: none; }
+#unit .photo { position: relative; width: 100%; aspect-ratio: 1040 / 560; }
 #unit .photo > img { position: absolute; inset: 0; width: 100%; height: 100%; }
-#knob { position: absolute; left: 47.561%; top: 16.480%; width: 14.024%; aspect-ratio: 1; border-radius: 50%; overflow: hidden;
-  transition: transform .25s cubic-bezier(.3,1.4,.5,1); }
-#knob img { position: absolute; width: 713.043%; height: auto; left: -339.130%; top: -64.130%; }
-.dot { position: absolute; width: 1.1%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%);
-  background: #ffb12e; box-shadow: 0 0 .5rem .15rem rgba(255,170,40,.85); display: none; }
-.dot.on { display: block; }
-.led { position: absolute; width: 2.2%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%); display: none; }
-.led.on { display: block; background: #ff3b30; box-shadow: 0 0 .5rem .2rem rgba(255,59,48,.8); }
-.led.amber.on { background: #ffb12e; box-shadow: 0 0 .5rem .2rem rgba(255,170,40,.8); }
-.press { position: absolute; width: 8%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(255,240,200,.75), rgba(255,200,120,0) 70%); opacity: 0; transition: opacity .12s; }
-.press.on { opacity: 1; }
-#cap { margin: .35rem auto 0; width: fit-content; max-width: 100%; padding: .25rem .7rem; border-radius: .4rem;
-  background: rgba(10,12,13,.82); border: 1px solid rgba(255,255,255,.1); color: #e9ecee; font-size: .68rem; font-weight: 700;
-  white-space: nowrap; display: flex; gap: .55rem; align-items: center; }
+.knob { position: absolute; aspect-ratio: 1; transform: translate(-50%, -50%) rotate(var(--a, 0deg));
+  transition: transform .22s cubic-bezier(.3,1.4,.5,1); }
+.knob img { width: 100%; height: 100%; display: block; }
+.led { position: absolute; width: 1.9%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%); background: transparent; }
+.led.on { background: #ff3b30; box-shadow: 0 0 .45rem .2rem rgba(255,59,48,.85); }
+.led.amber.on { background: #ffb12e; box-shadow: 0 0 .45rem .2rem rgba(255,170,40,.85); }
+.btn { position: absolute; width: 8.6%; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 12%;
+  transition: background .08s, transform .08s; }
+.btn.on { background: rgba(0,0,0,.28); transform: translate(-50%, -50%) scale(.94); }
+.hot { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; }
+#unit.focus .hot { cursor: pointer; }
+#unit.focus .hot:hover { box-shadow: 0 0 0 .14rem rgba(255,196,60,.9); }
+#unit.focus .photo { outline: .12rem solid rgba(255,196,60,.55); outline-offset: .2rem; border-radius: .6rem; }
+#cap { margin: .3rem auto 0; box-sizing: border-box; width: 100%; padding: .22rem .65rem; border-radius: .4rem;
+  background: rgba(10,12,13,.82); border: 1px solid rgba(255,255,255,.1); color: #e9ecee; font-size: .66rem; font-weight: 700;
+  white-space: nowrap; display: flex; flex-wrap: wrap; justify-content: center; row-gap: .15rem; column-gap: .55rem; align-items: center; }
 #cap b { color: #ffb12e; }
-#cap kbd { font-family: inherit; font-size: .65rem; font-weight: 800; padding: .05rem .3rem; border-radius: .25rem;
+#cap kbd { font-family: inherit; font-size: .62rem; font-weight: 800; padding: .03rem .3rem; border-radius: .25rem;
   background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); }
 #cap .k { color: #9aa3a8; font-weight: 600; }
+#tip { position: absolute; left: 50%; bottom: 100%; transform: translate(-50%, -.4rem); padding: .2rem .55rem; border-radius: .35rem;
+  background: rgba(10,12,13,.9); color: #ffd27a; font-size: .64rem; font-weight: 700; white-space: nowrap; display: none; }
+#unit.focus #tip { display: block; }
 </style>
 <div id="unit" class="off">
+  <div id="tip">колесо мыши — ручки · ЛКМ — кнопки · X / Esc / ПКМ — выйти</div>
   <div class="photo">
-    <img src="unit.png" alt="">
-    <div id="knob"><img src="unit.png" alt=""></div>
-    <i class="dot" id="d0" style="left:48.476%;top:17.318%"></i>
-    <i class="dot" id="d1" style="left:46.951%;top:24.860%"></i>
-    <i class="dot" id="d2" style="left:45.579%;top:34.078%"></i>
-    <i class="dot" id="d3" style="left:47.866%;top:42.737%"></i>
-    <i class="dot" id="d4" style="left:51.524%;top:48.883%"></i>
-    <i class="dot" id="d5" style="left:55.030%;top:48.603%"></i>
-    <i class="led amber" id="l1" style="left:79.726%;top:12.849%"></i>
-    <i class="led" id="l2" style="left:79.726%;top:36.034%"></i>
-    <i class="press" id="pHorn" style="left:57.622%;top:79.609%"></i>
-    <i class="press" id="pMan" style="left:71.341%;top:79.609%"></i>
+    <img src="ui/base.png" alt="">
+    <div class="knob" id="kSel" style="left:64.505%;top:33.739%;width:20.755%"><img src="ui/knob_sel.png" alt=""></div>
+    <div class="knob" id="kVol" style="left:27.005%;top:31.932%;width:15.094%"><img src="ui/knob_vol.png" alt=""></div>
+    <i class="led amber" id="l1" style="left:61.675%;top:62.196%"></i>
+    <i class="led" id="l2" style="left:75.118%;top:62.196%"></i>
+    <i class="btn" id="pMan" style="left:61.675%;top:82.07%"></i>
+    <i class="btn" id="pHorn" style="left:75.118%;top:82.07%"></i>
+    <i class="hot" data-hot="sel" style="left:64.505%;top:33.739%;width:19%;aspect-ratio:1"></i>
+    <i class="hot" data-hot="vol" style="left:27.005%;top:31.932%;width:14%;aspect-ratio:1"></i>
+    <i class="hot" data-hot="man" style="left:61.675%;top:82.07%;width:10%;aspect-ratio:1"></i>
+    <i class="hot" data-hot="horn" style="left:75.118%;top:82.07%;width:10%;aspect-ratio:1"></i>
+    <i class="hot" data-hot="strobe" style="left:75.118%;top:62.196%;width:6%;aspect-ratio:1"></i>
   </div>
   <div id="cap"><span><b id="c-tone">—</b> <span id="c-num"></span></span>
-    <span class="k"><kbd id="kq">G</kbd> кряк</span><span class="k"><kbd id="kt">J</kbd> вкл</span>
-    <span class="k"><kbd id="kn">U</kbd> дальше</span><span class="k" id="c-strobe"><kbd id="ks">O</kbd> строб</span></div>
+    <span class="k"><kbd id="kp">X</kbd> мышью</span><span class="k"><kbd id="kq">G</kbd> кряк</span><span class="k"><kbd id="kt">J</kbd> вкл</span>
+    <span class="k"><kbd id="kn">U</kbd> след.</span><span class="k" id="c-strobe"><kbd id="ks">O</kbd> строб</span></div>
 </div>
 <script>
 // KAVKAZ RP — звук СГУ «Хазард 7007». всё синтезируется (WebAudio), файлов и чужих записей нет.
@@ -201,8 +207,11 @@ const OPTS = {
 const loops = new Map(); // id -> { v, tone, next }
 
 // записи настоящих СГУ: html/sounds/<мелодия>.ogg и quack.ogg. если файла нет — звучит синтез
+// 12.11: записи с видео оказались 8 кГц (телефонное качество) — хрипели и щёлкали на стыках. по умолчанию звучит синтез,
+// он снят со спектра той же записи и зациклен без швов. вернуть записи: USE_SAMPLES = true
+const USE_SAMPLES = false;
 const SAMPLES = {};
-for (const id of ['quack', ...Object.keys(TONES)]) {
+if (USE_SAMPLES) for (const id of ['quack', ...Object.keys(TONES)]) {
   const load = (ext) => fetch('sounds/' + id + '.' + ext).then(r => r.ok ? r.arrayBuffer() : null)
     .then(b => b && ctx.decodeAudioData(b)).then(buf => { if (buf) SAMPLES[id] = buf; return !!buf; }).catch(() => false);
   load('ogg').then(ok => { if (!ok) load('wav'); });
@@ -303,21 +312,20 @@ function manualSet(id, on, vol, pan) {
 }
 
 const $ = (id) => document.getElementById(id);
-// углы меток на фото относительно центра ручки (ручка на фото смотрит на HHI, ~222°)
-const POS = [217, 191, 170, 147, 123];   // HHI, HI-LO, PHSR, YELP, WAIL
-const OFF = 87;                          // STBY — выключено
-const KNOB0 = 222;
+const res = () => (window.GetParentResourceName ? GetParentResourceName() : 'kavkaz_sgu');
+const post = (name, body) => fetch(`https://${res()}/${name}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) }).catch(() => {});
+let focus = false;
 function panel(d) {
   $('unit').classList.toggle('off', !d.show);
   if (!d.show) return;
-  const pos = (d.index - 1) % POS.length;
-  const angle = d.on ? POS[pos] : OFF;
-  $('knob').style.transform = 'rotate(' + (angle - KNOB0) + 'deg)';
-  for (let i = 0; i < 6; i++) $('d' + i).classList.toggle('on', d.on ? i === pos : i === 5);
+  $('kSel').style.setProperty('--a', d.selAngle + 'deg');
+  $('kVol').style.setProperty('--a', d.volAngle + 'deg');
   $('l1').classList.toggle('on', !!d.on);
   $('l2').classList.toggle('on', !!d.strobe);
-  $('c-tone').textContent = d.tones[d.index - 1] || '—';
-  $('c-num').textContent = d.index + '/' + d.tones.length + (d.on ? ' ▶' : '');
+  $('pMan').classList.toggle('on', !!d.man);
+  $('c-tone').textContent = d.on ? (d.tones[d.index - 1] || '—') : 'выкл';
+  $('c-num').textContent = d.on ? d.index + '/' + d.tones.length : '';
+  $('kp').textContent = d.keys.panel || 'X';
   $('kq').textContent = d.keys.quack; $('kt').textContent = d.keys.tone; $('kn').textContent = d.keys.next; $('ks').textContent = d.keys.strobe;
   $('c-strobe').style.display = d.canStrobe ? '' : 'none';
 }
@@ -326,14 +334,44 @@ function flash(which) {
   const b = $(which === 'next' ? 'pMan' : 'pHorn');
   b.classList.add('on');
   clearTimeout(flashT);
-  flashT = setTimeout(() => b.classList.remove('on'), 200);
+  flashT = setTimeout(() => b.classList.remove('on'), 160);
 }
+// мышь по пульту (режим X): колесо — ручки, ЛКМ — кнопки, ручной тон — пока держишь
+let manHeld = false;
+const hotAt = (e) => e.target && e.target.closest ? e.target.closest('.hot') : null;
+document.addEventListener('wheel', (e) => {
+  if (!focus) return;
+  const h = hotAt(e);
+  if (!h) return;
+  const step = e.deltaY < 0 ? 1 : -1;
+  if (h.dataset.hot === 'sel') post('sel', { step });
+  else if (h.dataset.hot === 'vol') post('vol', { step });
+}, { passive: true });
+document.addEventListener('mousedown', (e) => {
+  if (!focus) return;
+  if (e.button === 2) return post('close');
+  if (e.button !== 0) return;
+  const h = hotAt(e);
+  if (!h) return;
+  const k = h.dataset.hot;
+  if (k === 'horn') { post('horn'); flash('quack'); }
+  else if (k === 'man') { manHeld = true; post('man', { on: true }); }
+  else if (k === 'strobe') post('strobe');
+  else if (k === 'sel') post('sel', { step: 1 });
+});
+document.addEventListener('mouseup', () => { if (manHeld) { manHeld = false; post('man', { on: false }); } });
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+document.addEventListener('keydown', (e) => {
+  if (!focus) return;
+  if (e.key === 'Escape' || e.key === 'x' || e.key === 'X' || e.key === 'ч' || e.key === 'Ч') post('close');
+});
 
 window.addEventListener('message', (e) => {
   const d = e.data || {};
   if (d.action === 'volume') { master.gain.value = Math.max(0, Math.min(1, d.value)); return; }
   if (d.action === 'panel') return panel(d);
   if (d.action === 'flash') return flash(d.which);
+  if (d.action === 'focus') { focus = !!d.on; $('unit').classList.toggle('focus', focus); if (!focus && manHeld) { manHeld = false; post('man', { on: false }); } return; }
   if (ctx.state !== 'running') ctx.resume();
   if (d.action === 'quack') quack(d.vol, d.pan || 0);
   if (d.action === 'manual') manualSet(d.id, !!d.on, d.vol || 0, d.pan || 0);
@@ -359,7 +397,7 @@ if (location.search.includes('preview')) {
   for (const t of Object.keys(TONES)) add(t, () => { stopLoop(1); startLoop(1, t, 1, 0); });
   add('MAN (держать 2 с)', () => { manualSet('m', true, 1, 0); setTimeout(() => manualSet('m', false, 1, 0), 2000); });
   add('стоп', () => stopLoop(1));
-  panel({ show: true, label: 'Хазард 7007 Про', tones: ['«Хазард»', 'Вой', 'Йелп', 'Двухтон', 'Фазер', 'Пульс', 'Горн', 'Кря-кря'], index: 1, on: true, strobe: true, canStrobe: true, keys: { quack: 'G', tone: 'J', next: 'U', strobe: 'O' } });
+  panel({ show: true, label: 'Хазард 7007 Про', tones: ['«Хазард»', 'Вой', 'Йелп', 'Двухтон', 'Фазер', 'Пульс', 'Горн', 'Кря-кря'], index: 1, on: true, strobe: true, canStrobe: true, selAngle: -103, volAngle: 54, keys: { quack: 'G', tone: 'J', next: 'U', strobe: 'O', panel: 'X' } });
 }
 </script>
 </body>

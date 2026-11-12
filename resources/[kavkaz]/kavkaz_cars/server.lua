@@ -100,6 +100,40 @@ exports('GetCar', function(name)
     copy.current, copy.label = Cars.current(car), label(car)
     return copy
 end)
+-- поиск по неточному имени для админов: «camry» → все Камри, «killinan» → kv_cullinan (опечатка до 2 букв)
+local function dist(a, b)
+    local la, lb = #a, #b
+    if math.abs(la - lb) > 2 then return 99 end
+    local prev = {}
+    for j = 0, lb do prev[j] = j end
+    for i = 1, la do
+        local cur = { [0] = i }
+        for j = 1, lb do
+            cur[j] = math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a:sub(i, i) == b:sub(j, j) and 0 or 1))
+        end
+        prev = cur
+    end
+    return prev[lb]
+end
+exports('Search', function(name)
+    if type(name) ~= 'string' or name == '' then return {} end
+    name = name:lower():gsub('^kv_', '')
+    local exact = find('kv_' .. name)
+    if exact then return { exact.spawn } end
+    local hits, best, bestD = {}, nil, 3
+    for _, car in ipairs(Cars.List) do
+        local short = car.spawn:gsub('^kv_', '')
+        if short:find(name, 1, true) or label(car):lower():find(name, 1, true) then
+            hits[#hits + 1] = car.spawn
+        else
+            local d = dist(short, name)
+            if d < bestD then best, bestD = car.spawn, d end
+        end
+    end
+    if #hits == 0 and best then hits[1] = best end
+    return hits
+end)
+
 exports('Label', function(name)
     local car = find(name)
     return car and label(car) or nil

@@ -162,15 +162,25 @@ end)
 -- транспорт
 ---------------------------------------------------------------------------
 
-cmd('aveh', 'aveh', 'Заспавнить машину', { { name = 'model', type = 'string', help = 'модель, например sultan' } }, function(src, args)
+local function aveh(src, args)
     if noConsole(src) then return end
     local ped = GetPlayerPed(src)
-    local old = GetVehiclePedIsIn(ped, false)
-    if old ~= 0 then DeleteEntity(old) end
     -- имя из автопарка (kv_camry80) -> модель, которая сейчас ездит (заглушка GTA или настоящая)
     local model = args.model:lower()
-    local car = GetResourceState('kavkaz_cars') == 'started' and exports.kavkaz_cars:GetCar(model) or nil
+    local cars = GetResourceState('kavkaz_cars') == 'started'
+    local car = cars and exports.kavkaz_cars:GetCar(model) or nil
+    if not car and cars then
+        -- неточное имя: «camry», «g63», опечатка «killinan»
+        local hits = exports.kavkaz_cars:Search(model)
+        if #hits == 1 then
+            car = exports.kavkaz_cars:GetCar(hits[1])
+        elseif #hits > 1 then
+            return Admin.notify(src, 'уточни модель: ' .. table.concat(hits, ', '), 'inform')
+        end
+    end
     if car then model = car.current end
+    local old = GetVehiclePedIsIn(ped, false)
+    if old ~= 0 then DeleteEntity(old) end
     -- сначала модель должна скачаться у админа (медленный интернет: иначе qbx.spawnVehicle не дождётся машины)
     Admin.notify(src, 'машина подгружается…', 'inform')
     if not lib.callback.await('kavkaz_admin:preloadModel', src, model) then
@@ -188,8 +198,14 @@ cmd('aveh', 'aveh', 'Заспавнить машину', { { name = 'model', typ
         return Admin.notify(src, ('не удалось (%s): %s'):format(model, why:sub(1, 120)), 'error')
     end
     pcall(function() exports.qbx_vehiclekeys:GiveKeys(src, vehicle) end)
-    Admin.log(src, 'aveh', nil, args.model)
-end)
+    Admin.log(src, 'aveh', nil, car and car.spawn or args.model)
+end
+local P_MODEL = { { name = 'model', type = 'string', help = 'модель: kv_camry70, camry, g63 или модель GTA' } }
+cmd('aveh', 'aveh', 'Заспавнить машину', P_MODEL, aveh)
+-- частые опечатки и привычные названия из других серверов — то же самое
+for _, alias in ipairs({ 'aheav', 'ahev', 'ahv', 'spawncar' }) do
+    cmd(alias, 'aveh', 'Заспавнить машину (= /aveh)', P_MODEL, aveh)
+end
 
 cmd('adv', 'adv', 'Удалить машину (в которой сидишь или пустые в радиусе)', {
     { name = 'radius', type = 'number', help = 'радиус в метрах (до 100)', optional = true },

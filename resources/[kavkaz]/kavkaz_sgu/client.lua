@@ -2,6 +2,7 @@
 
 local myVeh, myModel = 0, nil
 local toneIndex = 1
+local focused = false -- окно пульта у спидометра в режиме мыши (клавиша X)
 local active = {}   -- netId -> мелодия (машины рядом с включённым СГУ)
 local strobing = {} -- машины со стробоскопом (мигает тот, кто ими управляет)
 
@@ -74,20 +75,24 @@ RegisterNetEvent('kavkaz_sgu:client:model', function(net, model)
     end
 end)
 
--- панель прибора на экране, пока сидишь за рулём машины с СГУ
+-- пульт на экране слева от спидометра (рендер 3D-модели, html/ui), пока сидишь за рулём машины с СГУ.
+-- 12.11 по просьбе основателя: вместо камеры на торпеду — окно у спидометра, X — мышью по ручкам и кнопкам
+local function selAngle(pos) return Config.Dash.selStart + pos * Config.Dash.selStep end
+local function volAngle(v) return -135.0 + v / 100.0 * 270.0 end
 CreateThread(function()
     local lastKey
     while true do
         local data
-        -- от первого лица виден 3D-пульт — экранный прячем
-        if myModel and myVeh ~= 0 and not IsPauseMenuActive() and LocalPlayer.state.isLoggedIn and GetFollowVehicleCamViewMode() ~= 4 and Config.ShowPanel then -- KAVKAZ 11.11: 2D-окно выключено (наезжало на спидометр), управление — 3D-пульт
+        if myModel and myVeh ~= 0 and not IsPauseMenuActive() and LocalPlayer.state.isLoggedIn and Config.ShowPanel then
             local m = Config.Models[myModel]
             local st = Entity(myVeh).state
             local names = {}
             for i, t in ipairs(m.tones) do names[i] = Config.Tones[t] end
-            data = { show = true, label = m.label, service = myModel == 'service', tones = names, index = toneIndex,
-                on = st.sgu_tone and true or false, strobe = st.sgu_strobe and true or false, canStrobe = m.strobe and true or false,
-                keys = Config.Keys }
+            local on = st.sgu_tone and true or false
+            data = { show = true, label = m.label, tones = names, index = toneIndex, on = on,
+                strobe = st.sgu_strobe and true or false, canStrobe = m.strobe and true or false, man = st.sgu_man and true or false,
+                selAngle = selAngle(on and toneIndex or 0), volAngle = volAngle(volume),
+                keys = { quack = Config.Keys.quack, tone = Config.Keys.tone, next = Config.Keys.next, strobe = Config.Keys.strobe, panel = Config.PanelKey or 'X' } }
         else
             data = { show = false }
         end
@@ -97,12 +102,12 @@ CreateThread(function()
             data.action = 'panel'
             SendNUIMessage(data)
         end
-        Wait(150)
+        Wait(100)
     end
 end)
 
 local function canUse()
-    return myVeh ~= 0 and myModel ~= nil and not IsPauseMenuActive() and not IsNuiFocused()
+    return myVeh ~= 0 and myModel ~= nil and not IsPauseMenuActive() and (focused or not IsNuiFocused())
 end
 
 -- кряк. клавиша G общая с меню взаимодействия (kavkaz_interact): там короткое нажатие — кряк, удержание — меню.
@@ -451,3 +456,53 @@ SGU = {
         TriggerServerEvent('kavkaz_sgu:server:strobe', VehToNet(myVeh), not Entity(myVeh).state.sgu_strobe)
     end,
 }
+
+---------------------------------------------------------------------------
+-- X — мышь на пульт у спидометра. машина едет дальше (W/A/S/D работают), камера и оружие не дёргаются
+---------------------------------------------------------------------------
+local lastClose = 0
+local LOCK = { 1, 2, 14, 15, 16, 17, 24, 25, 37, 68, 69, 70, 81, 82, 85, 91, 92, 99, 100, 106, 114, 140, 141, 142, 199, 200, 241, 242, 257, 261, 262, 330, 331 }
+local function setFocus(on)
+    if focused == on then return end
+    focused = on
+    SetNuiFocus(on, on)
+    SetNuiFocusKeepInput(on)
+    SendNUIMessage({ action = 'focus', on = on })
+    if not on then
+        lastClose = GetGameTimer()
+        if myVeh ~= 0 and Entity(myVeh).state.sgu_man then TriggerServerEvent('kavkaz_sgu:server:manual', VehToNet(myVeh), false) end
+        return
+    end
+    CreateThread(function()
+        while focused do
+            if myVeh == 0 or not myModel or IsPauseMenuActive() then setFocus(false) break end
+            for _, c in ipairs(LOCK) do DisableControlAction(0, c, true) end
+            Wait(0)
+        end
+    end)
+end
+
+lib.addKeybind({ name = 'kavkaz_sgu_panel', description = 'СГУ: пульт «Хазард» мышью (вкл/выкл)', defaultKey = Config.PanelKey or 'X',
+    onPressed = function()
+        if focused then return setFocus(false) end
+        if GetGameTimer() - lastClose < 400 then return end -- X уже закрыл окно из самого окна
+        if myVeh ~= 0 and myModel then setFocus(true) end
+    end })
+
+RegisterNUICallback('close', function(_, cb) setFocus(false) cb(1) end)
+RegisterNUICallback('sel', function(d, cb) SGU.turn(tonumber(d.step) or 0) cb(1) end)
+RegisterNUICallback('vol', function(d, cb) exports.kavkaz_sgu:SetVolume(volume + (tonumber(d.step) or 0) * 10) cb(1) end)
+RegisterNUICallback('horn', function(_, cb) doQuack() cb(1) end)
+RegisterNUICallback('man', function(d, cb)
+    if d.on then
+        if not SGU.manual(true) then doQuack() end
+    else
+        SGU.manual(false)
+    end
+    cb(1)
+end)
+RegisterNUICallback('strobe', function(_, cb) SGU.strobe() cb(1) end)
+
+AddEventHandler('onResourceStop', function(res)
+    if res == GetCurrentResourceName() and focused then SetNuiFocus(false, false) SetNuiFocusKeepInput(false) end
+end)
