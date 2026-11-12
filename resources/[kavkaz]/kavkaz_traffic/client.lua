@@ -67,11 +67,14 @@ local function canDownload()
     return LocalPlayer.state.kvCarsCached or GetGameTimer() - loggedAt > Config.DownloadDelay
 end
 
--- из пула: модели, которые уже скачаны (с весами)
+-- сколько машин каждой нашей модели сейчас рядом (считает tick) — чтобы не было пяти одинаковых Приор подряд
+local nearCount = {}
+
+-- из пула: модели, которые уже скачаны и которых рядом ещё мало (с весами)
 local function pickReady(p)
     local list, t = {}, 0
     for _, it in ipairs(p) do
-        if isReady(it[1]) then list[#list + 1] = it; t = t + it[2] end
+        if isReady(it[1]) and (nearCount[it[1]] or 0) < Config.MaxSame then list[#list + 1] = it; t = t + it[2] end
     end
     return pickFrom(list, t)
 end
@@ -81,7 +84,9 @@ local function pickModel(cls)
     local p, t = pool, total
     if cp then p, t = cp[1], cp[2] end
     local want = pickFrom(p, t)
-    if not want or isReady(want) then return want end
+    if not want then return nil end
+    if isReady(want) and (nearCount[want] or 0) < Config.MaxSame then return want end
+    if isReady(want) then return pickReady(p) end
     -- выбранная модель ещё не скачана: начать её качать (если сейчас ничего не качается), а пока взять скачанную
     if canDownload() then
         loading, loadingSince = want, GetGameTimer()
@@ -144,6 +149,7 @@ local function swap(veh)
     local nv = CreateVehicle(model, coords.x, coords.y, coords.z, heading, true, false)
     SetModelAsNoLongerNeeded(model) -- в памяти держится, пока такие машины рядом (важно для слабых видеокарт)
     if nv == 0 then return false end
+    nearCount[model] = (nearCount[model] or 0) + 1
     SetVehicleOnGroundProperly(nv)
     SetVehicleNumberPlateText(nv, randomPlate())
     SetVehicleNumberPlateTextIndex(nv, 0)
@@ -175,7 +181,13 @@ local function tick()
     local me = PlayerPedId()
     local myPos = GetEntityCoords(me)
     local done = 0
-    for _, veh in ipairs(GetGamePool('CVehicle')) do
+    local pool_ = GetGamePool('CVehicle')
+    nearCount = {}
+    for _, veh in ipairs(pool_) do
+        local m = GetEntityModel(veh)
+        if ours[m] and #(GetEntityCoords(veh) - myPos) <= Config.MaxDistance then nearCount[m] = (nearCount[m] or 0) + 1 end
+    end
+    for _, veh in ipairs(pool_) do
         if done >= Config.PerTick then break end
         if DoesEntityExist(veh) and not IsEntityAMissionEntity(veh) and SWAP_POP[GetEntityPopulationType(veh)] then
             local dist = #(GetEntityCoords(veh) - myPos)
@@ -184,7 +196,7 @@ local function tick()
                 if NetworkHasControlOfEntity(veh) then
                     if not ours[model] and (Config.SwapClasses[GetVehicleClass(veh)] or classPools[GetVehicleClass(veh)]) and dist >= Config.MinDistance
                         and (dist >= Config.SafeDistance or not IsEntityOnScreen(veh)) then
-                        if swap(veh) then done = done + 1 end
+                        if swap(veh) then done = done + 1 end -- swap сам ставит модель, учёт обновится на следующей проверке
                     else
                         setPlate(veh)
                     end
