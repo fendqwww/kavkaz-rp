@@ -21,7 +21,10 @@ end
 -- спрятать все американские модели из списка мест
 CreateThread(function()
     local hidden = {}
-    for i, e in ipairs(ReplaceData) do
+    local all = {}
+    for _, e in ipairs(ReplaceData) do all[#all + 1] = e end
+    for _, e in ipairs(Config.TrafficLights and LightsData or {}) do all[#all + 1] = e end
+    for i, e in ipairs(all) do
         if not hidden[e[1]] then
             hidden[e[1]] = true
             CreateModelHideExcludingScriptObjects(0.0, 0.0, 0.0, 10000.0, joaat(e[1]), true)
@@ -30,7 +33,8 @@ CreateThread(function()
         if with then
             local k = cellKey(e[2], e[3])
             cells[k] = cells[k] or {}
-            cells[k][#cells[k] + 1] = { with, e[2], e[3], e[4], (e[5] + yaw) % 360.0 }
+            -- деревья вместо пальм встают на землю под собой (пальма стояла в кадке или утопленной — берёза висела/тонула)
+            cells[k][#cells[k] + 1] = { with, e[2], e[3], e[4], (e[5] + yaw) % 360.0, snap = not Config.Replace[e[1]] }
         end
     end
     -- готовые расстановки (Map Editor): { хэш, x, y, z, rx, ry, rz } — поворот целиком, а не только курс
@@ -62,8 +66,12 @@ local function groundFor(hash, x, y, yaw)
         RequestCollisionAtCoord(px, py, 100.0)
         local ok, z = GetGroundZFor_3dCoord(px, py, 1000.0, false)
         if not ok then return nil end
+        if IsPointOnRoad(px, py, z + 0.5, 0) then return false end -- угол на дороге: трафик врезался бы
         zs[#zs + 1] = z
     end
+    -- ближайшая полоса не ближе 6 м от стены (по самой длинной стороне дома)
+    local found, node = GetClosestVehicleNode(x, y, zs[1], 1, 3.0, 0)
+    if found and #(vec2(node.x, node.y) - vec2(x, y)) < math.max(mx.x - mn.x, mx.y - mn.y) / 2 + 6.0 then return false end
     local lo, hi = math.huge, -math.huge
     for _, z in ipairs(zs) do lo, hi = math.min(lo, z), math.max(hi, z) end
     if hi - lo > (Config.MaxSlope or 2.0) then return false end
@@ -78,6 +86,12 @@ local function spawnOne(o)
     if not IsModelInCdimage(hash) or skip[o] then return true end
     lib.requestModel(hash, 3000)
     local z = o[4]
+    if o.snap then
+        local ok, gz = GetGroundZFor_3dCoord(o[2], o[3], z + 2.0, false)
+        if not ok then SetModelAsNoLongerNeeded(hash) return false end -- земля ещё не загрузилась
+        if math.abs(gz - z) < 3.0 then z = gz end
+        if IsPointOnRoad(o[2], o[3], z + 0.5, 0) then skip[o] = true SetModelAsNoLongerNeeded(hash) return true end
+    end
     if z == false then
         z = groundFor(hash, o[2], o[3], o[5])
         if z == nil then SetModelAsNoLongerNeeded(hash) return false end -- позже

@@ -95,12 +95,54 @@ local function load(name)
     return m
 end
 
+-- пост по дороге: ближайшая полоса, край асфальта, пост за обочиной лицом к дороге (post.auto)
+local function placeByRoad(post)
+    local c = post.coords
+    local untilT = GetGameTimer() + 3000
+    while not RequestPathsPreferAccurateBoundingstruct(c.x - 120.0, c.y - 120.0, c.x + 120.0, c.y + 120.0) and GetGameTimer() < untilT do Wait(100) end
+    local found, node, heading = GetClosestVehicleNodeWithHeading(c.x, c.y, c.z, 1, 3.0, 0)
+    if not found then return nil end
+    local ok, edge = GetRoadBoundaryUsingHeading(node.x, node.y, node.z, heading)
+    if not ok then return nil end
+    local out = vec3(edge.x - node.x, edge.y - node.y, 0.0)
+    local len = #out
+    if len < 0.5 then return nil end
+    out = out / len
+    local base = vec3(edge.x, edge.y, edge.z) + out * 8.0
+    -- вперёд (+y поста) — к дороге: (-sin w, cos w) = -out
+    local w = math.deg(math.atan(out.x, -out.y))
+    return vec4(base.x, base.y, edge.z, w), node, out
+end
+
+-- предмет не на асфальте: если попал на дорогу — отодвигаем от неё
+local function offRoad(pos, out)
+    if not out then return pos end
+    for _ = 1, 12 do
+        if not IsPointOnRoad(pos.x, pos.y, pos.z + 0.5, 0) then return pos end
+        pos = pos + out * 1.0
+    end
+    return pos
+end
+
 local function spawnPost(post)
     local list = {}
+    local out
+    if post.auto then
+        local coords, node, o = placeByRoad(post)
+        if not coords then
+            print(('[kavkaz_world] пост %s: дорога рядом не найдена'):format(post.id))
+            spawned[post.id] = list
+            return
+        end
+        post = setmetatable({ coords = coords }, { __index = post })
+        out = o
+        -- машины у поста сбавляют до ~35 км/ч
+        list.zone = AddRoadNodeSpeedZone(node.x, node.y, node.z, 45.0, 10.0, false)
+    end
     for _, p in ipairs(post.props or {}) do
         local m = load(p.model)
         if m then
-            local pos = ground(at(post, p.offset))
+            local pos = ground(offRoad(at(post, p.offset), out))
             local o = CreateObject(m, pos.x, pos.y, pos.z, false, false, false)
             SetEntityHeading(o, post.coords.w + (p.heading or 0.0))
             PlaceObjectOnGroundProperly(o)
@@ -112,7 +154,7 @@ local function spawnPost(post)
     for _, v in ipairs(post.vehicles or {}) do
         local m = load(v.model) or (v.fallback and load(v.fallback))
         if m then
-            local pos = ground(at(post, v.offset))
+            local pos = ground(offRoad(at(post, v.offset), out))
             local veh = CreateVehicle(m, pos.x, pos.y, pos.z + 0.5, post.coords.w + (v.heading or 0.0), false, false)
             SetVehicleOnGroundProperly(veh)
             SetVehicleDoorsLocked(veh, 2)
@@ -127,7 +169,7 @@ local function spawnPost(post)
     for _, pd in ipairs(post.peds or {}) do
         local m = load(pd.model)
         if m then
-            local pos = ground(at(post, pd.offset))
+            local pos = ground(offRoad(at(post, pd.offset), out))
             local ped = CreatePed(4, m, pos.x, pos.y, pos.z, post.coords.w + (pd.heading or 0.0), false, true)
             -- 12.11: раньше замораживали — со сценарием они «скользили», дёргались и уходили в сторону.
             -- теперь стоят сами: не пугаются, не дерутся, не убегают, не падают от толчка
@@ -151,6 +193,7 @@ local function spawnPost(post)
     end
     if not spawned[post.id] then -- игрок уехал, пока ждали коллизию
         for _, e in ipairs(list) do if DoesEntityExist(e) then DeleteEntity(e) end end
+        if list.zone then RemoveRoadNodeSpeedZone(list.zone) end
         return
     end
     spawned[post.id] = list
@@ -160,6 +203,7 @@ local function despawnPost(id)
     for _, e in ipairs(spawned[id] or {}) do
         if DoesEntityExist(e) then DeleteEntity(e) end
     end
+    if spawned[id] and spawned[id].zone then RemoveRoadNodeSpeedZone(spawned[id].zone) end
     spawned[id] = nil
 end
 

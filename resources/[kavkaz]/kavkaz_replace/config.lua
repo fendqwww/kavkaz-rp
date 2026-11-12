@@ -8,7 +8,11 @@ Config.Replace = {
     prop_busstop_04 = { with = { 'kv_p_stop_bus_ussr', 'kv_p_old_russian_bus_stop' }, yaw = 0.0 },
     prop_busstop_05 = { with = { 'kv_p_stop_bus_ussr', 'kv_p_old_russian_bus_stop' }, yaw = 0.0 },
     prop_bus_stop_sign = { with = nil },
+    -- 12.11: американские П-образные светофоры над дорогой -> наш русский светофор на столбе (kv_traffic_lights) там же
+    prop_traffic_03a = { with = { 'prop_traffic_01a' }, yaw = 0.0 },
+    prop_traffic_03b = { with = { 'prop_traffic_01a' }, yaw = 0.0 },
 }
+Config.TrafficLights = true -- data_lights.lua (297 мест из скана карты)
 -- пальмы: в предгорьях Кавказа их нет — на их месте обычные деревья (модели GTA, есть у всех)
 -- большие пальмы -> деревья, маленькие веерные пальмы в клумбах -> кусты (чтобы деревья не выросли посреди тротуара)
 Config.PalmTrees = { 'prop_tree_birch_01', 'prop_tree_birch_02', 'prop_tree_birch_03', 'prop_tree_maple_02', 'prop_tree_oak_01' }
