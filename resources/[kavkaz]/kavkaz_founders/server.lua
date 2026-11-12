@@ -131,3 +131,24 @@ RegisterCommand('kavkaz_founders', function(src)
     if src ~= 0 then return end
     setupAll()
 end, true)
+
+-- KAVKAZ: проверка при старте — сколько машин гараж усадьбы отдаст основателю и какие отсеются (11.12: «машины исчезли из списка»)
+CreateThread(function()
+    Wait(15000)
+    if GetResourceState('qbx_vehicles') ~= 'started' then return end
+    local byName = exports.qbx_core:GetVehiclesByName() or {}
+    for _, f in ipairs(Config.Founders) do
+        local all = exports.qbx_vehicles:GetPlayerVehicles({ citizenid = f.citizenid }) or {}
+        local shown, hidden = 0, {}
+        for _, v in ipairs(all) do
+            local why
+            if v.garage ~= Config.Garage.name then why = 'гараж ' .. tostring(v.garage)
+            elseif v.state ~= 1 then why = 'state ' .. tostring(v.state)
+            elseif not byName[v.modelName] then why = 'нет в списке qbx_core'
+            end
+            if why then hidden[#hidden + 1] = ('%s (%s)'):format(v.modelName, why) else shown = shown + 1 end
+        end
+        print(('[kavkaz_founders] гараж %s: всего %d, в списке %d, скрыто: %s'):format(f.citizenid, #all, shown,
+            #hidden > 0 and table.concat(hidden, ', ') or 'нет'))
+    end
+end)
