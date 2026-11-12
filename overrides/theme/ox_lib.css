@@ -1,9 +1,113 @@
-/* KAVKAZ RP — тема ox_lib (меню, диалоги, уведомления, панель F10): только шрифт и скругления.
-   цвет акцента задаётся в overrides/kavkaz.cfg (ox:primaryColor / ox:primaryShade). */
+/* KAVKAZ RP — тема ox_lib (уведомления, меню гаражей и салона, списки, диалоги, подсказка [E], прогресс) по скиллу kavkaz-ui.
+   графит #121314/#1a1b1d/#222326, один акцент изумруд #2fbf8a, без цветных кружков и свечений, радиусы 4–8 px.
+   классы mantine-xxxx — из сборки ox_lib 3.42 (проверено скриншотом); если после обновления ox_lib что-то стало по-старому,
+   снять дамп классов заново (docs: setup/build-theme.py). ключевые элементы опираются на стабильные имена Mantine.
+   сборка со шрифтами: python setup/build-theme.py */
+
 body, body * { font-family: "Golos Text", "Segoe UI", Arial, sans-serif !important; }
-.mantine-Paper-root, .mantine-Modal-modal, .mantine-Button-root, .mantine-Input-input,
-.mantine-TextInput-input, .mantine-NumberInput-input, .mantine-Select-input, .mantine-Textarea-input,
-.mantine-Notification-root, .mantine-Alert-root { border-radius: 6px !important; }
-.mantine-Button-root { font-weight: 500 !important; text-transform: none !important; letter-spacing: 0 !important; }
-/* фон окон — тёмно-зелёный, как HUD (изумруд + золото, docs/vision/21 блок 2) */
-.mantine-Paper-root, .mantine-Modal-modal, .mantine-Notification-root { background-color: #121a17 !important; }
+
+/* ---------- общее Mantine ---------- */
+.mantine-Paper-root, .mantine-Modal-modal { background-color: #1a1b1d !important; border-radius: 8px !important; box-shadow: none !important; }
+.mantine-Modal-overlay { background-color: rgba(0, 0, 0, 0.55) !important; }
+.mantine-Modal-title {
+  font-family: "Unbounded", "Golos Text", sans-serif !important; font-size: 16px !important; font-weight: 700 !important;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #f2f3f5 !important;
+}
+.mantine-Modal-body, .mantine-Modal-body p { color: #f2f3f5; font-size: 15px; }
+.mantine-InputWrapper-label, .mantine-Checkbox-label { color: rgba(242, 243, 245, 0.6) !important; font-size: 13.5px !important; font-weight: 500 !important; }
+.mantine-Input-input {
+  background-color: #222326 !important; border: 1px solid transparent !important; border-radius: 4px !important;
+  color: #f2f3f5 !important; font-size: 15px !important;
+}
+.mantine-Input-input:focus, .mantine-Input-input:focus-within { border-color: #2fbf8a !important; }
+.mantine-InputWrapper-description { color: rgba(242, 243, 245, 0.5) !important; font-size: 13px !important; }
+.mantine-Checkbox-input { background-color: #222326 !important; border: 1px solid #3a3b3f !important; border-radius: 4px !important; }
+.mantine-Checkbox-input:checked { background-color: #2fbf8a !important; border-color: #2fbf8a !important; }
+.mantine-Checkbox-icon { color: #0d0e0f !important; }
+.mantine-Slider-bar, .mantine-Progress-bar { background-color: #2fbf8a !important; }
+.mantine-Slider-track::before, .mantine-Progress-root { background-color: #2a2b2e !important; }
+.mantine-Slider-thumb { border-color: #2fbf8a !important; background: #f2f3f5 !important; }
+.mantine-Select-dropdown, .mantine-MultiSelect-dropdown, .mantine-Popover-dropdown {
+  background: #222326 !important; border: 0 !important; border-radius: 4px !important; box-shadow: none !important;
+}
+.mantine-Select-item[data-selected] { background: #2fbf8a !important; color: #0d0e0f !important; }
+.mantine-Select-item[data-hovered] { background: #2a2b2e !important; }
+.mantine-Tooltip-tooltip { background: #222326 !important; color: #f2f3f5 !important; border-radius: 4px !important; font-size: 14px !important; }
+.mantine-Button-root { border-radius: 4px !important; font-weight: 600 !important; font-size: 15px !important; text-transform: none !important; letter-spacing: 0 !important; }
+
+/* кнопки диалогов (ввод, «вы уверены?»): последняя — главная, залита акцентом; остальные серые */
+.mantine-Modal-body .mantine-Button-root { background: #2a2b2e !important; color: #f2f3f5 !important; border: 0 !important; height: 40px; padding: 0 22px; }
+.mantine-Modal-body .mantine-Button-root:last-of-type { background: #2fbf8a !important; color: #0d0e0f !important; }
+.mantine-Modal-body .mantine-Button-root:last-of-type * { color: #0d0e0f !important; }
+.mantine-Modal-close { color: rgba(242, 243, 245, 0.6) !important; }
+
+/* ---------- уведомления ---------- */
+.mantine-xcllmb {
+  background-color: rgba(18, 19, 20, 0.95) !important; border-radius: 6px !important; box-shadow: none !important;
+  padding: 12px 16px !important; min-width: 320px;
+}
+.mantine-1n0c7ad { color: #f2f3f5 !important; font-size: 15px !important; font-weight: 700 !important; }
+.mantine-1kpp4di, .mantine-1kpp4di p { color: rgba(242, 243, 245, 0.65) !important; font-size: 14px !important; line-height: 1.4 !important; }
+.mantine-13z0n1x, .mantine-13z0n1x p { color: #f2f3f5 !important; font-size: 15px !important; }
+/* вместо цветного кружка с кольцом-таймером — просто значок: инфо белый, успех изумрудный, ошибка красный */
+.mantine-RingProgress-root > svg { display: none !important; }
+.mantine-ThemeIcon-root { background: transparent !important; }
+.mantine-ttiaoc { color: #f2f3f5 !important; }
+.mantine-13hz1p7 { color: #2fbf8a !important; }
+.mantine-88f03t { color: #e5534b !important; }
+
+/* ---------- подсказка «[E] Открыть гараж» ---------- */
+.mantine-mao4ly {
+  background-color: rgba(18, 19, 20, 0.92) !important; border-radius: 4px !important; box-shadow: none !important;
+  padding: 10px 16px !important;
+}
+.mantine-mao4ly p { color: #f2f3f5 !important; font-size: 15px !important; font-weight: 600 !important; }
+.mantine-mao4ly svg { color: #2fbf8a !important; }
+
+/* ---------- полоска прогресса (ремонт, обыск, еда) ---------- */
+.mantine-1olnuag { background-color: rgba(18, 19, 20, 0.92) !important; border-radius: 4px !important; box-shadow: none !important; height: 44px !important; }
+.mantine-1olnuag > div { background-color: #2fbf8a !important; opacity: 0.9; }
+.mantine-1sz6a8g { color: #f2f3f5 !important; font-size: 16px !important; font-weight: 600 !important; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9) !important; }
+
+/* ---------- списки (гараж, мэрия, выбор персонажа) ---------- */
+.mantine-17g56al {
+  background-color: #121314 !important; border-radius: 6px !important; box-shadow: none !important; height: 44px !important;
+}
+.mantine-17g56al p {
+  font-family: "Unbounded", "Golos Text", sans-serif !important; font-size: 14px !important; font-weight: 700 !important;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #f2f3f5 !important;
+}
+.mantine-uq2072 { background-color: #121314 !important; border-radius: 6px !important; box-shadow: none !important; height: 44px !important; width: 44px !important; }
+.mantine-uq2072:hover { background-color: #e5534b !important; }
+.mantine-1oyb3o9 { background-color: rgba(26, 27, 29, 0.96) !important; border-radius: 4px !important; box-shadow: none !important; }
+.mantine-1oyb3o9:hover { background-color: #2a2b2e !important; }
+.mantine-1oyb3o9:disabled, .mantine-1oyb3o9[data-disabled] { background-color: rgba(26, 27, 29, 0.7) !important; opacity: 0.5; }
+.mantine-133rf5d, .mantine-133rf5d p { color: #f2f3f5 !important; font-size: 15px !important; font-weight: 600 !important; }
+.mantine-nmrmxh, .mantine-nmrmxh p, .mantine-clfcje, .mantine-clfcje p { color: rgba(242, 243, 245, 0.55) !important; font-size: 13px !important; }
+.mantine-vyozc0 svg, .mantine-tjyrhp svg { color: rgba(242, 243, 245, 0.7) !important; }
+
+/* ---------- меню слева сверху (салон, тюнинг) ---------- */
+.mantine-eqc5g6 { background-color: #121314 !important; border-radius: 6px 6px 0 0 !important; box-shadow: none !important; }
+.mantine-1q8dtk7 {
+  font-family: "Unbounded", "Golos Text", sans-serif !important; font-size: 17px !important; font-weight: 700 !important;
+  letter-spacing: 0.06em; text-transform: uppercase; color: #f2f3f5 !important;
+}
+.mantine-13t44ib { background-color: rgba(18, 19, 20, 0.95) !important; border-radius: 0 0 6px 6px !important; }
+.mantine-axjwg1 { background-color: #1f2023 !important; border-radius: 4px !important; box-shadow: none !important; }
+.mantine-axjwg1:focus { background-color: #2fbf8a !important; outline: none !important; }
+.mantine-axjwg1:focus *, .mantine-axjwg1:focus svg { color: #0d0e0f !important; }
+.mantine-18bbwl5 { color: #f2f3f5; font-size: 15px !important; font-weight: 600 !important; }
+.mantine-17hkov1 { color: rgba(242, 243, 245, 0.55); font-size: 13px !important; font-weight: 600 !important; }
+.mantine-g8mdmr { font-size: 14px !important; font-weight: 600 !important; }
+.mantine-1hzacd5 svg { color: rgba(242, 243, 245, 0.75); }
+
+/* ---------- радиальное меню (Z) ---------- */
+.mantine-u3jc7n { fill: rgba(18, 19, 20, 0.94) !important; }
+.mantine-1jhs65m path { fill: rgba(18, 19, 20, 0.94) !important; }
+.mantine-1jhs65m:hover path, .mantine-1jhs65m:hover svg path { fill: #2fbf8a !important; }
+.mantine-1jhs65m:hover svg path, .mantine-1jhs65m:hover text, .mantine-1jhs65m:hover tspan { fill: #0d0e0f !important; }
+.mantine-1jhs65m text, .mantine-1jhs65m tspan { fill: #f2f3f5 !important; font-size: 13px !important; font-weight: 600 !important; }
+.mantine-1jhs65m svg path { fill: rgba(242, 243, 245, 0.85) !important; }
+/* кнопка в центре: цвет акцента ox_lib меняет её класс, поэтому берём по месту — круг, который не фон */
+.mantine-1bssod4 circle:not(.mantine-u3jc7n) { fill: #2a2b2e !important; stroke: rgba(18, 19, 20, 0.94) !important; }
+.mantine-1bssod4 circle:not(.mantine-u3jc7n):hover { fill: #e5534b !important; }
