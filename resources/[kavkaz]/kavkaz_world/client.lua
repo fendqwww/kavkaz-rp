@@ -200,3 +200,76 @@ AddEventHandler('onResourceStop', function(res)
     for _, r in ipairs(Config.Textures) do RemoveReplaceTexture(r.txd, r.txn) end
     hideAll(false)
 end)
+
+---------------------------------------------------------------------------
+-- 5. рейсы на остров «Арзамас» (Config.Transfers)
+---------------------------------------------------------------------------
+local flying = false
+
+-- земля под точкой: остров качается по требованию — ждём коллизию до 3 минут, игрок стоит замороженный
+local function landAt(to, text)
+    local ped = cache.ped
+    FreezeEntityPosition(ped, true)
+    SetEntityCoordsNoOffset(ped, to.x, to.y, to.z + 50.0, false, false, false)
+    lib.showTextUI(text .. ' остров подгружается', { position = 'top-center', icon = 'plane' })
+    local untilT = GetGameTimer() + 120000
+    local z
+    while GetGameTimer() < untilT do
+        RequestCollisionAtCoord(to.x, to.y, to.z)
+        local ok, gz = GetGroundZFor_3dCoord(to.x, to.y, to.z + 300.0, false)
+        if ok and HasCollisionLoadedAroundEntity(ped) then z = gz break end
+        Wait(250)
+    end
+    lib.hideTextUI()
+    SetEntityCoordsNoOffset(ped, to.x, to.y, (z or to.z) + 0.3, false, false, false)
+    SetEntityHeading(ped, to.w or 0.0)
+    FreezeEntityPosition(ped, false)
+    return z
+end
+
+local addPoint
+
+local function fly(t)
+    if flying or cache.vehicle then return end
+    flying = true
+    DoScreenFadeOut(800)
+    Wait(900)
+    local z = landAt(t.to, t.text or 'Летим…')
+    local ok = z ~= nil
+    -- обратный рейс стоит там, куда прилетели: высоту узнаём только на месте (с земли)
+    for _, u in ipairs(Config.Transfers or {}) do
+        if ok and not u.ready and u.at.z == 0.0 and #(vec2(u.at.x, u.at.y) - vec2(t.to.x, t.to.y)) < 5.0 then
+            u.at = vec3(u.at.x + 2.5, u.at.y, z + 1.0)
+            addPoint(u)
+        end
+    end
+    Wait(300)
+    DoScreenFadeIn(900)
+    if not ok then lib.notify({ title = t.label, description = 'земля не подгрузилась — если стоишь в воздухе, нажми ещё раз', type = 'error' }) end
+    flying = false
+end
+
+function addPoint(t)
+        t.ready = true
+        if t.blip then
+            local b = AddBlipForCoord(t.at.x, t.at.y, t.at.z)
+            SetBlipSprite(b, t.blip.sprite) SetBlipColour(b, t.blip.color) SetBlipScale(b, 0.8) SetBlipAsShortRange(b, true)
+            BeginTextCommandSetBlipName('STRING') AddTextComponentSubstringPlayerName(t.label) EndTextCommandSetBlipName(b)
+            blips[#blips + 1] = b
+        end
+        lib.points.new({
+            coords = t.at, distance = 3.0,
+            onEnter = function() lib.showTextUI('[E] ' .. t.label, { position = 'left-center', icon = 'plane-departure' }) end,
+            onExit = function() lib.hideTextUI() end,
+            nearby = function()
+                DrawMarker(1, t.at.x, t.at.y, t.at.z - 1.0, 0, 0, 0, 0, 0, 0, 1.6, 1.6, 0.4, 47, 191, 138, 120, false, false, 2, false, nil, nil, false)
+                if IsControlJustPressed(0, 38) then lib.hideTextUI() CreateThread(function() fly(t) end) end
+            end,
+        })
+end
+
+CreateThread(function()
+    for _, t in ipairs(Config.Transfers or {}) do
+        if t.at.z ~= 0.0 then addPoint(t) end
+    end
+end)

@@ -18,3 +18,4 @@
 
 ## Расстановки
 - «Рублёвка 1.1» (Map Editor XML, бесплатный мод с gta5-mods, автор указан в архиве) — `kavkaz_replace/data_rublevka.lua`, только модели GTA.
+- Остров «Арзамас» (kv_map_cr): Criminal Russia GTA 5 — CR Team, Prosvet Team, GTAMaps Team, Russian Reality Team; перенос в FiveM — Mishka Volkav (github.com/AlexLicu/criminal_russia). лицензия не указана, мод бесплатный; в git не кладём (resources/[maps]); текстуры ужаты до 512 px, в ytyp/ymap исправлены габариты и дальность.
