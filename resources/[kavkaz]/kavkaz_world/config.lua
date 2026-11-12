@@ -54,6 +54,17 @@ Config.HideEverywhere = {
     'prop_letterbox_01', 'prop_letterbox_02', 'prop_letterbox_03',
     'prop_fire_hydrant_1', 'prop_fire_hydrant_2', 'prop_fire_hydrant_4',
     'prop_flag_sapd',
+    -- 12.11: надпись VINEWOOD на холме — самое узнаваемое в GTA: буквы, каркас, лестницы, подсветка, дальние версии
+    'ch2_03_sign', 'ch2_03_sign_lod', 'ch2_03_sign_slod', 'ch2_03_signdcal', 'ch2_03_emis_sign_hd', 'ch2_03_emis_sign_lod',
+    'ch2_03_emis_sign_slod', 'ch2_03_vsignlite', 'prop_vinewood_sign_01', 'ch2_03_signstructure', 'ch2_03_signstructure_lod', 'ch2_03_ladder_mesh_00',
+    'ch2_03_ladder_mesh_01', 'ch2_03_ladder_mesh_02', 'ch2_03_ladder_mesh_03', 'ch2_03_ladder_mesh_04', 'ch2_03_ladder_mesh_05', 'ch2_03_ladder_mesh_06',
+    'ch2_03_ladder_mesh_07', 'ch2_03_ladder_mesh_08', 'ch2_03_ladder_mesh_09', 'ch2_03_ladder_mesh_10', 'ch2_03_ladder_mesh_11', 'ch2_03_ladder_mesh_12',
+    'ch2_03_ladder_mesh_13', 'ch2_03_ladder_mesh_14', 'ch2_03_signedge01', 'ch2_03_signedge02', 'ch2_03_signedge03', 'ch2_03_signedge04',
+    'ch2_03_signedge05', 'ch2_03_signedge06', 'ch2_03_signedge07', 'ch2_03_signedge08', 'ch2_03_signjoins01', 'ch2_03_signjoins02',
+    'ch2_03_signjoins03', 'ch2_03_signjoins04', 'ch2_03_signjoins05', 'ch2_03_signjoins06', 'ch2_03_signjoins07', 'ch2_03_signjoins08',
+    'ch2_03_signframinga', 'ch2_03_signframingb', 'ch2_03_signframingc', 'ch2_03_signframingd', 'ch2_03_signframinge', 'ch2_03_signframingf',
+    'ch2_03_signframingg', 'ch2_03_signstructure_b', 'ch2_03_signstructure_b2', 'ch2_03_signstructure_b3', 'ch2_03_signstructure_b4', 'ch2_03_signstructure_b5',
+    'ch2_03_signstructure_b6', 'ch2_03_signstructure_b7', 'ch2_03_signstructure_b8',
 }
 
 ---------------------------------------------------------------------------
