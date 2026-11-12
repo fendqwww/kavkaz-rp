@@ -65,6 +65,24 @@ local function hideAll(state)
 end
 CreateThread(function() hideAll(true) end)
 
+-- 13.11: на видео основателя надпись VINEWOOD осталась видна — общий вызов на всю карту срабатывает не всегда.
+-- повторяем скрытие кругом 450 м вокруг игрока каждые 100 м пути (старый круг снимаем, чтобы не копить)
+CreateThread(function()
+    local last
+    while true do
+        local p = GetEntityCoords(cache.ped)
+        if not last or #(p - last) > 100.0 then
+            for _, m in ipairs(Config.HideEverywhere) do
+                local model = joaat(m)
+                if last then RemoveModelHide(last.x, last.y, last.z, 450.0, model, false) end
+                CreateModelHideExcludingScriptObjects(p.x, p.y, p.z, 450.0, model, true)
+            end
+            last = p
+        end
+        Wait(3000)
+    end
+end)
+
 ---------------------------------------------------------------------------
 -- 3. посты ДПС (появляются, когда игрок рядом)
 ---------------------------------------------------------------------------

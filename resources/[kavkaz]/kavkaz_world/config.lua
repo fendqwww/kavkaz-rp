@@ -53,7 +53,7 @@ Config.HideEverywhere = {
     'prop_postbox_ss_01a', 'prop_news_disp_02a_s', 'prop_phonebox_05a',
     'prop_letterbox_01', 'prop_letterbox_02', 'prop_letterbox_03',
     'prop_fire_hydrant_1', 'prop_fire_hydrant_2', 'prop_fire_hydrant_4',
-    'prop_flag_sapd',
+    'prop_flag_sapd', 'prop_flag_us', 'prop_flag_us_s', -- 13.11: флаг США у дома в Песчаном (видео основателя)
     -- 12.11: колесо обозрения и вагончики американских горок на пирсе — второй по узнаваемости ориентир GTA
     'prop_ld_ferris_wheel', 'prop_ferris_car_01', 'prop_roller_car_01', 'prop_roller_car_02',
     -- 12.11: надпись VINEWOOD на холме — самое узнаваемое в GTA: буквы, каркас, лестницы, подсветка, дальние версии

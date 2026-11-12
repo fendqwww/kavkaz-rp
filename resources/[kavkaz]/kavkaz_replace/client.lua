@@ -52,6 +52,22 @@ CreateThread(function()
         cells[k] = cells[k] or {}
         cells[k][#cells[k] + 1] = { e[1], e[2], e[3], false, e[4] }
     end
+    -- 13.11: на видео основателя пальмы в городе остались — общий вызов на всю карту срабатывает не всегда.
+    -- повторяем скрытие кругом 450 м вокруг игрока каждые 100 м пути (старый круг снимаем)
+    local models = {}
+    for name in pairs(hidden) do models[#models + 1] = joaat(name) end
+    local last
+    while true do
+        local p = GetEntityCoords(cache.ped)
+        if not last or #(p - last) > 100.0 then
+            for _, h in ipairs(models) do
+                if last then RemoveModelHide(last.x, last.y, last.z, 450.0, h, false) end
+                CreateModelHideExcludingScriptObjects(p.x, p.y, p.z, 450.0, h, true)
+            end
+            last = p
+        end
+        Wait(3000)
+    end
 end)
 
 -- высота дома по земле: углы и центр. склон больше Config.MaxSlope — место пропускаем (дом не висит и не тонет).
