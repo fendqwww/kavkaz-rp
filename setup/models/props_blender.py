@@ -160,6 +160,11 @@ for i, (pid, size, _) in enumerate(built):
     a.texture_dictionary = pid
     a.physics_dictionary = pid
     a.lod_dist = 400.0 if size.z > 8 else 120.0
+    # 12.11: габариты обязательны — с нулевыми игра прячет большой дом, как только его центр уходит из кадра
+    a.bb_min = (-size.x / 2, -size.y / 2, 0.0)
+    a.bb_max = (size.x / 2, size.y / 2, size.z)
+    a.bs_center = (0.0, 0.0, size.z / 2)
+    a.bs_radius = (size.x ** 2 + size.y ** 2 + size.z ** 2) ** 0.5 / 2
 scene.ytyp_index = len(scene.ytyps) - 1
 bpy.ops.sollumz.export_ytyp_io(directory=TMP)
 

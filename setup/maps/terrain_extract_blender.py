@@ -15,7 +15,9 @@ addon_utils.enable('Sollumz', default_set=True)
 from Sollumz.shared.game_assets.game_files import GameFiles  # noqa: E402
 from szio.gta5 import try_load_asset  # noqa: E402
 
-DESERT = re.compile(r'dune|deshill|desert|sand(?!bag)|_dry|dryg|scrub|redgrass|dirt|gravel|mntscrub|hillsmsk|tf_des', re.I)
+DESERT = re.compile(r'dune|deshill|desert|desgr|sand(?!bag)|_dry|dryg|scrub|redgrass|dirt|gravel|mntscrub|hillsmsk|tf_des|grassshale', re.I)
+# --only a,b — взять эти словари по имени, без фильтра районов (12.11: земля у шоссе 68 и обочины фривея — в *_land, *_roads*)
+ONLY = set(argv[argv.index('--only') + 1].split(',')) if '--only' in argv else None
 SKIP = re.compile(r'_n$|_nrm|_normal|_s$|_spec|_lod|_slod|mask|msk', re.I)
 AREAS = re.compile(r'/(country_0\d|_hills/country|desert)', re.I)
 
@@ -25,10 +27,11 @@ ytd = idx.get(('.ytd',), {})
 listing = {}
 for n, paths in ytd.items():
     name = str(n)
-    if 'terrain' not in name.lower():
-        continue
     p = paths[0] if isinstance(paths, (list, tuple)) else paths
-    if not AREAS.search(str(p).replace('\\', '/')):
+    if ONLY is not None:
+        if name not in ONLY:
+            continue
+    elif 'terrain' not in name.lower() or not AREAS.search(str(p).replace('\\', '/')):
         continue
     try:
         a = try_load_asset(p)
