@@ -437,9 +437,11 @@ cmd('skin', 'skin', 'Сменить внешность (редактор пер�
     Admin.log(src, 'skin', target ~= src and target or nil, '')
 end)
 
-cmd('aheal', 'heal', 'Вылечить игрока: здоровье 100% (без поднятия)', { P_TARGET_OPT }, function(src, args)
+cmd('aheal', 'heal', 'Вылечить игрока: поднять, если лежит, и здоровье 100%', { P_TARGET_OPT }, function(src, args)
     local target = args.target or src
     if target == 0 then return end
+    -- 12.11: раньше лечило без поднятия — лежачий так и оставался лежать («здоровье выдаю — не реагирует»)
+    exports.qbx_medical:Revive(target)
     exports.qbx_medical:Heal(target)
     TriggerClientEvent('kavkaz_admin:client:heal', target)
     Admin.notify(target, 'администратор вылечил тебя', 'success')

@@ -46,6 +46,19 @@ svg { fill: currentColor; }
 .meta i { display: inline-block; width: 0.3rem; height: 0.3rem; border-radius: 50%; background: var(--acc); margin: 0 0.6rem; vertical-align: 0.18rem; }
 
 /* ===== подсказки клавиш: буква жирно, действие обычным, без рамок ===== */
+/* ===== без сознания: по центру снизу, без панели ===== */
+#down { position: absolute; left: 50%; bottom: 9vh; transform: translateX(-50%); text-align: center;
+  text-shadow: var(--shadow); transition: opacity 0.3s; min-width: 22rem; }
+#down.off { opacity: 0; }
+#down .dn-title { font: 700 1rem/1 'Unbounded', sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: var(--red); }
+#down .dn-time { font-size: 3.4rem; font-weight: 700; line-height: 1.05; margin-top: 0.3rem; }
+#down .dn-sub { font-size: 1.05rem; font-weight: 500; color: rgba(242, 243, 245, 0.86); margin-top: 0.2rem; }
+#down .dn-sub kbd { font: 700 1.05rem 'Golos Text', sans-serif; color: var(--text); padding: 0 0.35rem;
+  border: 1px solid rgba(242, 243, 245, 0.5); border-radius: 0.3rem; margin-right: 0.3rem; }
+#down .dn-hold { height: 0.22rem; width: 12rem; margin: 0.6rem auto 0; background: rgba(242, 243, 245, 0.18); border-radius: 1rem; overflow: hidden; }
+#down .dn-hold.off { visibility: hidden; }
+#down .dn-hold i { display: block; height: 100%; width: 0; background: var(--acc); transition: width 1s linear; }
+
 #hints {
   position: absolute; right: 1.5vw; top: 33vh;
   display: grid; grid-template-columns: auto auto; column-gap: 0.8rem; row-gap: 0.42rem; justify-items: end;

@@ -41,7 +41,7 @@ openPlayer = function(p)
             item('bring', { title = 'ТП к себе', icon = 'person-walking-arrow-loop-left', onSelect = function() run('bring %d', id) end }),
             item('spec', { title = 'Наблюдать', icon = 'eye', onSelect = function() run('spec %d', id) end }),
             item('revive', { title = 'Вылечить / поднять', icon = 'heart-pulse', onSelect = function() run('arevive %d', id) end }),
-            item('heal', { title = 'Вылечить (здоровье 100%)', icon = 'kit-medical', onSelect = function() run('aheal %d', id) end }),
+            item('heal', { title = 'Вылечить и поднять', icon = 'kit-medical', onSelect = function() run('aheal %d', id) end }),
             item('armor', { title = 'Выдать броню', icon = 'shield-halved', onSelect = function()
                 local i = ask('Броня', { { type = 'slider', label = 'сколько', min = 0, max = 100, default = 100 } })
                 if i then run('aarmor %d %d', id, i[1]) end

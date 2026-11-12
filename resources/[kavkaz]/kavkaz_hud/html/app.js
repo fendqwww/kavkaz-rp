@@ -180,6 +180,30 @@ function onLayout(d) {
   root.setProperty('--mm-h', d.height * 100 + 'vh');
 }
 
+// без сознания: kind = down (лежит, могут помочь) | dead (можно в больницу)
+const clock = (s) => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+function onDown(d) {
+  const box = $('down');
+  box.classList.toggle('off', !d.kind);
+  if (!d.kind) return;
+  const t = Math.max(0, Number(d.time) || 0);
+  const sub = $('dn-sub'), hold = $('dn-hold');
+  $('dn-time').textContent = clock(t);
+  if (d.kind === 'down') {
+    $('dn-title').textContent = 'Без сознания';
+    if (d.call === 'can') sub.innerHTML = '<kbd>G</kbd>вызвать скорую';
+    else if (d.call === 'sent') sub.textContent = 'скорая вызвана, ждите';
+    else sub.textContent = 'вам ещё могут помочь';
+    hold.classList.add('off');
+  } else {
+    $('dn-title').textContent = 'Нужна больница';
+    sub.innerHTML = '<kbd>E</kbd>держать — в больницу · ' + money(d.cost) + ' ₽';
+    const left = Math.max(0, Math.min(5, Number(d.hold) || 5));
+    hold.classList.remove('off');
+    hold.firstElementChild.style.width = ((5 - left) / 4 * 100) + '%';
+  }
+}
+
 window.addEventListener('message', (e) => {
   const d = e.data || {};
   switch (d.action) {
@@ -191,6 +215,7 @@ window.addEventListener('message', (e) => {
     case 'moneyPop': onPop(d); break;
     case 'hints': onHints(d); break;
     case 'layout': onLayout(d); break;
+    case 'down': onDown(d); break;
   }
 });
 

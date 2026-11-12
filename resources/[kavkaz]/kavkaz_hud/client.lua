@@ -290,6 +290,11 @@ RegisterCommand('hud', function()
     exports.qbx_core:Notify(userHidden and 'Интерфейс скрыт. /hud — вернуть' or 'Интерфейс снова виден', 'inform')
 end, false)
 
+-- без сознания: плашка с таймером (шлёт overrides/resources/[qbx]/qbx_ambulancejob/client/setdownedstate.lua)
+AddEventHandler('kavkaz_hud:client:down', function(data)
+    send('down', data or {})
+end)
+
 -- exports.kavkaz_hud:SetVisible(false) — спрятать HUD из другого ресурса
 exports('SetVisible', function(state) userHidden = not state end)
 
