@@ -42,8 +42,11 @@
   .chip.acc { background: var(--acc); color: var(--on-acc); }
   .news h3 { padding: 14px 20px 8px; font-size: 19px; font-weight: 700; line-height: 1.3; }
   .news p { padding: 0 20px 20px; color: var(--muted); font-size: 14.5px; }
-  .right { position: absolute; right: 48px; bottom: 120px; display: flex; flex-direction: column; align-items: flex-end; gap: 16px; }
-  .right .logo { height: 86px; }
+  /* персонажи справа, как у Rejoin: img/hero.png (PNG с прозрачным фоном, ~1200×1100). нет файла — блок прячется */
+  .heroimg { position: absolute; right: -10px; bottom: 0; height: 100%; max-width: 70%; object-fit: contain; object-position: right bottom; pointer-events: none; }
+  .right { position: absolute; left: 32px; bottom: 34px; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; z-index: 2; }
+  .right .logo { height: 64px; }
+  .playwrap { position: absolute; right: 36px; bottom: 34px; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
   .tagline { font-size: 17px; font-weight: 600; color: var(--muted); }
   .playrow { display: flex; align-items: center; gap: 22px; margin-top: 10px; }
   .status { display: inline-flex; align-items: center; gap: 9px; font-size: 16px; font-weight: 600; }
@@ -55,7 +58,7 @@
   .play:hover { background: var(--acc-h); }
   .play:disabled { background: var(--card3); color: var(--dim); cursor: default; }
   .play:disabled svg.i { fill: var(--dim); stroke: var(--dim); }
-  .hint { min-height: 20px; color: var(--muted); font-size: 14px; max-width: 420px; text-align: right; }
+  .hint { min-height: 20px; color: var(--muted); font-size: 14px; max-width: 420px; text-align: right; text-shadow: 0 1px 2px rgba(0,0,0,.9); }
   .warn { display: none; align-items: center; gap: 12px; max-width: 460px; padding: 12px 14px; border-radius: 12px; background: rgba(20,21,24,.94); font-size: 14px; }
   .warn svg.i { color: var(--warn); }
   .warn.bad svg.i { color: var(--bad); }
@@ -128,18 +131,19 @@
     </svg>
   </div>
   <section class="news" id="news"><div class="head"><span class="chip" id="newsDate"></span><span class="chip acc">Новости</span></div><h3 id="newsTitle"></h3><p id="newsText"></p></section>
+  <img class="heroimg" src="img/hero.png" alt="" onerror="this.remove()">
   <section class="right">
     <img class="logo" src="img/logo.svg" alt="KAVKAZ RP">
     <div class="tagline">дорога домой начинается здесь</div>
-    <div class="playrow">
-      <span class="status"><span class="dot" id="dot"></span><span id="statusText">Проверяю сервер…</span></span>
-      <button class="play" id="play" disabled><svg class="i"><use href="#i-play"/></svg>Играть</button>
-    </div>
+    <span class="status"><span class="dot" id="dot"></span><span id="statusText">Проверяю сервер…</span></span>
+  </section>
+  <section class="playwrap">
+    <button class="play" id="play" disabled><svg class="i"><use href="#i-play"/></svg>Играть</button>
     <div class="hint" id="hint"></div>
     <div class="warn bad" id="fivemWarn"><svg class="i"><use href="#i-alert"/></svg><span>FiveM не найден. Без него зайти не получится.</span><button class="btn acc" id="getFivem">Скачать FiveM</button></div>
     <div class="warn" id="gtaWarn"><svg class="i"><use href="#i-alert"/></svg><span>FiveM не нашёл GTA V по сохранённому пути.</span><button class="btn" data-goto="start">Что делать</button></div>
   </section>
-  <span class="ver" id="ver">лаунчер v0.3</span>
+  <span class="ver" id="ver" style="top:16px;bottom:auto">лаунчер v0.3</span>
 </main>
 
 <!-- КАК НАЧАТЬ -->
@@ -283,8 +287,10 @@
     try { await invoke('play', { address: cfg.address }); $('hint').textContent = 'Запускаю FiveM… Первый вход может занять несколько минут.'; }
     catch (e) { $('hint').textContent = String(e); }
   };
-  $('getFivem').onclick = () => invoke('open_link', { url: 'https://fivem.net/' });
-  $('getFivem2').onclick = () => invoke('open_link', { url: 'https://fivem.net/' });
+    // прямая ссылка на официальный установщик FiveM: браузер сразу качает FiveM.exe, без сайта
+  const FIVEM_EXE = 'https://runtime.fivem.net/client/FiveM.exe';
+  $('getFivem').onclick = () => invoke('open_link', { url: FIVEM_EXE });
+  $('getFivem2').onclick = () => invoke('open_link', { url: FIVEM_EXE });
 
   function res(id, text, err) { const el = $(id); el.textContent = text; el.classList.toggle('err', !!err); }
   $('saveAddr').onclick = async () => {
