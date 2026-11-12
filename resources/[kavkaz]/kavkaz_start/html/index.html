@@ -8,7 +8,7 @@
   /* спокойный плоский стиль: тёмно-синий фон, изумрудный акцент, шрифт Golos Text; Montserrat — только логотип */
   :root {
     --bg: #121314; --panel: #1a1b1d; --line: #2a2b2e;
-    --acc: #2fbf8a; --text: #f2f3f5; --muted: rgba(242,243,245,.55);
+    --acc: #ff7a1a; --text: #f2f3f5; --muted: rgba(242,243,245,.55);
     --f-logo: "Unbounded", "Arial Black", sans-serif;
     --f-ui: "Golos Text", "Segoe UI", system-ui, sans-serif;
   }
@@ -29,12 +29,12 @@
     background: var(--acc); }
   .rp { font: 700 14px var(--f-logo); color: var(--acc); margin-left: 12px; }
 
-  h1 { margin-top: 22px; font: 700 28px/1.25 var(--f-logo); letter-spacing: .04em; text-transform: uppercase; }
+  h1 { margin-top: 22px; font: 700 28px/1.25 var(--f-logo); }
   .lead { margin-top: 6px; color: var(--muted); font-size: 16px; }
 
   .steps { margin-top: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
   .step { padding: 18px 18px 16px; background: var(--bg); border-radius: 6px; }
-  .num { font: 700 13px/1 var(--f-logo); letter-spacing: .1em; text-transform: uppercase; color: var(--acc); }
+  .num { font: 700 13px/1 var(--f-logo); color: var(--acc); }
   .step h3 { margin-top: 12px; font: 600 17px var(--f-ui); }
   .step p { margin-top: 4px; color: var(--muted); font-size: 15px; }
 
@@ -49,14 +49,14 @@
   .note b { color: var(--text); font-weight: 600; }
   button { cursor: pointer; border: 0; border-radius: 6px; padding: 12px 34px; font: 600 16px var(--f-ui);
     color: #fff; background: var(--acc); }
-  button:hover { background: #29a678; }
-  button:focus-visible { outline: 2px solid #2fbf8a; outline-offset: 2px; }
+  button:hover { background: #ff8f3d; }
+  button:focus-visible { outline: 2px solid #ff7a1a; outline-offset: 2px; }
 </style>
 </head>
 <body>
 <div class="shade" id="shade">
   <div class="card" role="dialog" aria-labelledby="title">
-    <div class="brand"><span class="logo">KAVKAZ</span><span class="rp">RP</span></div>
+    <div class="brand"><img src="logo.svg" alt="KAVKAZ RP" style="height:34px;display:block"></div>
     <h1 id="title">Первые шаги в Нагорске</h1>
     <div class="lead" id="lead">Три шага, с которых начинают все.</div>
 

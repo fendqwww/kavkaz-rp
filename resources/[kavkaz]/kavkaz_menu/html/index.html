@@ -9,15 +9,7 @@
 <body>
 <div id="menu" class="off">
   <aside>
-    <svg class="logo" viewBox="0 0 274 64" aria-label="KAVKAZ RP">
-      <defs>
-      </defs>
-      <path d="M4 50 L24 24 L33 35 L49 10 L70 50" fill="none" stroke="#2fbf8a" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
-      <path d="M43 19 L49 10 L55 19 L51 17 L49 20 L46 17 Z" fill="#ffffff"/>
-      <text x="76" y="46" font-family="Unbounded" font-weight="800" font-size="30" letter-spacing="0" fill="#f2f3f5">KAVKAZ</text>
-      <rect x="238" y="20" width="34" height="21" rx="5" fill="#2fbf8a"/>
-      <text x="255" y="35.5" text-anchor="middle" font-family="Unbounded" font-weight="800" font-size="14" fill="#0f1412">RP</text>
-    </svg>
+    <img class="logo" src="logo.svg" alt="KAVKAZ RP">
     <nav id="tabs">
       <button data-tab="profile">Профиль</button>
       <button data-tab="stats">Статистика</button>
@@ -109,7 +101,7 @@
     <section data-page="settings">
       <h1>Настройки</h1>
       <label class="row"><span>Подсказки клавиш справа на экране <em>(F6)</em></span><input type="checkbox" id="set-hints"></label>
-      <label class="row"><span>Громкость СГУ «Хазард»</span><input type="range" id="set-sgu" min="0" max="100" step="5"><b id="set-sgu-val">100</b></label>
+      <label class="row"><span>Громкость спецсигнала</span><input type="range" id="set-sgu" min="0" max="100" step="5"><b id="set-sgu-val">100</b></label>
       <div class="actions"><button data-act="hud">Скрыть интерфейс (/hud)</button></div>
       <p class="note">Клавиши меняются в настройках игры: Настройки → Назначение клавиш → FiveM.</p>
     </section>

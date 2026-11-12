@@ -13,6 +13,6 @@ shared_scripts {
 client_script 'client.lua'
 
 ui_page 'html/index.html'
-files { 'html/index.html', 'html/golos-text.woff2', 'html/LICENSE-icons.txt' }
+files { 'html/index.html', 'html/onest-cyr.woff2', 'html/onest-lat.woff2', 'html/LICENSE-icons.txt' }
 
 dependencies { 'ox_lib' }

@@ -8,6 +8,7 @@ version '0.1.0'
 
 files {
     'html/index.html',
+    'html/logo.svg',
     'html/fonts/*.woff2',
     'html/fonts/fonts.css',
     -- фоновые кадры из игры (по antr5-skill: только настоящие скриншоты): положить html/bg/1.jpg … 5.jpg

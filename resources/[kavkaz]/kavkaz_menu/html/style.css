@@ -6,7 +6,7 @@
   --line: rgba(255, 255, 255, 0.06);
   --text: #f2f3f5;
   --muted: rgba(242, 243, 245, 0.55);
-  --em: #2fbf8a;
+  --em: #ff7a1a;
   --gold: #e3b341;
   --red: #e5534b;
 }
@@ -41,8 +41,8 @@ main::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
 section { display: none; }
 section.on { display: block; animation: in 0.2s ease; }
 @keyframes in { from { opacity: 0; transform: translateY(0.4rem); } to { opacity: 1; transform: none; } }
-h1 { font-family: 'Unbounded', sans-serif; font-size: 1.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
-h2 { margin: 1.6rem 0 0.7rem; font-family: 'Unbounded', sans-serif; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+h1 { font-family: 'Unbounded', sans-serif; font-size: 1.6rem; font-weight: 700; }
+h2 { margin: 1.6rem 0 0.7rem; font-family: 'Unbounded', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--muted); }
 .sub { margin-top: 0.35rem; color: var(--muted); font-size: 0.9rem; font-weight: 500; }
 .sub b { color: var(--text); }
 .grid { margin-top: 1.3rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; }

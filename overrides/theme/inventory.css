@@ -7,7 +7,7 @@
   --kz-panel: rgba(18, 19, 20, 0.94);
   --kz-slot: #1f2023;
   --kz-slot-hover: #2a2b2e;
-  --kz-acc: #2fbf8a;
+  --kz-acc: #ff7a1a;
   --kz-text: #f2f3f5;
   --kz-muted: rgba(242, 243, 245, 0.55);
   --kz-font: "Golos Text", "Segoe UI", Arial, sans-serif;
@@ -115,4 +115,4 @@ body, .app-wrapper, .app-wrapper * { font-family: var(--kz-font) !important; }
 .item-notification-action-box p { font-weight: 700; }
 
 .useful-controls-dialog { background: #1a1b1d !important; border: 0 !important; border-radius: 8px !important; color: var(--kz-text); box-shadow: none !important; }
-.useful-controls-dialog-title { color: var(--kz-text); font-family: var(--kz-head) !important; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.useful-controls-dialog-title { color: var(--kz-text); font-family: var(--kz-head) !important; font-weight: 700; }

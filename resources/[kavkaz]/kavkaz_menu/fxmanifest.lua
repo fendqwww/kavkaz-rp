@@ -12,6 +12,6 @@ client_script 'client.lua'
 server_scripts { '@oxmysql/lib/MySQL.lua', 'server.lua' }
 
 ui_page 'html/index.html'
-files { 'html/index.html', 'html/style.css', 'html/app.js', 'html/fonts/*.woff2', 'html/fonts/fonts.css' }
+files { 'html/index.html', 'html/logo.svg', 'html/style.css', 'html/app.js', 'html/fonts/*.woff2', 'html/fonts/fonts.css' }
 
 dependencies { 'ox_lib', 'oxmysql', 'qbx_core' }

@@ -8,7 +8,7 @@
   /* тот же стиль, что у памятки kavkaz_start: графит, изумрудный акцент, Golos Text; Unbounded — логотип и заголовки */
   :root {
     --bg: #121314; --panel: #1a1b1d; --line: #2a2b2e;
-    --acc: #2fbf8a; --text: #f2f3f5; --muted: rgba(242,243,245,.55);
+    --acc: #ff7a1a; --text: #f2f3f5; --muted: rgba(242,243,245,.55);
     --f-logo: "Unbounded", "Arial Black", sans-serif;
     --f-ui: "Golos Text", "Segoe UI", system-ui, sans-serif;
   }
@@ -29,7 +29,7 @@
     background: var(--acc); }
   .rp { font: 700 13px var(--f-logo); color: var(--acc); margin-left: 12px; }
 
-  h1 { margin-top: 18px; font: 700 26px/1.25 var(--f-logo); letter-spacing: .04em; text-transform: uppercase; }
+  h1 { margin-top: 18px; font: 700 26px/1.25 var(--f-logo); }
 
   .tabs { margin-top: 18px; display: flex; gap: 6px; border-bottom: 1px solid var(--line); }
   .tab { padding: 9px 16px 10px; font: 600 15px var(--f-ui); color: var(--muted); background: none; border: 0;
@@ -40,11 +40,11 @@
   .list { flex: 1; overflow-y: auto; margin-top: 6px; padding-right: 6px; }
   .list::-webkit-scrollbar { width: 6px; }
   .list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
-  .grp { margin: 18px 0 2px; font: 700 13px var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: #2fbf8a; }
+  .grp { margin: 18px 0 2px; font: 700 13px var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: #ff7a1a; }
   .grp:first-child { margin-top: 4px; }
   .search { width: 100%; margin-top: 10px; padding: 9px 12px; border-radius: 6px; border: 1px solid #2a2b2e; background: #121314;
     color: inherit; font: 500 15px var(--f-ui); outline: none; }
-  .search:focus { border-color: #2fbf8a; }
+  .search:focus { border-color: #ff7a1a; }
   .empty { padding: 20px 0; opacity: .6; }
   .row { display: grid; grid-template-columns: 300px 1fr; gap: 4px 24px; padding: 12px 0; border-bottom: 1px solid #232427; }
   .cmd { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font: 600 15px var(--f-ui); }
@@ -60,14 +60,14 @@
   .note { color: var(--muted); font-size: 14px; }
   .note b { color: var(--text); font-weight: 600; }
   .main { cursor: pointer; border: 0; border-radius: 6px; padding: 12px 34px; font: 600 16px var(--f-ui); color: #fff; background: var(--acc); }
-  .main:hover { background: #29a678; }
-  button:focus-visible { outline: 2px solid #2fbf8a; outline-offset: 2px; }
+  .main:hover { background: #ff8f3d; }
+  button:focus-visible { outline: 2px solid #ff7a1a; outline-offset: 2px; }
 </style>
 </head>
 <body>
 <div class="shade" id="shade">
   <div class="card" role="dialog" aria-labelledby="title">
-    <div class="brand"><span class="logo">KAVKAZ</span><span class="rp">RP</span></div>
+    <div class="brand"><img src="logo.svg" alt="KAVKAZ RP" style="height:30px;display:block"></div>
     <h1 id="title">Команды</h1>
     <div class="tabs" id="tabs" role="tablist"></div>
     <input class="search" id="search" placeholder="поиск: машина, бан, телепорт, деньги…" autocomplete="off">

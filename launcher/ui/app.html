@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<!-- KAVKAZ-LAUNCHER-UI v0.3 — эту метку проверяет лаунчер, прежде чем показать интерфейс из репозитория -->
+<title>KAVKAZ RP</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  /* стиль v2 (скилл kavkaz-ui): графит, один акцент — оранжевый, шрифт Onest, иконки Tabler (MIT), без свечений */
+  :root {
+    --bg: #0b0c0e; --side: #08090a; --card: #141518; --card2: #1b1c20; --card3: #24252a;
+    --text: #f4f5f6; --muted: rgba(244,245,246,.55); --dim: rgba(244,245,246,.35);
+    --acc: #ff7a1a; --acc-h: #ff8f3d; --on-acc: #160a02; --ok: #3fcf6e; --bad: #ef4f5a; --warn: #f2b84b;
+    --f: "Onest", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { font: 500 15px/1.45 var(--f); color: var(--text); background: var(--bg); overflow: hidden; user-select: none; display: flex; }
+  button { font-family: inherit; }
+  svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  /* левая колонка: знак, разделы, соцсети */
+  .side { width: 68px; flex: none; background: var(--side); display: flex; flex-direction: column; align-items: center; padding: 18px 0; gap: 8px; }
+  .side .mark { width: 38px; height: 38px; margin-bottom: 18px; }
+  .nav { width: 44px; height: 44px; border-radius: 12px; border: 0; background: transparent; color: var(--dim); cursor: pointer; display: grid; place-items: center; position: relative; }
+  .nav:hover { color: var(--text); background: var(--card); }
+  .nav[aria-selected="true"] { color: var(--text); background: var(--card2); }
+  .nav[aria-selected="true"]::before { content: ""; position: absolute; left: -12px; top: 12px; bottom: 12px; width: 3px; border-radius: 2px; background: var(--acc); }
+  .nav span { position: absolute; left: 54px; padding: 5px 10px; border-radius: 8px; background: var(--card3); color: var(--text); font-size: 13px; white-space: nowrap; display: none; z-index: 5; }
+  .nav:hover span { display: block; }
+  .grow { flex: 1; }
+
+  main { flex: 1; min-width: 0; position: relative; display: none; }
+  main.on { display: block; }
+
+  /* главная: горы — наша изюминка, без чужих артов и машин */
+  .hero { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(900px 520px at 78% 30%, #1a1b1f, var(--bg) 70%); }
+  .hero svg.mtn { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 300px; }
+  .news { position: absolute; left: 32px; top: 32px; width: 340px; border-radius: 18px; overflow: hidden; background: rgba(20,21,24,.94); display: none; flex-direction: column; }
+  .news .head { padding: 18px 20px 0; display: flex; align-items: center; gap: 10px; }
+  .chip { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 8px; background: var(--card3); font-size: 13px; font-weight: 600; }
+  .chip.acc { background: var(--acc); color: var(--on-acc); }
+  .news h3 { padding: 14px 20px 8px; font-size: 19px; font-weight: 700; line-height: 1.3; }
+  .news p { padding: 0 20px 20px; color: var(--muted); font-size: 14.5px; }
+  .right { position: absolute; right: 48px; bottom: 120px; display: flex; flex-direction: column; align-items: flex-end; gap: 16px; }
+  .right .logo { height: 86px; }
+  .tagline { font-size: 17px; font-weight: 600; color: var(--muted); }
+  .playrow { display: flex; align-items: center; gap: 22px; margin-top: 10px; }
+  .status { display: inline-flex; align-items: center; gap: 9px; font-size: 16px; font-weight: 600; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--dim); }
+  .dot.ok { background: var(--ok); } .dot.bad { background: var(--bad); }
+  .play { display: inline-flex; align-items: center; gap: 12px; height: 58px; padding: 0 34px; border-radius: 14px; border: 0; cursor: pointer;
+    background: var(--acc); color: var(--on-acc); font: 700 19px var(--f); }
+  .play svg.i { width: 20px; height: 20px; fill: var(--on-acc); stroke: var(--on-acc); }
+  .play:hover { background: var(--acc-h); }
+  .play:disabled { background: var(--card3); color: var(--dim); cursor: default; }
+  .play:disabled svg.i { fill: var(--dim); stroke: var(--dim); }
+  .hint { min-height: 20px; color: var(--muted); font-size: 14px; max-width: 420px; text-align: right; }
+  .warn { display: none; align-items: center; gap: 12px; max-width: 460px; padding: 12px 14px; border-radius: 12px; background: rgba(20,21,24,.94); font-size: 14px; }
+  .warn svg.i { color: var(--warn); }
+  .warn.bad svg.i { color: var(--bad); }
+  .warn span { flex: 1; }
+  .ver { position: absolute; right: 22px; bottom: 16px; font-size: 13px; color: var(--dim); }
+
+  /* страницы со списками */
+  .page { position: absolute; inset: 0; overflow-y: auto; padding: 34px 40px 30px; }
+  .page::-webkit-scrollbar { width: 8px; } .page::-webkit-scrollbar-thumb { background: var(--card3); border-radius: 4px; }
+  h2 { font-size: 28px; font-weight: 800; letter-spacing: -.01em; }
+  .sub { color: var(--muted); margin: 6px 0 22px; max-width: 70ch; }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 12px; }
+  .card { background: var(--card); border-radius: 16px; padding: 20px 22px; }
+  .card .n { font-size: 13px; font-weight: 700; color: var(--acc); text-transform: uppercase; letter-spacing: .08em; }
+  .card b { display: block; font-size: 17px; margin: 8px 0 6px; }
+  .card p, .card li { color: var(--muted); font-size: 14.5px; }
+  .card h3 { font-size: 18px; margin-bottom: 10px; }
+  .card ol, .card ul { padding-left: 20px; display: grid; gap: 6px; }
+  .card li b { display: inline; font-size: inherit; margin: 0; color: var(--text); }
+  .stack { display: grid; gap: 12px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .btn { height: 40px; padding: 0 18px; border-radius: 10px; border: 0; cursor: pointer; background: var(--card3); color: var(--text); font: 600 14px var(--f); }
+  .btn:hover { background: #2e2f35; }
+  .btn.acc { background: var(--acc); color: var(--on-acc); } .btn.acc:hover { background: var(--acc-h); }
+  .btn.danger:hover { background: var(--bad); color: #fff; }
+  .btn:disabled { opacity: .5; cursor: default; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+
+  .set { display: flex; align-items: center; gap: 18px; }
+  .set .t { flex: 1; min-width: 0; } .set .t b { margin: 0 0 4px; font-size: 16px; } .set .t span { color: var(--muted); font-size: 14px; display: block; }
+  .res { color: var(--ok); font-size: 14px; margin-top: 6px; } .res.err { color: var(--bad); } .res:empty { display: none; }
+  .acts { display: flex; gap: 8px; align-items: center; flex: none; }
+  input[type=text] { width: 240px; height: 40px; padding: 0 12px; border-radius: 10px; border: 0; background: var(--card3); color: var(--text); font: 500 14px var(--f); }
+  .switch { position: relative; width: 50px; height: 28px; flex: none; }
+  .switch input { position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 1; }
+  .switch u { position: absolute; inset: 0; border-radius: 14px; background: var(--card3); transition: background .15s; }
+  .switch u::after { content: ""; position: absolute; left: 4px; top: 4px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform .15s; }
+  .switch input:checked + u { background: var(--acc); }
+  .switch input:checked + u::after { transform: translateX(22px); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12z"/><path d="M19 16h-12a2 2 0 0 0 -2 2"/><path d="M9 8h6"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"/><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/></symbol>
+  <symbol id="i-tg" viewBox="0 0 24 24"><path d="M15 10l-4 4l6 6l4 -16l-18 7l4 2l2 6l3 -4"/></symbol>
+  <symbol id="i-ds" viewBox="0 0 24 24"><path d="M8 12a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M14 12a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"/><path d="M15.5 17c0 1 1.5 3 2 3c1.5 0 2.833 -1.667 3.5 -3c.667 -1.667 .5 -5.833 -1.5 -11.5c-1.457 -1.015 -3 -1.34 -4.5 -1.5l-.972 1.923a11.913 11.913 0 0 0 -4.053 0l-.975 -1.923c-1.5 .16 -3.043 .485 -4.5 1.5c-2 5.667 -2.167 9.833 -1.5 11.5c.667 1.333 2 3 3.5 3c.5 0 2 -2 2 -3"/><path d="M7 16.5c3.5 1 6.5 1 10 0"/></symbol>
+  <symbol id="i-site" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M3.6 9h16.8"/><path d="M3.6 15h16.8"/><path d="M11.5 3a17 17 0 0 0 0 18"/><path d="M12.5 3a17 17 0 0 1 0 18"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13 -8z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"/><path d="M12 16h.01"/></symbol>
+</svg>
+
+<aside class="side">
+  <img class="mark" src="img/mark.svg" alt="KAVKAZ RP">
+  <button class="nav" data-view="home" aria-selected="true" aria-label="Главная"><svg class="i"><use href="#i-home"/></svg><span>Главная</span></button>
+  <button class="nav" data-view="start" aria-selected="false" aria-label="Как начать"><svg class="i"><use href="#i-book"/></svg><span>Как начать</span></button>
+  <div class="grow"></div>
+  <div id="links" style="display:flex;flex-direction:column;gap:8px"></div>
+  <button class="nav" data-view="settings" aria-selected="false" aria-label="Настройки"><svg class="i"><use href="#i-settings"/></svg><span>Настройки</span></button>
+</aside>
+
+<!-- ГЛАВНАЯ -->
+<main class="on" id="v-home">
+  <div class="hero">
+    <svg class="mtn" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 300V170l70-40 60 28 90-86 70 52 60-34 110 92 70-50 90 64 80-104 90 76 70-38 70 48 70-30v152z" fill="#121316"/>
+      <path d="M0 300V222l90-34 80 30 110-58 90 44 70-26 100 52 90-42 110 50 90-38 80 28 90-22v94z" fill="#0f1012"/>
+      <path d="M0 300v-46l120-20 130 26 140-30 120 24 150-22 120 20 200-12v60z" fill="#0b0c0e"/>
+    </svg>
+  </div>
+  <section class="news" id="news"><div class="head"><span class="chip" id="newsDate"></span><span class="chip acc">Новости</span></div><h3 id="newsTitle"></h3><p id="newsText"></p></section>
+  <section class="right">
+    <img class="logo" src="img/logo.svg" alt="KAVKAZ RP">
+    <div class="tagline">дорога домой начинается здесь</div>
+    <div class="playrow">
+      <span class="status"><span class="dot" id="dot"></span><span id="statusText">Проверяю сервер…</span></span>
+      <button class="play" id="play" disabled><svg class="i"><use href="#i-play"/></svg>Играть</button>
+    </div>
+    <div class="hint" id="hint"></div>
+    <div class="warn bad" id="fivemWarn"><svg class="i"><use href="#i-alert"/></svg><span>FiveM не найден. Без него зайти не получится.</span><button class="btn acc" id="getFivem">Скачать FiveM</button></div>
+    <div class="warn" id="gtaWarn"><svg class="i"><use href="#i-alert"/></svg><span>FiveM не нашёл GTA V по сохранённому пути.</span><button class="btn" data-goto="start">Что делать</button></div>
+  </section>
+  <span class="ver" id="ver">лаунчер v0.3</span>
+</main>
+
+<!-- КАК НАЧАТЬ -->
+<main id="v-start"><div class="page">
+  <h2>Как начать играть</h2>
+  <p class="sub">Три шага. Если игра и FiveM уже стоят, нужен только третий.</p>
+  <div class="steps">
+    <div class="card"><div class="n">Шаг 1</div><b>GTA V на ПК</b><p>Обычная версия (Legacy, издание Premium) из Epic Games или Steam. Enhanced для FiveM не подходит. Запусти игру один раз до главного меню.</p></div>
+    <div class="card"><div class="n">Шаг 2</div><b>FiveM</b><p>Бесплатная программа, через которую запускается сервер. Лаунчер подскажет, если её нет.</p><div class="row"><button class="btn acc" id="getFivem2">Скачать FiveM</button></div></div>
+    <div class="card"><div class="n">Шаг 3</div><b>Нажми «Играть»</b><p>Первый вход дольше: FiveM докачает свои файлы (около 2,5 ГБ), потом ресурсы сервера.</p><div class="row"><button class="btn" data-goto="home">На главную</button></div></div>
+  </div>
+  <div class="stack">
+    <div class="card">
+      <h3>У меня нет GTA V</h3>
+      <ol>
+        <li><b>Игра нужна на твоём аккаунте</b>: Epic Games или Steam.</li>
+        <li>Официальные магазины из России платёж часто не принимают. Многие покупают игру на площадках частных продавцов.</li>
+        <li>Ищи «GTA 5 Epic Games» или «GTA 5 Steam», выбирай продавца с большим числом сделок и хорошими отзывами.</li>
+        <li>Плати прямо на сайте площадки: деньги держатся, пока ты не подтвердишь, что игра работает.</li>
+        <li>Проверь, что это <b>обычная GTA V</b>, а не Enhanced.</li>
+      </ol>
+      <div class="row">
+        <button class="btn" data-link="https://store.epicgames.com/">Epic Games</button>
+        <button class="btn" data-link="https://store.steampowered.com/">Steam</button>
+        <button class="btn" data-link="https://funpay.com/">FunPay</button>
+        <button class="btn" data-link="https://playerok.com/">Playerok</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Осторожно</h3>
+      <ul>
+        <li>Это сторонние продавцы, мы за них не отвечаем и никого не рекомендуем.</li>
+        <li>Аккаунты и ключи иногда блокируют. Безопаснее, когда игра на твоём собственном аккаунте.</li>
+        <li>Не отдавай продавцу пароль от почты и не подтверждай получение, пока игра не запустилась.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Если что-то не работает</h3>
+      <ul>
+        <li>Ошибка про <b>D3DCOMPILER_43.dll</b>: поставь DirectX от Microsoft.</li>
+        <li>Игра зависает на загрузке сервера: <b>Настройки → Очистить кэш FiveM</b>.</li>
+        <li>Для GTA V нужно около 120 ГБ места на диске.</li>
+      </ul>
+    </div>
+  </div>
+</div></main>
+
+<!-- НАСТРОЙКИ -->
+<main id="v-settings"><div class="page">
+  <h2>Настройки</h2>
+  <p class="sub">Всё, что здесь есть, работает.</p>
+  <div class="stack">
+    <div class="card set">
+      <div class="t"><b>Адрес сервера</b><span id="addrInfo">Берётся из общих настроек проекта.</span><div class="res" id="addrRes"></div></div>
+      <div class="acts"><input type="text" id="addr" placeholder="например 185.1.2.3" aria-label="Адрес сервера"><button class="btn" id="saveAddr">Сохранить</button><button class="btn" id="resetAddr">Сбросить</button></div>
+    </div>
+    <div class="card set">
+      <div class="t"><b>Закрывать лаунчер после запуска игры</b><span>Через несколько секунд после нажатия «Играть» окно закроется.</span></div>
+      <label class="switch"><input type="checkbox" id="closeOnPlay" aria-label="Закрывать лаунчер после запуска игры"><u></u></label>
+    </div>
+    <div class="card set">
+      <div class="t"><b>Очистить кэш FiveM</b><span>Помогает, если игра зависает на загрузке. GTA и настройки не удаляются, ресурсы сервера скачаются заново. FiveM нужно закрыть.</span><div class="res" id="cacheRes"></div></div>
+      <button class="btn danger" id="clearCache">Очистить</button>
+    </div>
+    <div class="card set">
+      <div class="t"><b>Папка FiveM</b><span>Открыть папку с файлами FiveM в проводнике.</span><div class="res err" id="folderRes"></div></div>
+      <button class="btn" id="openFolder">Открыть</button>
+    </div>
+    <div class="card set">
+      <div class="t"><b>О лаунчере</b><span>Версия 0.3. Оформление обновляется само при запуске.</span></div>
+      <button class="btn" data-link="https://github.com/fendqwww/kavkaz-rp/releases/tag/launcher-latest">Страница загрузки</button>
+    </div>
+  </div>
+</div></main>
+
+<script>
+  const invoke = window.__TAURI__.core.invoke;
+  const $ = (id) => document.getElementById(id);
+  let cfg = null;
+
+  /* ---------- разделы ---------- */
+  function go(view) {
+    document.querySelectorAll('main').forEach((v) => v.classList.toggle('on', v.id === 'v-' + view));
+    document.querySelectorAll('.nav[data-view]').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.view === view)));
+  }
+  document.querySelectorAll('.nav[data-view]').forEach((t) => (t.onclick = () => go(t.dataset.view)));
+  document.querySelectorAll('[data-goto]').forEach((b) => (b.onclick = () => go(b.dataset.goto)));
+  document.querySelectorAll('[data-link]').forEach((b) => (b.onclick = () => invoke('open_link', { url: b.dataset.link })));
+
+  /* ---------- соцсети из config.json ---------- */
+  function addLink(icon, title, url) {
+    if (!url) return;
+    const b = document.createElement('button');
+    b.className = 'nav'; b.setAttribute('aria-label', title);
+    b.innerHTML = '<svg class="i"><use href="#' + icon + '"/></svg><span></span>';
+    b.querySelector('span').textContent = title;
+    b.onclick = () => invoke('open_link', { url });
+    $('links').appendChild(b);
+  }
+
+  async function refreshStatus() {
+    if (!cfg || !cfg.address) {
+      $('dot').className = 'dot'; $('statusText').textContent = 'Сервер ещё не подключён'; $('play').disabled = true; return;
+    }
+    const s = await invoke('get_status', { address: cfg.address });
+    $('dot').className = s.online ? 'dot ok' : 'dot bad';
+    $('statusText').textContent = s.online ? 'Сервер работает' : 'Сервер недоступен';
+    $('play').disabled = !s.online;
+  }
+
+  function showAddrInfo() {
+    $('addr').value = cfg.address_is_custom ? cfg.address : '';
+    $('addrInfo').textContent = cfg.address_is_custom
+      ? 'Сейчас используется твой адрес. «Сбросить» вернёт общий.'
+      : (cfg.address ? 'Сейчас используется общий адрес проекта.' : 'Общий адрес пока не задан. Можно ввести свой.');
+  }
+
+  async function init() {
+    cfg = await invoke('get_config');
+    addLink('i-tg', 'Telegram', cfg.telegram);
+    addLink('i-ds', 'Discord', cfg.discord);
+    addLink('i-site', 'Сайт', cfg.site);
+    // новость из config.json; запись «Новый лаунчер…» — только для старой версии 0.2, здесь её не показываем
+    const n = (cfg.news || []).find((x) => !(x.title || '').startsWith('Новый лаунчер'));
+    if (n) {
+      $('news').style.display = 'flex';
+      $('newsDate').textContent = n.date || ''; $('newsTitle').textContent = n.title || ''; $('newsText').textContent = n.text || '';
+    }
+    showAddrInfo();
+    const g = await invoke('game_state');
+    $('fivemWarn').style.display = g.fivem ? 'none' : 'flex';
+    $('gtaWarn').style.display = g.fivem && g.gta === 'missing' ? 'flex' : 'none';
+    const st = await invoke('get_settings');
+    $('closeOnPlay').checked = !!st.close_on_play;
+    await refreshStatus();
+    setInterval(refreshStatus, 15000);
+  }
+
+  /* ---------- кнопки ---------- */
+  $('play').onclick = async () => {
+    try { await invoke('play', { address: cfg.address }); $('hint').textContent = 'Запускаю FiveM… Первый вход может занять несколько минут.'; }
+    catch (e) { $('hint').textContent = String(e); }
+  };
+  $('getFivem').onclick = () => invoke('open_link', { url: 'https://fivem.net/' });
+  $('getFivem2').onclick = () => invoke('open_link', { url: 'https://fivem.net/' });
+
+  function res(id, text, err) { const el = $(id); el.textContent = text; el.classList.toggle('err', !!err); }
+  $('saveAddr').onclick = async () => {
+    try { await invoke('set_address', { address: $('addr').value }); cfg = await invoke('get_config'); showAddrInfo(); res('addrRes', 'Сохранено.'); await refreshStatus(); }
+    catch (e) { res('addrRes', String(e), true); }
+  };
+  $('resetAddr').onclick = async () => {
+    try { await invoke('set_address', { address: '' }); cfg = await invoke('get_config'); showAddrInfo(); res('addrRes', 'Вернул общий адрес.'); await refreshStatus(); }
+    catch (e) { res('addrRes', String(e), true); }
+  };
+  $('closeOnPlay').onchange = async (e) => {
+    try { await invoke('set_settings', { settings: { close_on_play: e.target.checked } }); } catch (err) { e.target.checked = !e.target.checked; }
+  };
+  $('clearCache').onclick = async () => {
+    $('clearCache').disabled = true; res('cacheRes', 'Чищу…');
+    try { const r = await invoke('clear_fivem_cache'); res('cacheRes', r.removed ? 'Готово, освободилось около ' + r.freed_mb + ' МБ.' : 'Кэш уже пуст.'); }
+    catch (e) { res('cacheRes', String(e), true); }
+    $('clearCache').disabled = false;
+  };
+  $('openFolder').onclick = async () => {
+    try { await invoke('open_fivem_folder'); res('folderRes', ''); } catch (e) { res('folderRes', String(e), true); }
+  };
+
+  init();
+</script>
+</body>
+</html>

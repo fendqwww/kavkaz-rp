@@ -1,4 +1,6 @@
-// KAVKAZ RP — лаунчер v0.2.
+// KAVKAZ RP — лаунчер v0.3.
+// интерфейс (ui/app.html) лаунчер при старте берёт из репозитория — новый дизайн приходит сам, без переустановки;
+// нет интернета — открывается копия, вшитая в установщик.
 // Берёт адрес сервера из config.json в репозитории, показывает, работает ли сервер,
 // проверяет FiveM и GTA, по кнопке «Играть» открывает fivem://connect/<адрес>.
 // Настройки: свой адрес сервера, закрытие лаунчера после запуска, очистка кэша FiveM, папка FiveM.
@@ -11,6 +13,9 @@ use std::time::Duration;
 const CONFIG_URL: &str =
     "https://raw.githubusercontent.com/fendqwww/kavkaz-rp/claude/serene-franklin-9x1dw5/launcher/config.json";
 const DEFAULT_PORT: u16 = 30120;
+/// свежий интерфейс лаунчера; картинки и шрифты он берёт по <base> из той же папки репозитория
+const UI_URL: &str =
+    "https://raw.githubusercontent.com/fendqwww/kavkaz-rp/claude/serene-franklin-9x1dw5/launcher/ui/app.html";
 
 #[derive(Serialize, Deserialize, Clone, Default)]
 struct News {
@@ -153,6 +158,17 @@ async fn get_config() -> Config {
         cfg.server_name = "KAVKAZ RP".into();
     }
     cfg
+}
+
+/// свежий app.html из репозитория; None — нет сети или файл битый (тогда открывается вшитая копия)
+#[tauri::command]
+async fn get_remote_ui() -> Option<String> {
+    let r = http().get(UI_URL).send().await.ok()?;
+    if !r.status().is_success() {
+        return None;
+    }
+    let html = r.text().await.ok()?;
+    if html.contains("KAVKAZ-LAUNCHER-UI") { Some(html) } else { None }
 }
 
 #[tauri::command]
@@ -309,6 +325,7 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             get_config,
+            get_remote_ui,
             get_status,
             game_state,
             get_settings,
