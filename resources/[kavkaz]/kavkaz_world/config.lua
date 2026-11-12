@@ -54,6 +54,8 @@ Config.HideEverywhere = {
     'prop_letterbox_01', 'prop_letterbox_02', 'prop_letterbox_03',
     'prop_fire_hydrant_1', 'prop_fire_hydrant_2', 'prop_fire_hydrant_4',
     'prop_flag_sapd',
+    -- 12.11: колесо обозрения и вагончики американских горок на пирсе — второй по узнаваемости ориентир GTA
+    'prop_ld_ferris_wheel', 'prop_ferris_car_01', 'prop_roller_car_01', 'prop_roller_car_02',
     -- 12.11: надпись VINEWOOD на холме — самое узнаваемое в GTA: буквы, каркас, лестницы, подсветка, дальние версии
     'ch2_03_sign', 'ch2_03_sign_lod', 'ch2_03_sign_slod', 'ch2_03_signdcal', 'ch2_03_emis_sign_hd', 'ch2_03_emis_sign_lod',
     'ch2_03_emis_sign_slod', 'ch2_03_vsignlite', 'prop_vinewood_sign_01', 'ch2_03_signstructure', 'ch2_03_signstructure_lod', 'ch2_03_ladder_mesh_00',
