@@ -14,6 +14,12 @@ world = root / 'resources' / '[kavkaz]' / 'kavkaz_world'
 img = world / 'images'
 out = img / 'retex'
 FD = pathlib.Path(__file__).resolve().parent / 'fonts'
+BYNAME = None  # --byname <папка>: ещё и <имя_текстуры>.png для retex_job.py
+if '--byname' in sys.argv:
+    i = sys.argv.index('--byname')
+    BYNAME = pathlib.Path(sys.argv[i + 1])
+    BYNAME.mkdir(parents=True, exist_ok=True)
+    del sys.argv[i:i + 2]
 SRCS = [pathlib.Path(a) for a in sys.argv[1:]]
 
 # словарь (без +hi / +hidr — обе версии заменяем), текстура, что ставим, как
@@ -26,7 +32,7 @@ MIN = {
     'shop': ((30, 30, 32), 'ПРОДУКТЫ 24', 'круглосуточно'),
     # 12.11, второй проход (клубы, бары, места, щиты)
     'jewel': ((58, 58, 62), 'ЮВЕЛИРНЫЙ', 'закрыто на ремонт'),
-    'club': ((22, 22, 26), 'НОЧНОЙ КЛУБ', 'вход 18+'),
+    'club': ((22, 22, 26), 'РЕСТОРАН', 'кухня · банкеты'),  # 13.11: основатель — никаких клубов
     'fish': ((28, 72, 104), 'РЫБНЫЙ ДОМ', 'кафе · уха · гриль'),
     'hospital': ((240, 242, 245), 'ГОРОДСКАЯ БОЛЬНИЦА', 'скорая помощь — 103'),
     'beer': ((176, 110, 24), 'ХОЛОДНОЕ ПИВО', 'разливное'),
@@ -282,6 +288,9 @@ def main():
                 res.paste(art, pos)
         name = 'brand_' + txn[:40].lower()
         res.save(out / f'{name}.png', optimize=True)
+        # 13.11: копия под именем текстуры игры — для пересборки моделей (setup/maps/retex_job.py), вне git
+        if BYNAME:
+            res.save(BYNAME / f'{txn.lower()}.png')
         if name not in names:
             names.append(name)
         for suf in SUFFIX:
