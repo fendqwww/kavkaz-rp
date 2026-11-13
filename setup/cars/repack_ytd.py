@@ -231,9 +231,16 @@ def page_room(d, sysf, gfxf):
     reserved = d[pio + 8] + d[pio + 9]
     # свободное (нулевое) место за заголовком — туда игра пишет адреса страниц
     z = pio + 16
-    while z < len(d) and z < pio + 16 + 8 * 256 and d[z] == 0:
+    # 13.11: нули могут быть началом следующей структуры (вылет «Invalid fixup» в cs6_04_lod.ytd: игра затёрла
+    # адресами страниц структуру, начинавшуюся нулями) — свободное место кончается у первой цели указателя
+    stop = pio + 16 + 8 * 256
+    for o in range(0, len(d) - 7, 8):
+        v = struct.unpack_from('<Q', d, o)[0]
+        if v >> 32 == 0 and v >> 28 == 5 and pio + 16 <= (v & 0x0FFFFFFF) < stop:
+            stop = v & 0x0FFFFFFF
+    while z < len(d) and z < stop and d[z] == 0:
         z += 1
-    room = max(reserved, (z - (pio + 20)) // 8)
+    room = min(max(reserved, (z - (pio + 20)) // 8), (stop - (pio + 16)) // 8)
     return pio, max(1, min(room - sys_pages, 127))
 
 
@@ -271,7 +278,7 @@ def repack(path, budget_mb=16, min_side=512, info=False):
     if res is None:
         return ps, ps, 0, 'не удалось разложить страницы'
     shift, counts, offs, total = res
-    if total >= ps:
+    if total >= ps and sum(page_counts(gfxf)) <= limit:
         return ps, ps, 0, 'уже компактно'
     phys = bytearray(total)
     for i, t in enumerate(tex):
