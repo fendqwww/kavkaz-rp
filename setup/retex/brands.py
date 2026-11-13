@@ -42,6 +42,25 @@ MIN = {
     'ad_build': ((236, 236, 238), 'НОВОСТРОЙКИ', 'ипотека от 6%'),
     'ad_mobile': ((110, 40, 160), 'МОБИЛЬНАЯ СВЯЗЬ', 'безлимит за 300 ₽'),
     'ad_auto': ((20, 20, 22), 'АВТОСАЛОН', 'новые и с пробегом'),
+    # 13.11, третий проход: уличные рекламные щиты (Outsource, Pisswasser, Sludgie, Cranley и др.)
+    'ad_cinema': ((26, 26, 30), 'КИНО', 'премьеры каждую неделю'),
+    'ad_theatre': ((112, 24, 32), 'ТЕАТР', 'премьера сезона'),
+    'ad_tv': ((36, 36, 40), 'ГОРОД ТВ', 'новости каждый час'),
+    'ad_pawn': ((44, 40, 34), 'ЛОМБАРД', 'золото · техника · часы'),
+    'ad_realty': ((48, 64, 84), 'КВАРТИРЫ', 'аренда и продажа'),
+    'ad_sport': ((214, 64, 40), 'ФИТНЕС-КЛУБ', 'первая неделя бесплатно'),
+    'ad_travel': ((24, 118, 178), 'ТУРЫ НА МОРЕ', 'горящие путёвки'),
+    'ad_icecream': ((236, 128, 166), 'МОРОЖЕНОЕ', 'пломбир · эскимо · рожки'),
+    'ad_furniture': ((196, 160, 112), 'МЕБЕЛЬ', 'кухни на заказ'),
+    'ad_job': ((34, 110, 200), 'ЕСТЬ РАБОТА', 'водители · курьеры · грузчики'),
+    'ad_lawyer': ((40, 52, 70), 'ЮРИСТ', 'консультация бесплатно'),
+    'ad_electro': ((88, 44, 150), 'ЭЛЕКТРОНИКА', 'смартфоны в рассрочку'),
+    'ad_bakery': ((232, 150, 60), 'ПЕКАРНЯ', 'горячая выпечка'),
+    'ad_sweets': ((92, 50, 30), 'КОНДИТЕРСКАЯ', 'торты на заказ'),
+    'ad_water': ((40, 140, 200), 'ПИТЬЕВАЯ ВОДА', 'доставка 19 л'),
+    'ad_internet': ((236, 236, 238), 'ДОМАШНИЙ ИНТЕРНЕТ', 'от 450 ₽ в месяц'),
+    'ad_dent': ((244, 246, 248), 'СТОМАТОЛОГИЯ', 'лечим без боли'),
+    'ad_police': ((24, 52, 110), 'СЛУЖБА В ПОЛИЦИИ', 'набор по контракту'),
 }
 NEON = {'ТАТУ': (255, 70, 50), 'ПИВО': (255, 176, 40), 'РЫБНЫЙ ДОМ': (60, 170, 255)}
 B = [
@@ -85,14 +104,68 @@ B = [
 ] + [(t, 'gz_v_ta_tattoowingz_v_ta_tattoowin_a', 'neon:ТАТУ', 'full')
      for t in ('ch1_11_ilod', 'hw1_02_bld3x', 'hw1_02_ilod', 'id1_25_lod', 'v_36_tattootxd', 'vb_28_lod')]
 
+# 13.11, третий проход: уличные щиты. одна реклама на всю текстуру — 'bbox' (у непрозрачных = вся текстура);
+# две рекламы верх/низ (проверено: делятся ровно пополам) — 'two:верх,низ'
+B += [
+    ('dt1_20_ground2', 'accountant_tvshow_billboard_3x1_ingame', 'min:ad_tv', 'bbox'),
+    ('hei_dt1_20_ground2', 'accountant_tvshow_billboard_3x1_ingame', 'min:ad_tv', 'bbox'),
+    ('cs4_09_bilbrd_01', 'bills_foreclosure_billboard_1024', 'min:ad_realty', 'bbox'),
+    ('id1_25_billboard01', 'bills_foreclosure_billboard_2x1', 'min:ad_realty', 'bbox'),
+    ('id1_07_lod', 'burgershot_meatshavings_billboard_graffiti_512x256', 'min:burger', 'bbox'),
+    ('cs2_01_bb_global_hd', 'cs2_01_rsl_bw_billboard_a', 'min:ad_water', 'bbox'),
+    ('kt1_01_04', 'divorce_wall_poster_richardsmajesticposter_alpha_testv2', 'min:ad_theatre', 'bbox'),
+    ('kt1_01_04', 'nelsonnaples_wall_poster_richardsmajesticposter_alpha_test', 'min:ad_cinema', 'bbox'),
+    ('kt1_01_04', 'orion_wall_poster_richardsmajesticposter_alpha_test', 'min:ad_theatre', 'bbox'),
+    ('dt1_14_build3', 'dt1_14_cmk_billboard02', 'min:ad_internet', 'bbox'),
+    ('dt1_17_bb_credit', 'dt1_17_cmk_billboard01', 'min:ad_sport', 'bbox'),
+    ('dt1_17_build1', 'dt1_17_cmk_billboard01', 'min:ad_sport', 'bbox'),
+    ('dt1_18_build', 'egochaser_energy_billboard_short', 'min:ad_travel', 'bbox'),
+    ('id1_30_build05', 'fridgit2by1_decalfridgit2by1_billboard_a', 'min:ad_water', 'bbox'),
+    ('dt1_09_carpark', 'im_billboard_piswasser_01', 'min:beer', 'bbox'),
+    ('hw1_02_bld6', 'imarriedmydad_movie_billboard_2x1', 'min:ad_cinema', 'bbox'),
+    ('id1_32_build666a', 'krapea_store_billboard_2x1', 'min:ad_furniture', 'bbox'),
+    ('kt1_04_landa', 'kt1_04_ragebillboard_01_d', 'min:ad_cinema', 'bbox'),
+    ('sc1_18_build1', 'lavacaloca_fastfood_billboard_2x1', 'min:burger', 'bbox'),
+    ('dt1_09_billboards', 'lenny_avery_billboard_long_ingame', 'min:ad_realty', 'bbox'),
+    ('dt1_15_build3', 'no_joker_pawnbroker_creditcrunchwebsite_billboard_1024', 'min:ad_pawn', 'bbox'),
+    ('sc1_02_sprayshop2', 'piswasser_billboard_night_2x1', 'min:beer', 'bbox'),
+    ('ch3_03_col', 'ql_coil_billboard_24x1', 'min:ad_auto', 'bbox'),
+    ('ch3_03_righteousslaughter', 'ql_righteousslaughter_billboard_24x1', 'min:ad_cinema', 'bbox'),
+    ('sc1_13_stripsgn', 'sc1_13_rsd_hj_bboard_0001', 'min:ad_sweets', 'bbox'),
+    ('sc1_14_build2', 'sc1_14_rsn_ns_billboard_0001', 'min:ad_job', 'bbox'),
+    ('sc1_24_build1', 'sc1_24_rsn_ns_bboard_0001', 'min:bank', 'bbox'),
+    ('sc1_25_shops_02', 'sc1_25_rsd_jp_billboard_0001', 'min:ad_cinema', 'bbox'),
+    ('id1_30_build03', 'sludgie24by1_billboard_colourful', 'min:ad_icecream', 'bbox'),
+    ('hw1_23_build1', 'hw_23_rsd_hj_billboard_001', 'min:ad_furniture', 'bbox'),
+    ('hw1_14_building', 'hw1_14_rsn_billboard_0001', 'two:ad_tv,ad_sport', 'full'),  # Outsource / Vinewood Sports
+    ('hw1_18_ground01', 'sludgie3by1_billboard_col_bb', 'two:ad_icecream,ad_auto', 'full'),
+    ('id1_26_building_sign', 'id1_26_cmk_bboard01', 'two:bank,kvas', 'full'),
+    ('id1_26_ground', 'id1_26_cmk_bboard01', 'two:bank,kvas', 'full'),
+    ('po1_05_billboard_01', 'po1_05_billboards_01', 'two:ad_cinema,ad_auto', 'full'),
+    ('po1_09_ground', 'coil_billboard_dirty', 'two:ad_auto,beer', 'full'),
+    ('sc1_01_bb_meltdown', 'sc1_03_rsn_ns_bboard_0001', 'two:ad_cinema,ad_bakery', 'full'),
+    ('sc1_01_build1', 'sc1_03_rsn_ns_bboard_0001', 'two:ad_cinema,ad_bakery', 'full'),
+    ('sc1_04_bld_01', 'sc1_04_rsn_ns_bboard_0001', 'two:ad_pawn,bank', 'full'),
+    ('sc1_04_bld_02', 'sc1_04_rsn_ns_bboard_0002', 'two:ad_icecream,ad_cinema', 'full'),
+    ('sc1_06_build01', 'sc1_06_rsd_hj_bboard_0001', 'two:ad_furniture,ad_dent', 'full'),
+    ('sc1_11_mall2', 'sc1_11_rsn_billboard1', 'two:ad_cinema,ad_electro', 'full'),
+    ('sc1_12_bb', 'sc1_12_rsd_hj_bboard_0001', 'two:beer,ad_bakery', 'full'),
+    ('sc1_20_building', 'sc1_20_bboard_0002', 'two:ad_lawyer,burger', 'full'),
+    ('sc1_31_shops01', 'sc1_20_rsn_ns_bboard_0001', 'two:ad_cinema,ad_auto', 'full'),
+    ('sc1_20_ground', 'sc1_20_rsn_ns_bboard_0002', 'two:ad_internet,ad_mobile', 'full'),
+    ('sc1_28_shops', 'sc1_28_rsn_ns_bboards_0002', 'two:ad_water,ad_tv', 'full'),
+    ('sc1_28_shops2', 'sc1_28_rsn_ns_bboards_0003', 'two:ad_dent,beer', 'full'),
+    ('po1_03', 'gg_po1_03_billboard1', 'two:ad_police,ad_electro', 'full'),
+]
+
 
 def minimal(kind, w, h):
     bg, title, sub = MIN[kind]
     K = 2
     im = Image.new('RGBA', (w * K, h * K), bg + (255,))
     d = ImageDraw.Draw(im)
-    light = sum(bg) > 600
-    fg = (30, 30, 32, 255) if kind == 'chicken' or light else (250, 250, 250, 255)
+    light = 0.299 * bg[0] + 0.587 * bg[1] + 0.114 * bg[2] > 160  # по яркости: на светлом (и жёлтом) — тёмный текст
+    fg = (30, 30, 32, 255) if light else (250, 250, 250, 255)
     # высокая узкая вывеска — слова столбиком
     lines = title.split(' ') if h > w * 1.2 else [title]
     size = int(h * K * (0.42 if len(lines) == 1 else 0.6 / len(lines)))
