@@ -1,0 +1,33 @@
+{
+    "notify": {
+        "hud_settings_loaded": "Настройки HUD загружены",
+        "hud_restart": "HUD перезапускается...",
+        "hud_start": "HUD запущен",
+        "hud_command_info": "Эта команда сбрасывает настройки HUD!",
+        "load_square_map": "Загружаем квадратную карту...",
+        "loaded_square_map": "Квадратная карта загружена",
+        "load_circle_map": "Загружаем круглую карту...",
+        "loaded_circle_map": "Круглая карта загружена",
+        "cinematic_on": "Кино-режим включён",
+        "cinematic_off": "Кино-режим выключен",
+        "engine_on": "Двигатель заведён",
+        "engine_off": "Двигатель заглушен",
+        "low_fuel": "Мало топлива!",
+        "access_denied": "Нет доступа",
+        "stress_gain": "Ты нервничаешь сильнее",
+        "stress_removed": "Ты успокоился"
+    },
+    "info": {
+        "open_menu": "Открыть меню HUD"
+    },
+    "commands": {
+        "cash": "cash",
+        "bank": "bank",
+        "dev": "dev",
+        "help": {
+            "cash": "Сколько наличных",
+            "bank": "Сколько на счету в банке",
+            "dev": "Режим разработчика вкл/выкл"
+        }
+    }
+}

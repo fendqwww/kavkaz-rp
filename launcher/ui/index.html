@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>KAVKAZ RP</title>
+<style>html, body { margin: 0; height: 100%; background: #0b0c0e; }</style>
+</head>
+<body>
+<script>
+  // KAVKAZ RP: загрузчик интерфейса лаунчера v0.3.
+  // берём свежий ui/app.html из репозитория (новый дизайн без переустановки); картинки и шрифты — оттуда же по <base>.
+  // нет сети — открываем копию app.html, вшитую в установщик.
+  const BASE = 'https://raw.githubusercontent.com/fendqwww/kavkaz-rp/claude/serene-franklin-9x1dw5/launcher/ui/';
+  (async () => {
+    let html = null;
+    try { html = await window.__TAURI__.core.invoke('get_remote_ui'); } catch (e) { html = null; }
+    if (html) {
+      document.open();
+      document.write(html.replace('<head>', '<head><base href="' + BASE + '">'));
+      document.close();
+    } else {
+      location.replace('app.html');
+    }
+  })();
+</script>
+</body>
+</html>

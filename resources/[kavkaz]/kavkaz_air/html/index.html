@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><title>KAVKAZ пневма</title>
+<style>html,body{margin:0;background:transparent;overflow:hidden}</style></head>
+<body>
+<script>
+// KAVKAZ RP — звук пневмоподвески. всё синтезируется (WebAudio), без чужих записей.
+// вниз: щелчок клапана и долгое «пссссс» — воздух выходит (шум, полоса 2.5–7 кГц, уходит ниже и затихает);
+// вверх: гул компрессора (низкое жужжание) + тихое «шшш» накачки, в конце щелчок клапана.
+// крутить звук — в SND.
+const SND = {
+  down: { hp: 2200, from: 6500, to: 3200, q: 0.8, gain: 0.9, minDur: 0.7, tail: 0.35 },
+  up:   { motor: 92, motorGain: 0.32, hiss: 2400, hissGain: 0.22, minDur: 0.6 },
+  click: 0.5,
+  master: 0.7,
+};
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -10; comp.ratio.value = 4;
+comp.connect(ctx.destination);
+
+// белый шум 2 с — источник для «пссс»
+const noiseBuf = (() => {
+  const b = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+  const d = b.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  return b;
+})();
+function noise(t, dur) {
+  const s = ctx.createBufferSource(); s.buffer = noiseBuf; s.loop = true;
+  s.start(t, Math.random()); s.stop(t + dur + 0.1);
+  return s;
+}
+function out(vol, pan) {
+  const g = ctx.createGain(); g.gain.value = vol * SND.master;
+  const p = ctx.createStereoPanner(); p.pan.value = pan;
+  g.connect(p); p.connect(comp);
+  return g;
+}
+// щелчок клапана: очень короткий щелчок с низким «тук»
+function click(t, dst, k = 1) {
+  const n = noise(t, 0.03);
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1800; bp.Q.value = 1.2;
+  const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(SND.click * k, t + 0.002); g.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+  n.connect(bp); bp.connect(g); g.connect(dst);
+  const o = ctx.createOscillator(); o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(60, t + 0.05);
+  const og = ctx.createGain(); og.gain.setValueAtTime(0.4 * k, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+  o.connect(og); og.connect(dst); o.start(t); o.stop(t + 0.07);
+}
+
+// «пссссс»: воздух выходит — сначала резко и громко, потом тише и ниже
+function down(dur, vol, pan) {
+  const s = SND.down, t = ctx.currentTime + 0.01, D = Math.max(s.minDur, dur) + s.tail;
+  const dst = out(vol, pan);
+  click(t, dst);
+  const n = noise(t, D);
+  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = s.hp;
+  const bp = ctx.createBiquadFilter(); bp.type = 'peaking'; bp.Q.value = s.q; bp.gain.value = 9;
+  bp.frequency.setValueAtTime(s.from, t); bp.frequency.exponentialRampToValueAtTime(s.to, t + D);
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(11000, t); lp.frequency.exponentialRampToValueAtTime(5200, t + D);
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(s.gain, t + 0.015);          // «п»
+  g.gain.exponentialRampToValueAtTime(s.gain * 0.55, t + 0.25); // «сссс»
+  g.gain.setValueAtTime(s.gain * 0.55, t + D * 0.7);
+  g.gain.exponentialRampToValueAtTime(0.001, t + D);           // затихает
+  n.connect(hp); hp.connect(bp); bp.connect(lp); lp.connect(g); g.connect(dst);
+}
+
+// накачка: компрессор жужжит, воздух шипит тише, в конце щелчок
+function up(dur, vol, pan) {
+  const s = SND.up, t = ctx.currentTime + 0.01, D = Math.max(s.minDur, dur);
+  const dst = out(vol, pan);
+  click(t, dst, 0.7);
+  const m = ctx.createGain(); m.gain.setValueAtTime(0, t); m.gain.linearRampToValueAtTime(s.motorGain, t + 0.08);
+  m.gain.setValueAtTime(s.motorGain, t + D - 0.08); m.gain.linearRampToValueAtTime(0, t + D);
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700;
+  for (const [mul, type] of [[1, 'sawtooth'], [2.01, 'square']]) {
+    const o = ctx.createOscillator(); o.type = type;
+    o.frequency.setValueAtTime(s.motor * mul * 0.9, t); o.frequency.linearRampToValueAtTime(s.motor * mul, t + 0.2); // раскрутка мотора
+    o.connect(lp); o.start(t); o.stop(t + D + 0.05);
+  }
+  lp.connect(m); m.connect(dst);
+  const n = noise(t, D);
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = s.hiss; bp.Q.value = 0.9;
+  const h = ctx.createGain(); h.gain.setValueAtTime(0, t); h.gain.linearRampToValueAtTime(s.hissGain, t + 0.1);
+  h.gain.setValueAtTime(s.hissGain, t + D - 0.1); h.gain.linearRampToValueAtTime(0, t + D);
+  n.connect(bp); bp.connect(h); h.connect(dst);
+  click(t + D, dst, 0.9);
+}
+
+window.addEventListener('message', (e) => {
+  const d = e.data || {};
+  if (d.action !== 'air' || !(d.vol > 0.01)) return;
+  if (ctx.state !== 'running') ctx.resume();
+  (d.kind === 'down' ? down : up)(d.dur || 0.8, d.vol, d.pan || 0);
+});
+
+// предпросмотр в браузере: index.html?preview
+if (location.search.includes('preview')) {
+  document.body.style.cssText = 'background:#121314;color:#eee;font:16px sans-serif;padding:24px';
+  for (const [label, fn] of [['вниз (пссс)', () => down(1.0, 1, 0)], ['вниз на брюхо', () => down(1.6, 1, 0)], ['вверх', () => up(0.9, 1, 0)]]) {
+    const b = document.createElement('button'); b.textContent = label; b.style.margin = '4px';
+    b.onclick = () => { ctx.resume(); fn(); }; document.body.appendChild(b);
+  }
+}
+</script>
+</body></html>

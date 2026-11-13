@@ -1,0 +1,17 @@
+{
+    "toggle_front_driver_door": "Дверь водителя",
+    "toggle_front_passenger_door": "Передняя пассажирская дверь",
+    "toggle_rear_driver_door": "Задняя левая дверь",
+    "toggle_rear_passenger_door": "Задняя правая дверь",
+    "toggle_hood": "Капот",
+    "toggle_trunk": "Багажник",
+    "debug_box": "(Отладка) Коробка",
+    "debug_sphere": "(Отладка) Сфера",
+    "debug_police_car": "Полицейская машина",
+    "debug_ped": "(Отладка) Человек",
+    "debug_vehicle": "(Отладка) Машина",
+    "debug_object": "(Отладка) Объект",
+    "debug_global": "(Отладка) Везде",
+    "toggle_targeting": "Взаимодействие (удерживай)",
+    "go_back": "Назад"
+}

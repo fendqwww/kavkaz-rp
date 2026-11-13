@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>KAVKAZ HUD</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 7.9 3.6 4.5 7 4.5c2 0 3.3 1 5 2.9 1.7-1.9 3-2.9 5-2.9 3.4 0 5.6 3.4 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2.5 4 5.5v6c0 5 3.4 8.6 8 10 4.6-1.4 8-5 8-10v-6l-8-3z"/></symbol>
+    <symbol id="i-food" viewBox="0 0 24 24"><path d="M7 2.5v7.2a2.6 2.6 0 0 0 1.5 2.4V21.5h2V12.1A2.6 2.6 0 0 0 12 9.7V2.5h-1.6v6.2H9.7V2.5H8.3v6.2h-.7V2.5H7zm9.5 0c-1.9 1-3 3.4-3 6.3 0 2 .8 3.4 2 3.9v8.8h2v-19h-1z"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2.5S5.5 9.6 5.5 14.3a6.5 6.5 0 0 0 13 0C18.5 9.6 12 2.5 12 2.5z"/></symbol>
+    <symbol id="i-stress" viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/></symbol>
+    <symbol id="i-air" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4.5"/><circle cx="16" cy="9" r="3.2"/><circle cx="17.5" cy="17.5" r="2"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 14.5a3.5 3.5 0 0 0 3.5-3.5V5.5a3.5 3.5 0 0 0-7 0V11a3.5 3.5 0 0 0 3.5 3.5zm6-3.5h-1.8a4.2 4.2 0 0 1-8.4 0H6a6 6 0 0 0 5 5.9v3.1h2v-3.1A6 6 0 0 0 18 11z"/></symbol>
+    <symbol id="i-radio" viewBox="0 0 24 24"><path d="M8 2.5 6.6 3.2 8.4 7H6a2 2 0 0 0-2 2v10.5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H10.6L8 2.5zM8.5 11a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm6 .5h3v1.5h-3v-1.5zm0 3h3V16h-3v-1.5z"/></symbol>
+    <symbol id="i-fuel" viewBox="0 0 24 24"><path d="M5 3.5h8.5a1 1 0 0 1 1 1V11h1a2 2 0 0 1 2 2v4.5a1 1 0 0 0 2 0V9.4l-2.2-2.2 1.1-1.1L21 8.6v8.9a3 3 0 0 1-6 0V13h-.5v7.5H4V4.5a1 1 0 0 1 1-1zm1.5 2V10h6.5V5.5H6.5z"/></symbol>
+    <symbol id="i-belt" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2.3"/><path d="M8.5 8.5h7l1.5 6h-2l-.5 7h-5l-.5-7h-2l1.5-6zm6.2.8-6.6 7.6 1.3 1.1 6.6-7.6-1.3-1.1z"/></symbol>
+    <symbol id="i-engine" viewBox="0 0 24 24"><path d="M7 5.5h6v2h-2V9h4l2 2h1.5V9H20v8h-1.5v-2H17l-2 3H8.5l-2-2.5H5V18H3v-8h2v2.5h1.5L8 9h1V7.5H7v-2z"/></symbol>
+    <symbol id="i-lights" viewBox="0 0 24 24"><path d="M13 5c4.4 0 7.5 3.1 7.5 7s-3.1 7-7.5 7h-1.5V5H13zM2.5 7.5l7-1v1.8l-7 1V7.5zm0 4l7-.5v2l-7-.5v-1zm0 4 7 1v1.8l-7-1v-1.8z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><path d="M7 10V7.5a5 5 0 0 1 10 0V10h1.5v11.5h-13V10H7zm2 0h6V7.5a3 3 0 0 0-6 0V10z"/></symbol>
+    <symbol id="i-unlock" viewBox="0 0 24 24"><path d="M9 10h9.5v11.5h-13V10H7V7.5a5 5 0 0 1 9.7-1.7l-1.9.6A3 3 0 0 0 9 7.5V10z"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 6.5h14a1 1 0 0 1 1 1V9h1.5v8H19v1.5a1 1 0 0 1-1 1H4a1.5 1.5 0 0 1-1.5-1.5V8A1.5 1.5 0 0 1 4 6.5zm11 4.5a2 2 0 0 0 0 4h4v-4h-4z"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><path d="M3.5 5.5h17a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-17a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1zm-1 3v2.5h19V8.5h-19zm2 6v1.5h5v-1.5h-5z"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 19a5 5 0 0 1-.6-9.96A6 6 0 0 1 18 8.5a4.5 4.5 0 0 1-.5 10.5H7z"/></symbol>
+  </defs>
+</svg>
+
+<div id="hud" class="off">
+
+  <!-- справа сверху: логотип, онлайн, ID -->
+  <section id="brand">
+    <div class="logo"><img src="logo.svg" alt="KAVKAZ RP"></div>
+    <div class="meta">онлайн <b id="online">0</b><span class="sl">/<span id="slots">48</span></span><i></i>ID <b id="pid">0</b></div>
+  </section>
+
+  <!-- справа: подсказки по клавишам (F6 — скрыть) -->
+  <section id="hints"></section>
+
+  <!-- у миникарты: состояние, время, район, деньги -->
+  <section id="info">
+    <div id="pops"></div>
+    <div class="status" id="status">
+      <div class="st hp" id="s-hp"><svg><use href="#i-heart"/></svg><b></b></div>
+      <div class="st armor" id="s-armor"><svg><use href="#i-shield"/></svg><b></b></div>
+      <div class="st hunger" id="s-hunger"><svg><use href="#i-food"/></svg><b></b></div>
+      <div class="st thirst" id="s-thirst"><svg><use href="#i-drop"/></svg><b></b></div>
+      <div class="st stress" id="s-stress"><svg><use href="#i-stress"/></svg><b></b></div>
+      <div class="st oxygen" id="s-oxygen"><svg><use href="#i-air"/></svg><b></b></div>
+      <div class="voice" id="voice"><svg><use href="#i-mic"/></svg><span class="bars"><i></i><i></i><i></i></span></div>
+      <div class="radio" id="radio"><svg><use href="#i-radio"/></svg><b id="radio-ch"></b></div>
+    </div>
+    <div class="when"><b class="num" id="clock">00:00</b><span class="num" id="date">01.01.2026</span></div>
+    <div class="day"><span id="weekday">понедельник</span><span class="dot"></span><span id="weather">ясно</span></div>
+    <div class="place"><b id="zone">Нагорск</b><span id="dir">С</span></div>
+    <div class="money">
+      <div class="cash"><svg><use href="#i-wallet"/></svg><b class="num" id="cash">0</b><span class="rub">₽</span></div>
+      <div class="bank"><svg><use href="#i-card"/></svg><b class="num" id="bank">0</b><span class="rub">₽</span></div>
+    </div>
+  </section>
+
+  <!-- справа снизу: спидометр «А» — дуга 240°, цифры барабаном -->
+  <section id="speedo" class="off">
+    <svg class="dial" viewBox="0 0 380 300">
+      <path class="track" id="d-track"/>
+      <path class="red" id="d-red"/>
+      <path class="fill" id="d-fill" pathLength="1000"/>
+      <path class="rpm" id="d-rpm" pathLength="1000"/>
+      <g id="d-ticks"></g>
+    </svg>
+    <div class="mid">
+      <div class="gear" id="gear">N</div>
+      <div class="reel" id="reel"></div>
+    </div>
+    <div class="unit">КМ/Ч</div>
+    <div class="row">
+      <span class="fuel" id="fuel"><svg><use href="#i-fuel"/></svg><i><s id="fuel-bar"></s></i><b class="num" id="fuel-val">100</b></span>
+      <span id="v-belt"><svg><use href="#i-belt"/></svg></span>
+      <span id="v-engine"><svg><use href="#i-engine"/></svg></span>
+      <span id="v-lights"><svg><use href="#i-lights"/></svg></span>
+      <span id="v-lock"><svg><use id="v-lock-ico" href="#i-unlock"/></svg></span>
+    </div>
+  </section>
+</div>
+
+<!-- без сознания: таймер и что нажать (данные — overrides qbx_ambulancejob/client/setdownedstate.lua) -->
+<section id="down" class="off">
+  <div class="dn-title" id="dn-title">Без сознания</div>
+  <div class="dn-time num" id="dn-time">1:00</div>
+  <div class="dn-sub" id="dn-sub"></div>
+  <div class="dn-hold" id="dn-hold"><i></i></div>
+</section>
+
+<script src="app.js"></script>
+</body>
+</html>
