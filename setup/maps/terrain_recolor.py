@@ -44,7 +44,10 @@ def recolor(img):
 
 import re  # noqa: E402
 # камень, скалы и грунтовые дороги остаются как есть (на Кавказе скалы серые, грунтовки коричневые)
-KEEP = re.compile(r'rock|cliff|stone|boulder|dirt|track|gravel|road|path|mud|concrete|tarmac', re.I)
+KEEP = re.compile(r'rock|cliff|stone|boulder|dirt|track|gravel|road|path|mud|concrete|tarmac'
+                  # 13.11: nxg_*_h и маски смешивания (msk/mask) — карты данных, не картинки; их перекраска
+                  # дала розово-красные пятна земли у Форта Занкудо (старый kv_map_steppe, исправлен)
+                  r'|^nxg_.*_h$|msk|mask', re.I)
 
 
 def is_mask(im):
