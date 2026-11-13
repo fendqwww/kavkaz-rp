@@ -1,0 +1,59 @@
+"""KAVKAZ RP: подмена картинок там, где игра реально рисует их вблизи — внутри моделей (.ydr, встроенные текстуры)
+и в словарях (.ytd, в т. ч. +hi/+hidr). Подмена «на лету» (AddReplaceTexture) на встроенные текстуры карты не действует,
+поэтому файлы пересобираются целиком и стримятся ресурсом (как пустыня kv_map_steppe).
+
+blender -b --factory-startup -P setup/maps/retex_build_blender.py -- <job.json> <папка вывода>
+job.json: [{"kind": "ydr" | "ytd", "name": "dt1_09_billboards", "tex": {"имя_текстуры": "путь/к/картинке.dds"}}, ...]
+имя без расширения, как в игре; для ytd можно с суффиксом (+hi, +hidr). отсутствующие в файле текстуры пропускаются.
+"""
+import addon_utils
+import json
+import sys
+from pathlib import Path
+
+argv = sys.argv[sys.argv.index('--') + 1:]
+JOB, OUT = Path(argv[0]), Path(argv[1])
+OUT.mkdir(parents=True, exist_ok=True)
+addon_utils.enable('Sollumz', default_set=True)
+from Sollumz.shared.game_assets.game_files import GameFiles  # noqa: E402
+from szio.gta5 import try_load_asset, save_asset, AssetTarget, AssetFormat, AssetVersion  # noqa: E402
+from szio.types import DataSource  # noqa: E402
+
+GAME = r'D:\gta enhansed\GTAV'
+target = [AssetTarget(AssetFormat.NATIVE, AssetVersion.GEN8)]
+idx = GameFiles(GAME).read_asset_filelist()
+look = {}
+for ext in ('.ydr', '.ytd', '.ydd'):
+    for k, v in idx.get((ext,), {}).items():
+        look[(ext[1:], str(k).lower())] = v[0] if isinstance(v, (list, tuple)) else v
+
+jobs = json.load(open(JOB, encoding='utf-8'))
+done = skipped = 0
+for j in jobs:
+    kind, name = j['kind'], j['name']
+    p = look.get((kind, name.lower()))
+    if not p:
+        print('KAVKAZ нет в игре', kind, name, flush=True)
+        skipped += 1
+        continue
+    try:
+        a = try_load_asset(p)
+        texs = a.textures if kind == 'ytd' else a.shader_group.embedded_textures
+        texs = {str(k).lower(): (k, v) for k, v in (texs or {}).items()}
+        n = 0
+        for t, dds in j['tex'].items():
+            hit = texs.get(t.lower())
+            if hit:
+                hit[1].data = DataSource.create(dds, hit[0] + '.dds')
+                n += 1
+        if not n:
+            print('KAVKAZ нет текстур', kind, name, list(j['tex'])[:3], flush=True)
+            skipped += 1
+            continue
+        save_asset(a, target, OUT, name)
+        done += 1
+        print('KAVKAZ ok', kind, name, n, flush=True)
+    except Exception as e:  # noqa
+        print('KAVKAZ ERR', kind, name, repr(e)[:200], flush=True)
+        skipped += 1
+print('KAVKAZ итог: собрано', done, 'пропущено', skipped, flush=True)
