@@ -50,6 +50,13 @@ for j in jobs:
             print('KAVKAZ нет текстур', kind, name, list(j['tex'])[:3], flush=True)
             skipped += 1
             continue
+        if kind == 'ydr':
+            # у части шейдеров карты имя пресета не распознаётся (None) — Sollumz такое не сохраняет (AssertionError);
+            # берём пресет у шейдера с тем же именем (hw1_15_build2: default → default.sps)
+            known = {s.name: s.preset_filename for s in a.shader_group.shaders if s.preset_filename}
+            for s in a.shader_group.shaders:
+                if not s.preset_filename and s.name in known:
+                    s.preset_filename = known[s.name]
         save_asset(a, target, OUT, name)
         done += 1
         print('KAVKAZ ok', kind, name, n, flush=True)
