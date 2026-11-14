@@ -13,6 +13,9 @@ from pathlib import Path
 
 argv = sys.argv[sys.argv.index('--') + 1:]
 JOB, OUT = Path(argv[0]), Path(argv[1])
+# --base <папка>: если там есть файл с тем же именем (уже перекрашенный другим нашим ресурсом — дороги, пустыня),
+# собираем поверх него, а не поверх оригинала игры. иначе два ресурса стримят один файл и в игре виден только один.
+BASE = Path(argv[argv.index('--base') + 1]) if '--base' in argv else None
 OUT.mkdir(parents=True, exist_ok=True)
 addon_utils.enable('Sollumz', default_set=True)
 from Sollumz.shared.game_assets.game_files import GameFiles  # noqa: E402
@@ -32,29 +35,38 @@ done = skipped = 0
 for j in jobs:
     kind, name = j['kind'], j['name']
     p = look.get((kind, name.lower()))
+    if BASE and (BASE / f'{name}.{kind}').exists():
+        p = str(BASE / f'{name}.{kind}')
+        print('KAVKAZ основа', p, flush=True)
     if not p:
         print('KAVKAZ нет в игре', kind, name, flush=True)
         skipped += 1
         continue
     try:
         a = try_load_asset(p)
-        texs = a.textures if kind == 'ytd' else a.shader_group.embedded_textures
-        texs = {str(k).lower(): (k, v) for k, v in (texs or {}).items()}
+        if kind == 'ytd':
+            groups = [a.textures]
+        elif kind == 'ydd':  # набор моделей: у каждой свои встроенные текстуры
+            groups = [d.shader_group.embedded_textures for d in a.drawables.values() if d.shader_group]
+        else:
+            groups = [a.shader_group.embedded_textures]
         n = 0
-        for t, dds in j['tex'].items():
-            hit = texs.get(t.lower())
-            if hit:
-                hit[1].data = DataSource.create(dds, hit[0] + '.dds')
-                n += 1
+        for g in groups:
+            texs = {str(k).lower(): (k, v) for k, v in (g or {}).items()}
+            for t, dds in j['tex'].items():
+                hit = texs.get(t.lower())
+                if hit:
+                    hit[1].data = DataSource.create(dds, hit[0] + '.dds')
+                    n += 1
         if not n:
             print('KAVKAZ нет текстур', kind, name, list(j['tex'])[:3], flush=True)
             skipped += 1
             continue
-        if kind == 'ydr':
+        for sg in ([a.shader_group] if kind == 'ydr' else [d.shader_group for d in a.drawables.values() if d.shader_group] if kind == 'ydd' else []):
             # у части шейдеров карты имя пресета не распознаётся (None) — Sollumz такое не сохраняет (AssertionError);
             # берём пресет у шейдера с тем же именем (hw1_15_build2: default → default.sps)
-            known = {s.name: s.preset_filename for s in a.shader_group.shaders if s.preset_filename}
-            for s in a.shader_group.shaders:
+            known = {s.name: s.preset_filename for s in sg.shaders if s.preset_filename}
+            for s in sg.shaders:
                 if not s.preset_filename and s.name in known:
                     s.preset_filename = known[s.name]
         save_asset(a, target, OUT, name)
