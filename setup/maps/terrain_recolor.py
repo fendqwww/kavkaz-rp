@@ -56,6 +56,11 @@ def is_mask(im):
     return (r + b) / 2 > g * 1.35 and min(r, b) > 60
 
 
+# 14.11: атласы зданий и материалов в дальних словарях (фасады, черепица, ржавчина, доски, щиты, жёлтая разметка) —
+# по доле «песка» их тоже отбирало, и издалека дома и крыши становились салатовыми. имена проверены глазами по листам превью.
+EXCLUDE = {ln.strip().lower() for ln in open(os.path.join(os.path.dirname(__file__), 'recolor_exclude.txt'), encoding='utf-8')
+           if ln.strip() and not ln.startswith('#')}
+
 listing = json.load(open(os.path.join(root, 'list.json')))
 done, previews = 0, []
 for ytd, info in listing.items():
@@ -64,7 +69,7 @@ for ytd, info in listing.items():
         newp = os.path.join(root, ytd, t + '.new.dds')
         if os.path.exists(newp):
             os.remove(newp)  # пересборка: старый результат не нужен
-        if KEEP.search(t):
+        if KEEP.search(t) or t.lower() in EXCLUDE:
             continue
         try:
             with Image.open(src) as im:

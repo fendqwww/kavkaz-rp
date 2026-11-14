@@ -1,5 +1,5 @@
 """KAVKAZ RP: «убрать пустыню» — шаг 3: собрать словари текстур земли для FiveM (gen8) с перекрашенными текстурами.
-blender -b --factory-startup -P setup/maps/terrain_build_blender.py -- <папка из шагов 1-2> <resources/[maps]/kv_map_steppe/stream>
+blender -b --factory-startup -P setup/maps/terrain_build_blender.py -- <папка из шагов 1-2> <resources/[maps]/kv_map_steppe/stream> [list.json]
 словарь игры читается целиком (все текстуры), перекрашенные (<имя>.new.dds) подменяются, сохраняется под тем же именем.
 """
 import addon_utils
@@ -15,7 +15,8 @@ addon_utils.enable('Sollumz', default_set=True)
 from szio.gta5 import try_load_asset, save_asset, AssetTarget, AssetFormat, AssetVersion  # noqa: E402
 from szio.types import DataSource  # noqa: E402
 
-listing = json.load(open(os.path.join(SRC, 'list.json')))
+# третий аргумент (необязательно) — другой список словарей, напр. list_fix.json для пересборки части
+listing = json.load(open(os.path.join(SRC, argv[2] if len(argv) > 2 else 'list.json')))
 target = [AssetTarget(AssetFormat.NATIVE, AssetVersion.GEN8)]
 n_ytd = n_tex = 0
 for name, info in listing.items():
