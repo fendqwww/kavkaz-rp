@@ -119,3 +119,16 @@ Config.Islam = {
     { id = 'police', label = 'Штрафы', text = 'Штрафы смотри командой /fines, оплатить можно там же. Не тяни: неоплаченных много — будут проблемы с ДПС.' },
     { id = 'rules', label = 'Как себя вести', text = 'Здесь уважают старших, гостей и слово. В обычном чате говоришь как персонаж. Не по игре — /b. Вопрос админам — /report.' },
 }
+
+-- пролог и главы 1–2 (kavkaz_intro, Story.home): дядя Хамзат — во дворе панельки и у своей маршрутки на остановке.
+-- vehicle — рядом с NPC на ближайшей дороге стоит его машина (только у игрока, не сетевая)
+Config.Npcs.hamzat = { name = 'Дядя Хамзат', model = 'a_m_m_genfat_01', coords = vec4(-37.0, -1447.5, 31.4, 180.0), scenario = 'WORLD_HUMAN_STAND_MOBILE',
+    blip = { sprite = 40, color = 5, label = 'Дом дяди Хамзата' }, idle = 'Как ты, племянник? Дед бы тобой гордился. Голодный — к Румисе, она накормит.' }
+Config.Npcs.hamzat_road = { name = 'Дядя Хамзат (маршрутка встала)', model = 'a_m_m_genfat_01', coords = vec4(55.5, -1537.5, 29.3, 140.0),
+    scenario = 'WORLD_HUMAN_STAND_IMPATIENT', idle = 'Маршрутка снова на ходу. Иди, у меня рейс.',
+    vehicle = { models = { 'kv_gazel', 'speedo' }, color = 89, plate = 'M007KK95' } }
+
+-- места глав 1–2 (из карты игры: колонка на заправке, остановка, где встала маршрутка, гаражи у Бислана)
+Config.Places.pump = vec3(169.3, -1562.3, 29.3)
+Config.Places.vanStop = vec3(57.5, -1540.3, 29.3)
+Config.Places.grandpaGarage = vec3(724.0, -1094.0, 22.2)

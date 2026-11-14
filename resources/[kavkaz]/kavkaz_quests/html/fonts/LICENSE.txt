@@ -1,1 +1,2 @@
-Golos Text — SIL Open Font License 1.1, github.com/googlefonts/golos-text
+Onest — SIL Open Font License 1.1, github.com/simpals/onest
+Saira (italic) — SIL Open Font License 1.1, github.com/Omnibus-Type/Saira

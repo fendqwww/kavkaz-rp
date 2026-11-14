@@ -87,19 +87,31 @@ schedule()
 
 local helpOpen = false
 
+-- раздел админ-команды (Config.AdminGroups): номер раздела и название
+local groupOf = {}
+for i, g in ipairs(Config.AdminGroups or {}) do
+    for _, name in ipairs(g.cmds) do groupOf[name] = i end
+end
+
 local function rowsFor(tabId)
     local rows = {}
-    for _, c in ipairs(Config.Commands) do
+    for i, c in ipairs(Config.Commands) do
         if c.tab == tabId and visible(c) then
             local lvl = levelOf(c)
+            local gi = tabId == 'admin' and (groupOf[c.cmd or ''] or groupOf[c.key or ''] or 99) or nil
             rows[#rows + 1] = {
                 cmd = c.cmd and (usage(c) .. (c.alias and (' · /' .. c.alias) or '')) or c.title,
                 key = c.key,
                 ex = c.ex,
                 desc = c.desc,
                 level = (c.perm or c.level) and lvl or nil,
+                group = gi and (Config.AdminGroups[gi] and Config.AdminGroups[gi].label or 'Прочее') or nil,
+                _gi = gi or 0, _i = i,
             }
         end
+    end
+    if tabId == 'admin' then
+        table.sort(rows, function(a, b) if a._gi ~= b._gi then return a._gi < b._gi end return a._i < b._i end)
     end
     return rows
 end

@@ -22,6 +22,20 @@ Config.Tabs = {
     { id = 'admin',   label = 'Админ' }, -- вкладка видна только на админ-смене
 }
 
+-- 12.11: админ-команды по разделам (основатель: «список непонятен»). порядок разделов = порядок здесь.
+-- команда без раздела попадёт в «Прочее»
+Config.AdminGroups = {
+    { label = 'Смена и панель',          cmds = { 'F10', 'alogin', 'alogout', 'apin', 'apanel', 'admins', 'a' } },
+    { label = 'Телепорт и полёт',        cmds = { 'goto', 'bring', 'atpm', 'tpc', 'clicktp', 'noclip', 'F2', 'spec', 'invis', 'mypos' } },
+    { label = 'Машины',                  cmds = { 'aveh', 'afix', 'aflip', 'adv', 'agivecar', 'asgu', 'kavkaz_cars', 'kavkaz_cars_migrate' } },
+    { label = 'Помочь игроку',           cmds = { 'arevive', 'aheal', 'afeed', 'aarmor', 'ahealall', 'freeze', 'check', 'skin', 'intro' } },
+    { label = 'Наказания',               cmds = { 'warn', 'mute', 'unmute', 'kick', 'ajail', 'unjail', 'ban', 'unban', 'disarm' } },
+    { label = 'Выдать: деньги, вещи, оружие', cmds = { 'agivemoney', 'asetmoney', 'agiveitem', 'aweapon', 'apromo', 'aconfirm' } },
+    { label = 'Работы, банды, имена',    cmds = { 'asetjob', 'asetgang', 'setleader', 'rename', 'setname' } },
+    { label = 'Сервер и погода',         cmds = { 'aweather', 'atime', 'announce' } },
+    { label = 'Основатели',              cmds = { 'setadmin', 'aresetpin', 'kavkaz_founders' } },
+}
+
 Config.Commands = {}
 local function C(t) Config.Commands[#Config.Commands + 1] = t end
 
@@ -34,7 +48,8 @@ C{ tab = 'general', cmd = 'pay', p = { { 'ID', 'кому' }, { 'сумма', 'в
 C{ tab = 'general', key = 'F4', cmd = 'menu', side = 'client', ex = '/menu', desc = 'меню игрока: профиль, статистика, безопасность, промокод, настройки, помощь' }
 C{ tab = 'general', key = 'F5', cmd = 'gps', side = 'client', ex = '/gps', desc = 'навигатор: с чего начать, работа, госучреждения, ближайший магазин или заправка — ставит метку на карте' }
 C{ tab = 'general', cmd = 'hud', side = 'client', ex = '/hud', desc = 'спрятать или показать интерфейс (для скриншотов)' }
-C{ tab = 'general', key = 'G', title = 'СГУ: кряк', ex = 'G в машине', desc = 'если стоит СГУ «Хазард 7007» или служебное. J — мелодия вкл/выкл, U — сменить мелодию, O — стробоскоп (Про)' }
+C{ tab = 'general', key = 'G', title = 'Меню действий', ex = 'держать G', desc = 'в машине: капот, багажник, двери, ремень, замок, зажигание, фары; пешком: руки вверх, паспорт, навигатор. навёл мышь и отпустил G' }
+C{ tab = 'general', key = 'G', title = 'СГУ: кряк', ex = 'коротко G в машине', desc = 'если стоит СГУ «Хазард 7007» или служебное. J — мелодия вкл/выкл, U — сменить мелодию, O — стробоскоп (Про)' }
 
 -- чаты
 C{ tab = 'chats', key = 'T', title = 'обычный текст', ex = 'Салам, брат', desc = 'речь персонажа, слышно рядом (15 м)' }
@@ -88,7 +103,7 @@ C{ tab = 'admin', cmd = 'warn', perm = 'warn', p = { { 'ID', '' }, { 'причи
 C{ tab = 'admin', cmd = 'arevive', perm = 'revive', p = { { '[ID]', 'пусто — себя' } }, ex = '/arevive 12', desc = 'поднять и вылечить' }
 C{ tab = 'admin', cmd = 'apromo', perm = 'givemoney', p = { { 'код', 'латиница и цифры' }, { 'тип', 'cash, bank, item:название, car:kv_модель' }, { 'сумма', 'или количество' }, { '[раз]', 'сколько активаций, по умолчанию 1' } }, ex = '/apromo START cash 50000 100', desc = 'создать промокод (игроки вводят в F4 → Промокод)' }
 C{ tab = 'admin', cmd = 'aweapon', perm = 'giveweapon', p = { { 'ID', 'кому (свой ID — себе)' }, { 'оружие', 'пистолет, автомат, карабин, дробовик, снайперка, нож, бита, шокер …' }, { '[патроны]', 'по умолчанию 60' } }, ex = '/aweapon 12 пистолет 60', desc = 'выдать оружие с патронами (то же — F10 → игрок)' }
-C{ tab = 'admin', cmd = 'aheal', perm = 'heal', p = { { '[ID]', 'пусто — себя' } }, ex = '/aheal 12', desc = 'вылечить: здоровье 100% (без поднятия)' }
+C{ tab = 'admin', cmd = 'aheal', perm = 'heal', p = { { '[ID]', 'пусто — себя' } }, ex = '/aheal 12', desc = 'вылечить: поднять, если лежит, и здоровье 100%' }
 C{ tab = 'admin', cmd = 'afeed', perm = 'feed', p = { { '[ID]', 'пусто — себя' } }, ex = '/afeed 12', desc = 'накормить и напоить: еда и вода 100%, стресс 0' }
 C{ tab = 'admin', cmd = 'aarmor', perm = 'armor', p = { { '[ID]', 'пусто — себя' }, { '[броня]', '0–100, по умолчанию 100' } }, ex = '/aarmor 12 50', desc = 'выдать броню' }
 C{ tab = 'admin', cmd = 'ahealall', perm = 'healall', ex = '/ahealall', desc = 'поднять, вылечить и накормить всех на сервере (мероприятия)' }
@@ -129,3 +144,5 @@ C{ tab = 'admin', cmd = 'setadmin', perm = 'setadmin', p = { { 'ID', '' }, { 'у
 C{ tab = 'admin', cmd = 'aresetpin', perm = 'resetpin', p = { { 'ID', '' } }, ex = '/aresetpin 12', desc = 'сбросить PIN админу' }
 C{ tab = 'admin', cmd = 'rename', ace = 'command.rename', p = { { 'Имя', '' }, { 'Фамилия', '' } }, ex = '/rename Ахмед Исаев', desc = 'сменить имя своему персонажу (основатели)' }
 C{ tab = 'admin', cmd = 'setname', ace = 'command.setname', p = { { 'ID', '' }, { 'Имя', '' }, { 'Фамилия', '' } }, ex = '/setname 12 Ахмед Исаев', desc = 'сменить имя персонажу игрока (основатели)' }
+C{ tab = 'admin', cmd = 'intro', ace = 'command.intro', p = { { 'ID', 'необязательно' } }, ex = '/intro', desc = 'показать пролог «Домой» себе или игроку (проверить сцены)' }
+C{ tab = 'admin', cmd = 'skin', ace = 'command.skin', p = { { 'ID', 'необязательно' } }, ex = '/skin', desc = 'сменить внешность: открыть редактор персонажа себе или игроку' }

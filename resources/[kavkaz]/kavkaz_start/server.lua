@@ -10,6 +10,10 @@ RegisterNetEvent('kavkaz_start:server:loaded', function()
     if player.PlayerData.metadata.kavkaz_welcomed then return end
 
     player.Functions.SetMetaData('kavkaz_welcomed', true)
+    -- новый персонаж: вместо памятки — пролог «Домой» (самолёт, дядя Хамзат). памятка остаётся в /gaid
+    if GetResourceState('kavkaz_intro') == 'started' and not player.PlayerData.metadata.kavkaz_intro then
+        return exports.kavkaz_intro:Start(src)
+    end
     TriggerClientEvent('kavkaz_start:client:welcome', src)
 end)
 

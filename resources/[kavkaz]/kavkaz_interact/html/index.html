@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>KAVKAZ — меню взаимодействия</title>
+<style>
+/* KAVKAZ RP — радиальное меню взаимодействия. стиль: .claude/skills/kavkaz-ui
+   («таблетки» вокруг крестика, выбранная — акцентом, без свечений; иконки — Tabler Icons, MIT). */
+@font-face{font-family:'Onest';font-weight:100 900;font-display:block;src:url(onest-cyr.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;}@font-face{font-family:'Onest';font-weight:100 900;font-display:block;src:url(onest-lat.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+20BD,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:'Golos Text';font-weight:100 900;font-display:block;src:url(onest-cyr.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;}@font-face{font-family:'Golos Text';font-weight:100 900;font-display:block;src:url(onest-lat.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+20BD,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:'Unbounded';font-weight:100 900;font-display:block;src:url(onest-cyr.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;}@font-face{font-family:'Unbounded';font-weight:100 900;font-display:block;src:url(onest-lat.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+20BD,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:'Montserrat';font-weight:100 900;font-display:block;src:url(onest-cyr.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;}@font-face{font-family:'Montserrat';font-weight:100 900;font-display:block;src:url(onest-lat.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+20BD,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}@font-face{font-family:'Manrope';font-weight:100 900;font-display:block;src:url(onest-cyr.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116;}@font-face{font-family:'Manrope';font-weight:100 900;font-display:block;src:url(onest-lat.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+20BD,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;}
+:root { --text: #f2f3f5; --muted: rgba(242, 243, 245, 0.6); --acc: #3dcc5c; --pill: rgba(18, 19, 20, 0.92); --dark: #0d0e0f; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 1.48vh; } /* 1rem ≈ 16 px на 1080p */
+html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; user-select: none;
+  font-family: 'Golos Text', 'Segoe UI', sans-serif; color: var(--text); -webkit-font-smoothing: antialiased; }
+#menu { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.12s; cursor: default;
+  background: rgba(0, 0, 0, 0.28); }
+#menu.on { opacity: 1; pointer-events: auto; }
+#ring { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+
+.pill { position: absolute; display: flex; align-items: center; gap: 0.6rem; height: 2.9rem; padding: 0 1.25rem 0 1rem;
+  border-radius: 1.45rem; background: var(--pill); white-space: nowrap; font-size: 1.05rem; font-weight: 600;
+  transition: background 0.08s, color 0.08s, transform 0.08s; }
+.pill svg { width: 1.3rem; height: 1.3rem; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pill .dot { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--acc); margin-left: 0.15rem; }
+.pill.hot { background: var(--acc); color: var(--dark); }
+.pill.hot .dot { background: var(--dark); }
+.pill .more { color: var(--muted); font-weight: 500; margin-left: -0.2rem; }
+.pill.hot .more { color: rgba(13, 14, 15, 0.6); }
+
+#center { position: absolute; left: -1.6rem; top: -1.6rem; width: 3.2rem; height: 3.2rem; border-radius: 50%; background: var(--pill);
+  display: grid; place-items: center; transition: background 0.08s; }
+#center svg { width: 1.5rem; height: 1.5rem; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; }
+#center.hot { background: #2a2b2e; }
+
+#hint { position: absolute; left: 50%; top: calc(50% + 15.5rem); transform: translateX(-50%); font-size: 0.85rem; font-weight: 500;
+  color: var(--muted); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9); white-space: nowrap; }
+#hint b { color: var(--text); font-weight: 700; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs><symbol id="i-hood" viewBox="0 0 24 24"><path d="M3 10v6" /><path d="M12 5v3" /><path d="M10 5h4" /><path d="M5 13h-2" /><path d="M6 10h2l2 -2h3.382a1 1 0 0 1 .894 .553l1.448 2.894a1 1 0 0 0 .894 .553h1.382v-2h2a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-2v-2h-3v2a1 1 0 0 1 -1 1h-3.465a1 1 0 0 1 -.832 -.445l-1.703 -2.555h-2v-6" /></symbol><symbol id="i-trunk" viewBox="0 0 24 24"><path d="M6 8a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2l0 -10" /><path d="M9 6v-1a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v1" /><path d="M6 10h12" /><path d="M6 16h12" /><path d="M9 20v1" /><path d="M15 20v1" /></symbol><symbol id="i-door" viewBox="0 0 24 24"><path d="M14 12v.01" /><path d="M3 21h18" /><path d="M6 21v-16a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v16" /></symbol><symbol id="i-belt" viewBox="0 0 24 24"><path d="M11.46 20.846a12 12 0 0 1 -7.96 -14.846a12 12 0 0 0 8.5 -3a12 12 0 0 0 8.5 3a12 12 0 0 1 -.09 7.06" /><path d="M15 19l2 2l4 -4" /></symbol><symbol id="i-lock" viewBox="0 0 24 24"><path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6" /><path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0" /><path d="M8 11v-4a4 4 0 1 1 8 0v4" /></symbol><symbol id="i-lock-open" viewBox="0 0 24 24"><path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2l0 -6" /><path d="M11 16a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M8 11v-5a4 4 0 0 1 8 0" /></symbol><symbol id="i-key" viewBox="0 0 24 24"><path d="M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0" /><path d="M15 9h.01" /></symbol><symbol id="i-light" viewBox="0 0 24 24"><path d="M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7" /><path d="M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3" /><path d="M9.7 17l4.6 0" /></symbol><symbol id="i-exit" viewBox="0 0 24 24"><path d="M13 12v.01" /><path d="M3 21h18" /><path d="M5 21v-16a2 2 0 0 1 2 -2h7.5m2.5 10.5v7.5" /><path d="M14 7h7m-3 -3l3 3l-3 3" /></symbol><symbol id="i-hands" viewBox="0 0 24 24"><path d="M8 13v-7.5a1.5 1.5 0 0 1 3 0v6.5" /><path d="M11 5.5v-2a1.5 1.5 0 1 1 3 0v8.5" /><path d="M14 5.5a1.5 1.5 0 0 1 3 0v6.5" /><path d="M17 7.5a1.5 1.5 0 0 1 3 0v8.5a6 6 0 0 1 -6 6h-2h.208a6 6 0 0 1 -5.012 -2.7a69.74 69.74 0 0 1 -.196 -.3c-.312 -.479 -1.407 -2.388 -3.286 -5.728a1.5 1.5 0 0 1 .536 -2.022a1.867 1.867 0 0 1 2.28 .28l1.47 1.47" /></symbol><symbol id="i-id" viewBox="0 0 24 24"><path d="M3 7a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v10a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3l0 -10" /><path d="M7 10a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M15 8l2 0" /><path d="M15 12l2 0" /><path d="M7 16l10 0" /></symbol><symbol id="i-map" viewBox="0 0 24 24"><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0" /></symbol><symbol id="i-list" viewBox="0 0 24 24"><path d="M13 5h8" /><path d="M13 9h5" /><path d="M13 15h8" /><path d="M13 19h5" /><path d="M3 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -4" /><path d="M3 15a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -4" /></symbol><symbol id="i-back" viewBox="0 0 24 24"><path d="M9 14l-4 -4l4 -4" /><path d="M5 10h11a4 4 0 1 1 0 8h-1" /></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></symbol></defs></svg>
+
+<div id="menu">
+  <div id="ring"><div id="center"><svg viewBox="0 0 24 24"><use href="#i-x"/></svg></div></div>
+  <div id="hint"></div>
+</div>
+
+<script>
+// KAVKAZ RP — радиальное меню. данные шлёт client.lua: { action: 'open', items: [{ id, label, icon, on, sub }], hold, key }
+const menu = document.getElementById('menu'), ring = document.getElementById('ring'), center = document.getElementById('center'), hint = document.getElementById('hint');
+const RES = typeof GetParentResourceName === 'function' ? GetParentResourceName() : 'kavkaz_interact';
+const preview = location.search.includes('preview');
+const post = (name, body) => preview ? Promise.resolve() : fetch(`https://${RES}/${name}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+
+let items = [], pills = [], hot = -1, visible = false, holdMode = false, keyName = 'G';
+const rem = () => parseFloat(getComputedStyle(document.documentElement).fontSize);
+
+function layout() {
+  for (const p of pills) p.remove();
+  pills = [];
+  const n = items.length, RX = 12.5, RY = n <= 4 ? 5.2 : 7.4; // эллипс: шире, чем выше — как у «таблеток» вокруг крестика
+  items.forEach((it, i) => {
+    const a = (-90 + i * 360 / n) * Math.PI / 180;
+    const cx = Math.cos(a), sy = Math.sin(a);
+    const el = document.createElement('div');
+    el.className = 'pill';
+    el.innerHTML = `<svg viewBox="0 0 24 24"><use href="#i-${it.icon}"/></svg><span></span>` + (it.on ? '<i class="dot"></i>' : '') + (it.sub ? '<span class="more">›</span>' : '');
+    el.querySelector('span').textContent = it.label;
+    // слева от центра «таблетка» прижата правым краем, справа — левым, сверху и снизу — по центру
+    const tx = cx < -0.3 ? '-100%' : cx > 0.3 ? '0' : '-50%';
+    el.style.left = (cx * (Math.abs(cx) > 0.3 ? 3.4 + (RX - 3.4) * Math.abs(cx) * 0.42 : 0)) + 'rem';
+    el.style.top = (sy * RY) + 'rem';
+    el.style.transform = `translate(${tx}, -50%)`;
+    it.angle = a;
+    ring.appendChild(el);
+    pills.push(el);
+  });
+}
+
+function setHot(i) {
+  if (i === hot) return;
+  hot = i;
+  pills.forEach((p, k) => p.classList.toggle('hot', k === i));
+  center.classList.toggle('hot', i === -1 && visible);
+}
+
+function pick(x, y) {
+  // в центре — отмена; иначе ближайшая к курсору «таблетка»
+  if (Math.hypot(x - innerWidth / 2, y - innerHeight / 2) < 2.2 * rem()) return -1;
+  let best = -1, bestD = Infinity;
+  pills.forEach((p, i) => {
+    const r = p.getBoundingClientRect();
+    const dx = Math.max(r.left - x, 0, x - r.right), dy = Math.max(r.top - y, 0, y - r.bottom);
+    const d = Math.hypot(dx, dy);
+    if (d < bestD) { bestD = d; best = i; }
+  });
+  return best;
+}
+
+function show(d) {
+  items = d.items || [];
+  holdMode = !!d.hold;
+  keyName = d.key || 'G';
+  layout();
+  visible = true;
+  hot = -2; setHot(-1);
+  menu.classList.add('on');
+  hint.innerHTML = holdMode ? `наведи и отпусти <b>${keyName}</b> · в центре — отмена` : 'нажми на пункт · <b>Esc</b> или правая кнопка — закрыть';
+}
+function hide() { visible = false; menu.classList.remove('on'); setHot(-1); }
+
+function choose() {
+  if (!visible) return;
+  if (hot >= 0 && items[hot]) post('select', { id: items[hot].id });
+  else { hide(); post('close'); }
+}
+
+window.addEventListener('message', (e) => {
+  const d = e.data || {};
+  if (d.action === 'open') show(d);
+  else if (d.action === 'close') hide();
+  else if (d.action === 'release' && visible && holdMode) choose();
+});
+document.addEventListener('mousemove', (e) => { if (visible) setHot(pick(e.clientX, e.clientY)); });
+document.addEventListener('mousedown', (e) => {
+  if (!visible) return;
+  if (e.button === 2) { hide(); post('close'); return; }
+  setHot(pick(e.clientX, e.clientY));
+  choose();
+});
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+document.addEventListener('keydown', (e) => { if (visible && e.key === 'Escape') { hide(); post('close'); } });
+
+// предпросмотр в браузере: index.html?preview (&foot — пешее меню, &hot=N — подсветить пункт)
+if (preview) {
+  const q = new URLSearchParams(location.search);
+  const car = [
+    { id: 'hood', label: 'Капот', icon: 'hood' }, { id: 'trunk', label: 'Багажник', icon: 'trunk' },
+    { id: 'doors', label: 'Двери', icon: 'door', sub: true }, { id: 'belt', label: 'Ремень', icon: 'belt', on: true },
+    { id: 'lock', label: 'Замок', icon: 'lock-open' }, { id: 'engine', label: 'Зажигание', icon: 'key', on: true },
+    { id: 'lights', label: 'Фары', icon: 'light' }, { id: 'seatout', label: 'Выйти', icon: 'exit' },
+  ];
+  const foot = [
+    { id: 'hands', label: 'Руки вверх', icon: 'hands' }, { id: 'passport', label: 'Паспорт', icon: 'id' },
+    { id: 'gps', label: 'Навигатор', icon: 'map' }, { id: 'help', label: 'Команды', icon: 'list' },
+  ];
+  show({ items: q.has('foot') ? foot : car, hold: true, key: 'G' });
+  if (q.has('hot')) setHot(Number(q.get('hot')));
+}
+</script>
+</body>
+</html>

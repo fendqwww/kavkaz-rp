@@ -8,26 +8,91 @@ local ours = {}       -- hash -> true: наши модели не меняем �
 local plated = {}     -- машины, которым уже поставили номер
 local SWAP_POP = { [2] = true, [4] = true, [5] = true } -- население GTA: припаркованные, сценарные, ездящие
 
-local function buildPool()
-    pool, total = {}, 0
-    for name, weight in pairs(Config.Models) do
+local classPools = {} -- класс GTA -> { pool, total } (фургоны -> Газель, автобусы -> ЛиАЗ)
+
+local function makePool(models)
+    local p, t = {}, 0
+    for name, weight in pairs(models) do
         local hash = joaat(name)
         ours[hash] = true
         if IsModelInCdimage(hash) and IsModelAVehicle(hash) then
-            pool[#pool + 1] = { hash, weight }
-            total = total + weight
+            p[#p + 1] = { hash, weight }
+            t = t + weight
         end
+    end
+    return p, t
+end
+
+local function buildPool()
+    pool, total = makePool(Config.Models)
+    for cls, models in pairs(Config.ClassModels or {}) do
+        local p, t = makePool(models)
+        if t > 0 then classPools[cls] = { p, t } end
     end
 end
 
-local function pickModel()
-    if total <= 0 then return nil end
-    local r = math.random() * total
-    for _, it in ipairs(pool) do
+local function pickFrom(p, t)
+    if t <= 0 then return nil end
+    local r = math.random() * t
+    for _, it in ipairs(p) do
         r = r - it[2]
         if r <= 0 then return it[1] end
     end
-    return pool[#pool][1]
+    return p[#p][1]
+end
+
+-- 11.11: у игроков медленный интернет. раньше трафик сразу просил все ~20 моделей — они качались разом (~300 МБ),
+-- забивали канал, машина из гаража не грузилась, игроков выкидывало по таймауту. теперь:
+--   новые (ещё не скачанные) модели — строго по одной и только после своих машин (kavkaz_cars, state kvCarsCached)
+--   или через Config.DownloadDelay после входа; пока качается — в поток ставим уже скачанные.
+local ready = {}               -- hash -> true: модель уже на диске (хоть раз загрузилась)
+local loading, loadingSince    -- модель, которая сейчас качается
+local loggedAt = GetGameTimer()
+
+local function isReady(hash)
+    if ready[hash] then return true end
+    if HasModelLoaded(hash) then ready[hash] = true return true end
+    return false
+end
+
+local function canDownload()
+    if loading then
+        if HasModelLoaded(loading) or GetGameTimer() - loadingSince > 180000 then
+            if HasModelLoaded(loading) then ready[loading] = true end
+            loading = nil
+        else
+            return false
+        end
+    end
+    return LocalPlayer.state.kvCarsCached or GetGameTimer() - loggedAt > Config.DownloadDelay
+end
+
+-- сколько машин каждой нашей модели сейчас рядом (считает tick) — чтобы не было пяти одинаковых Приор подряд
+local nearCount = {}
+
+-- из пула: модели, которые уже скачаны и которых рядом ещё мало (с весами)
+local function pickReady(p)
+    local list, t = {}, 0
+    for _, it in ipairs(p) do
+        if isReady(it[1]) and (nearCount[it[1]] or 0) < Config.MaxSame then list[#list + 1] = it; t = t + it[2] end
+    end
+    return pickFrom(list, t)
+end
+
+local function pickModel(cls)
+    local cp = cls and classPools[cls]
+    local p, t = pool, total
+    if cp then p, t = cp[1], cp[2] end
+    local want = pickFrom(p, t)
+    if not want then return nil end
+    if isReady(want) and (nearCount[want] or 0) < Config.MaxSame then return want end
+    if isReady(want) then return pickReady(p) end
+    -- выбранная модель ещё не скачана: начать её качать (если сейчас ничего не качается), а пока взять скачанную
+    if canDownload() then
+        loading, loadingSince = want, GetGameTimer()
+        RequestModel(want)
+    end
+    return pickReady(p)
 end
 
 local regions, regionTotal = {}, 0
@@ -61,7 +126,7 @@ local function hasPlayerInside(veh)
 end
 
 local function swap(veh)
-    local model = pickModel()
+    local model = pickModel(GetVehicleClass(veh))
     if not model then return false end
     if not HasModelLoaded(model) then
         RequestModel(model)
@@ -84,6 +149,7 @@ local function swap(veh)
     local nv = CreateVehicle(model, coords.x, coords.y, coords.z, heading, true, false)
     SetModelAsNoLongerNeeded(model) -- в памяти держится, пока такие машины рядом (важно для слабых видеокарт)
     if nv == 0 then return false end
+    nearCount[model] = (nearCount[model] or 0) + 1
     SetVehicleOnGroundProperly(nv)
     SetVehicleNumberPlateText(nv, randomPlate())
     SetVehicleNumberPlateTextIndex(nv, 0)
@@ -115,16 +181,22 @@ local function tick()
     local me = PlayerPedId()
     local myPos = GetEntityCoords(me)
     local done = 0
-    for _, veh in ipairs(GetGamePool('CVehicle')) do
+    local pool_ = GetGamePool('CVehicle')
+    nearCount = {}
+    for _, veh in ipairs(pool_) do
+        local m = GetEntityModel(veh)
+        if ours[m] and #(GetEntityCoords(veh) - myPos) <= Config.MaxDistance then nearCount[m] = (nearCount[m] or 0) + 1 end
+    end
+    for _, veh in ipairs(pool_) do
         if done >= Config.PerTick then break end
         if DoesEntityExist(veh) and not IsEntityAMissionEntity(veh) and SWAP_POP[GetEntityPopulationType(veh)] then
             local dist = #(GetEntityCoords(veh) - myPos)
             if dist <= Config.MaxDistance and not hasPlayerInside(veh) then
                 local model = GetEntityModel(veh)
                 if NetworkHasControlOfEntity(veh) then
-                    if not ours[model] and Config.SwapClasses[GetVehicleClass(veh)] and dist >= Config.MinDistance
+                    if not ours[model] and (Config.SwapClasses[GetVehicleClass(veh)] or classPools[GetVehicleClass(veh)]) and dist >= Config.MinDistance
                         and (dist >= Config.SafeDistance or not IsEntityOnScreen(veh)) then
-                        if swap(veh) then done = done + 1 end
+                        if swap(veh) then done = done + 1 end -- swap сам ставит модель, учёт обновится на следующей проверке
                     else
                         setPlate(veh)
                     end
@@ -141,6 +213,11 @@ end
 CreateThread(function()
     for _, m in ipairs(Config.SuppressVehicles) do SetVehicleModelIsSuppressed(joaat(m), true) end
     for _, m in ipairs(Config.SuppressPeds) do SetPedModelIsSuppressed(joaat(m), true) end
+    -- 12.11: за городом сценарные бандиты (байкеры, деревенщины, сектанты) стреляли в игроков. теперь нейтральны
+    for _, g in ipairs(Config.CalmGroups or {}) do
+        SetRelationshipBetweenGroups(1, joaat(g), `PLAYER`)
+        SetRelationshipBetweenGroups(1, `PLAYER`, joaat(g))
+    end
     buildPool()
     while true do
         Wait(Config.Interval)
@@ -152,6 +229,8 @@ CreateThread(function()
 end)
 
 -- подавление моделей не сбрасывается само: снимаем, если ресурс выключили
+AddEventHandler('QBCore:Client:OnPlayerLoaded', function() loggedAt = GetGameTimer() end)
+
 AddEventHandler('onResourceStop', function(res)
     if res ~= GetCurrentResourceName() then return end
     for _, m in ipairs(Config.SuppressVehicles) do SetVehicleModelIsSuppressed(joaat(m), false) end

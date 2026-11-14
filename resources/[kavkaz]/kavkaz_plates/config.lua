@@ -33,17 +33,18 @@ Config.Prices = {
 
 -- виды номеров. sale: 'window' — продаётся всем в МРЭО, 'foreign' — иностранный (дороже), 'job' — только своим работам.
 -- index — какой фон номера ставить машине в GTA (SetVehicleNumberPlateTextIndex): 0 белый, 1 жёлтый/чёрный,
--- 2 жёлтый/синий, 3 и 4 белые варианты. с модом текстур номеров (см. README) индексы заменяются на наши фоны.
+-- 2 жёлтый/синий, 3 и 4 белые варианты. 12.11: фоны заменены на русские (client/main.lua, setup/retex/plate_textures.py):
+-- 0 белый Россия, 1 чёрный военный, 2 синий полиция, 3 жёлтый такси, 4 белый без флага
 Config.Styles = {
     { id = 'ru',        label = 'Россия',           sale = 'window',  index = 0 },
-    { id = 'ru_taxi',   label = 'Такси (жёлтый)',   sale = 'job', jobs = { taxi = 0, bus = 0 }, index = 1 },
-    { id = 'ru_police', label = 'Полиция (синий)',  sale = 'job', jobs = { police = 0, sheriff = 0 }, index = 4 },
-    { id = 'ru_army',   label = 'Военный (чёрный)', sale = 'job', jobs = { army = 0 }, index = 3 },
-    { id = 'kz',        label = 'Казахстан',        sale = 'foreign', index = 0 },
-    { id = 'by',        label = 'Беларусь',         sale = 'foreign', index = 0 },
-    { id = 'am',        label = 'Армения',          sale = 'foreign', index = 0 },
-    { id = 'ge',        label = 'Грузия',           sale = 'foreign', index = 0 },
-    { id = 'az',        label = 'Азербайджан',      sale = 'foreign', index = 0 },
+    { id = 'ru_taxi',   label = 'Такси (жёлтый)',   sale = 'job', jobs = { taxi = 0, bus = 0 }, index = 3 },
+    { id = 'ru_police', label = 'Полиция (синий)',  sale = 'job', jobs = { police = 0, sheriff = 0 }, index = 2 },
+    { id = 'ru_army',   label = 'Военный (чёрный)', sale = 'job', jobs = { army = 0 }, index = 1 },
+    { id = 'kz',        label = 'Казахстан',        sale = 'foreign', index = 4 },
+    { id = 'by',        label = 'Беларусь',         sale = 'foreign', index = 4 },
+    { id = 'am',        label = 'Армения',          sale = 'foreign', index = 4 },
+    { id = 'ge',        label = 'Грузия',           sale = 'foreign', index = 4 },
+    { id = 'az',        label = 'Азербайджан',      sale = 'foreign', index = 4 },
 }
 
 -- рамки номера (пластик вокруг знака с надписью снизу). jobs — только для сотрудников, price — цена в МРЭО.

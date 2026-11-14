@@ -6,11 +6,11 @@
 <link rel="stylesheet" href="fonts/fonts.css">
 <style>
   /* стиль по antr5-skill (C:\kavkaz\SKILL.md):
-     тёмно-синий #0b110f / #111a16 + голубой #2fbf8a, без неона, стекла и нарисованных пейзажей.
+     графит #0d0e0f / #161719 + изумруд #3dcc5c, без неона, стекла и нарисованных пейзажей.
      фон — только настоящие кадры из игры (html/bg/1.jpg … 5.jpg), тонированные в наш синий. */
   :root {
-    --bg: #0b110f; --bg2: #111a16; --acc: #2fbf8a; --text: #ffffff; --muted: #b9cbc2;
-    --f-logo: "Montserrat", "Arial Black", sans-serif;
+    --bg: #0d0e0f; --bg2: #161719; --acc: #3dcc5c; --text: #ffffff; --muted: rgba(242,243,245,.6);
+    --f-logo: "Unbounded", "Arial Black", sans-serif;
     --f-ui: "Golos Text", "Segoe UI", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -20,21 +20,20 @@
   /* слои фона: кадр → тонировка цветом → градиенты сверху/снизу → виньетка */
   .shot { position: absolute; inset: 0; background: center / cover no-repeat; opacity: 0; transition: opacity 1.6s ease; }
   .shot.on { opacity: 1; }
-  .tint { position: absolute; inset: 0; background: #1f6b4f; mix-blend-mode: color; opacity: .6; }
+  .tint { position: absolute; inset: 0; background: #000; opacity: .15; }
   .grad { position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(8,13,11,.92) 0%, rgba(8,13,11,.25) 30%, rgba(8,13,11,.25) 55%, rgba(8,13,11,.96) 100%); }
-  .vign { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(3,7,5,.85) 100%); }
+    background: linear-gradient(180deg, rgba(10,11,12,.92) 0%, rgba(10,11,12,.25) 30%, rgba(10,11,12,.25) 55%, rgba(10,11,12,.96) 100%); }
+  .vign { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.85) 100%); }
   /* пока кадров нет — плоский тёмно-синий фон без рисунков */
   body.noshots .grad { background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%); }
 
   .wrap { position: relative; height: 100%; display: flex; flex-direction: column; padding: 8vh 6vw 7vh; }
 
   .brand { display: flex; align-items: baseline; }
-  .logo { position: relative; display: inline-block; font: italic 900 150px/1 var(--f-logo); letter-spacing: -.035em;
-    text-shadow: 0 0 30px rgba(140,230,190,.45); }
+  .logo { position: relative; display: inline-block; font: 800 120px/1 var(--f-logo); letter-spacing: .02em; }
   .logo::after { content: ""; position: absolute; right: -24px; top: -6px; width: 38px; height: 38px; border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #8fe6c4, var(--acc) 55%, #1f8f66); }
-  .rp { font: italic 900 46px var(--f-logo); color: var(--acc); margin-left: 22px; }
+    background: var(--acc); }
+  .rp { font: 700 46px var(--f-logo); color: var(--acc); margin-left: 22px; }
   .tag { margin-top: 18px; font: 500 18px var(--f-ui); color: var(--muted); }
 
   .bottom { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; }
@@ -49,10 +48,10 @@
   .load { width: 520px; }
   .load-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
   .status { font: 500 16px var(--f-ui); color: var(--muted); }
-  .pct { font: italic 900 52px/1 var(--f-logo); }
+  .pct { font: italic 700 56px/1 var(--kv-fn); font-variant-numeric: tabular-nums; }
   .bar { height: 6px; background: rgba(185,203,194,.18); }
   .fill { height: 100%; width: 0%; background: var(--acc); transition: width .6s ease; }
-  .log { margin-top: 12px; font: 600 13px var(--f-ui); color: rgba(185,203,194,.65); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .log { margin-top: 12px; font: 600 13px var(--f-ui); color: rgba(242,243,245,.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 </style>
 </head>
 <body class="noshots">
@@ -64,7 +63,7 @@
 
 <div class="wrap">
   <div>
-    <div class="brand"><span class="logo">KAVKAZ</span><span class="rp">RP</span></div>
+    <div class="brand"><img src="logo.svg" alt="KAVKAZ RP" style="height:110px;display:block"></div>
     <div class="tag">свои люди · свои дороги</div>
   </div>
 

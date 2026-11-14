@@ -3,7 +3,7 @@ game 'gta5'
 lua54 'yes'
 
 name 'kavkaz_rp'
-description 'KAVKAZ RP: локальный IC-чат и RP-команды (/do /try /todo /s /w /b /pm /r /rn /d /f /gov), передача денег /pay'
+description 'KAVKAZ RP: запуск двигателя кнопкой, локальный IC-чат и RP-команды (/do /try /todo /s /w /b /pm /r /rn /d /f /gov), передача денег /pay'
 version '0.1.0'
 
 shared_scripts {
@@ -12,7 +12,7 @@ shared_scripts {
 }
 
 server_script 'server.lua'
-client_script 'client.lua'
+client_scripts { 'client.lua', 'engine.lua' }
 
 dependencies {
     'ox_lib',
@@ -20,4 +20,5 @@ dependencies {
     'ox_target',
     'ox_inventory',
     'qbx_medical',
+    'qbx_vehiclekeys',
 }

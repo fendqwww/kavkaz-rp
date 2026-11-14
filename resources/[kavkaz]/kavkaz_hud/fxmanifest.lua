@@ -16,8 +16,8 @@ files {
     'html/index.html',
     'html/style.css',
     'html/app.js',
-    'html/golos-text.woff2',
+    'html/onest-cyr.woff2',
+    'html/onest-lat.woff2',
+    'html/logo.svg',
     'html/saira-italic-latin.woff2',
-    'html/unbounded-cyrillic.woff2',
-    'html/unbounded-latin.woff2',
 }

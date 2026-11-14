@@ -86,12 +86,21 @@ end
 
 Q.handlers.islam = function(src, st, choice)
     if not st.line then
+        if not st.homeDone then
+            -- ещё не был у дяди: сюжет начинается с него (Story.home)
+            if choice == 'begin' then
+                Q.startHome(src, st)
+                return Q.node('islam', 'Дядя Хамзат тебя ищет, весь двор уже знает. Метку поставил — иди.', { { id = 'bye', label = 'Спасибо' } })
+            end
+            return Q.node('islam', ('Салам, %s! Ты же внук Шамсудина? Тебя дядя Хамзат ищет.'):format(Q.charName(src)),
+                { { id = 'begin', label = 'Где он?' }, { id = 'bye', label = 'Потом' } })
+        end
         if choice == 'begin' then
             Q.giveStartMoney(src, st)
             return Q.startNode(src)
         end
-        return Q.node('islam', ('Салам, %s! Только приехал? Расскажи, какой дорогой пойдёшь — подскажу, с чего начать.'):format(Q.charName(src)),
-            { { id = 'begin', label = 'Выбрать свою дорогу' }, { id = 'bye', label = 'Потом' } })
+        return Q.node('islam', ('Салам, %s! Кого из книжки деда навестишь следующим? Подскажу, с чего начать.'):format(Q.charName(src)),
+            { { id = 'begin', label = 'Выбрать, к кому идти' }, { id = 'bye', label = 'Потом' } })
     end
     local opts = {}
     for _, t in ipairs(Config.Islam) do opts[#opts + 1] = { id = t.id, label = t.label } end

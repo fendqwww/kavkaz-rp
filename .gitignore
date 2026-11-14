@@ -26,3 +26,5 @@ resources/[[]kavkaz[]]/kavkaz_world/images/local/
 
 # примерка табличек на стене (setup/retex/plates_mvd.py) — пересобирается
 setup/retex/preview/
+*.blend1
+resources/[[]maps[]]/

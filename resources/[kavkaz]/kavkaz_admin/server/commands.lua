@@ -162,22 +162,55 @@ end)
 -- транспорт
 ---------------------------------------------------------------------------
 
-cmd('aveh', 'aveh', 'Заспавнить машину', { { name = 'model', type = 'string', help = 'модель, например sultan' } }, function(src, args)
+local function aveh(src, args)
     if noConsole(src) then return end
     local ped = GetPlayerPed(src)
-    local old = GetVehiclePedIsIn(ped, false)
-    if old ~= 0 then DeleteEntity(old) end
     -- имя из автопарка (kv_camry80) -> модель, которая сейчас ездит (заглушка GTA или настоящая)
     local model = args.model:lower()
-    local car = GetResourceState('kavkaz_cars') == 'started' and exports.kavkaz_cars:GetCar(model) or nil
+    local cars = GetResourceState('kavkaz_cars') == 'started'
+    local car = cars and exports.kavkaz_cars:GetCar(model) or nil
+    if not car and cars then
+        -- неточное имя: «camry», «g63», опечатка «killinan»
+        local hits = exports.kavkaz_cars:Search(model)
+        if #hits == 1 then
+            car = exports.kavkaz_cars:GetCar(hits[1])
+        elseif #hits > 1 then
+            return Admin.notify(src, 'уточни модель: ' .. table.concat(hits, ', '), 'inform')
+        end
+    end
     if car then model = car.current end
+    local old = GetVehiclePedIsIn(ped, false)
+    if old ~= 0 then DeleteEntity(old) end
+    -- сначала модель должна скачаться у админа (медленный интернет: иначе qbx.spawnVehicle не дождётся машины)
+    Admin.notify(src, 'машина подгружается…', 'inform')
+    if not lib.callback.await('kavkaz_admin:preloadModel', src, model) then
+        return Admin.notify(src, 'модель не загрузилась (нет такой или медленный интернет) — попробуй ещё раз', 'error')
+    end
+    if GetVehiclePedIsIn(ped, false) ~= 0 then DeleteEntity(GetVehiclePedIsIn(ped, false)) end
+    if not exports.qbx_core:GetVehiclesByHash(joaat(model)) then
+        print(('[kavkaz_admin] aveh: модели %s нет в списке машин qbx_core (kavkaz_cars/cars.lua)'):format(model))
+    end
     local ok, netId, vehicle = pcall(qbx.spawnVehicle, { model = model, spawnSource = ped, warp = true, bucket = GetPlayerRoutingBucket(src) })
     if not ok or not vehicle or vehicle == 0 then
-        return Admin.notify(src, 'не удалось: проверь название модели', 'error')
+        -- настоящая причина — в консоль и админу (раньше терялась)
+        local why = not ok and tostring(netId) or 'машина не создалась'
+        print(('[kavkaz_admin] aveh %s: %s'):format(model, why))
+        return Admin.notify(src, ('не удалось (%s): %s'):format(model, why:sub(1, 120)), 'error')
     end
+    -- русский номер, а не случайный GTA «46EEK572»
+    local L = 'ABEKMHOPCTYX'
+    local function ch() local i = math.random(#L) return L:sub(i, i) end
+    SetVehicleNumberPlateText(vehicle, ('%s%03d%s%s95'):format(ch(), math.random(11, 989), ch(), ch()))
+    SetVehicleNumberPlateTextIndex(vehicle, 0)
     pcall(function() exports.qbx_vehiclekeys:GiveKeys(src, vehicle) end)
-    Admin.log(src, 'aveh', nil, args.model)
-end)
+    Admin.log(src, 'aveh', nil, car and car.spawn or args.model)
+end
+local P_MODEL = { { name = 'model', type = 'string', help = 'модель: kv_camry70, camry, g63 или модель GTA' } }
+cmd('aveh', 'aveh', 'Заспавнить машину', P_MODEL, aveh)
+-- частые опечатки и привычные названия из других серверов — то же самое
+for _, alias in ipairs({ 'aheav', 'ahev', 'ahv', 'spawncar' }) do
+    cmd(alias, 'aveh', 'Заспавнить машину (= /aveh)', P_MODEL, aveh)
+end
 
 cmd('adv', 'adv', 'Удалить машину (в которой сидишь или пустые в радиусе)', {
     { name = 'radius', type = 'number', help = 'радиус в метрах (до 100)', optional = true },
@@ -397,9 +430,18 @@ local function feed(target)
     Player(target).state:set('stress', 0, true)
 end
 
-cmd('aheal', 'heal', 'Вылечить игрока: здоровье 100% (без поднятия)', { P_TARGET_OPT }, function(src, args)
+-- /skin [id] — открыть полный редактор внешности (illenium-appearance): себе или игроку
+cmd('skin', 'skin', 'Сменить внешность (редактор персонажа)', { P_TARGET_OPT }, function(src, args)
+    local target = args.target or src
+    TriggerClientEvent('kavkaz_admin:client:skin', target)
+    Admin.log(src, 'skin', target ~= src and target or nil, '')
+end)
+
+cmd('aheal', 'heal', 'Вылечить игрока: поднять, если лежит, и здоровье 100%', { P_TARGET_OPT }, function(src, args)
     local target = args.target or src
     if target == 0 then return end
+    -- 12.11: раньше лечило без поднятия — лежачий так и оставался лежать («здоровье выдаю — не реагирует»)
+    exports.qbx_medical:Revive(target)
     exports.qbx_medical:Heal(target)
     TriggerClientEvent('kavkaz_admin:client:heal', target)
     Admin.notify(target, 'администратор вылечил тебя', 'success')

@@ -290,6 +290,11 @@ RegisterCommand('hud', function()
     exports.qbx_core:Notify(userHidden and 'Интерфейс скрыт. /hud — вернуть' or 'Интерфейс снова виден', 'inform')
 end, false)
 
+-- без сознания: плашка с таймером (шлёт overrides/resources/[qbx]/qbx_ambulancejob/client/setdownedstate.lua)
+AddEventHandler('kavkaz_hud:client:down', function(data)
+    send('down', data or {})
+end)
+
 -- exports.kavkaz_hud:SetVisible(false) — спрятать HUD из другого ресурса
 exports('SetVisible', function(state) userHidden = not state end)
 
@@ -297,3 +302,13 @@ AddEventHandler('onResourceStart', function(name)
     if name ~= GetCurrentResourceName() then return end
     refreshPlayerData()
 end)
+
+-- KAVKAZ: чат всегда на экране (как у Majestic), ввод — по T.
+-- стандартный чат FiveM переключает «видно / скрыто / при активности» клавишей L — той же, что замок машины,
+-- поэтому после каждого L возвращаем чат в «всегда видно». свой режим игрок больше не потеряет.
+local function chatVisible() ExecuteCommand('toggleChat visible') end
+AddEventHandler('QBCore:Client:OnPlayerLoaded', function() SetTimeout(2000, chatVisible) end)
+CreateThread(function() Wait(3000) chatVisible() end)
+RegisterCommand('+kavkaz_chat_keep', function() SetTimeout(150, chatVisible) end, false)
+RegisterCommand('-kavkaz_chat_keep', function() end, false)
+RegisterKeyMapping('+kavkaz_chat_keep', 'Чат: не прятать после L (замок машины)', 'keyboard', 'L')

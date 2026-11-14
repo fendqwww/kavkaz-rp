@@ -5,24 +5,41 @@
 Config = {}
 
 -- наши модели в потоке и их доля (чем больше число, тем чаще)
--- ВЫКЛЮЧЕНЫ до перепаковки текстур (слишком тяжёлые, не грузятся у игроков, см. docs/tasks/2026-11-11-friend-claude.md):
--- kv_vaz2107, kv_granta, kv_camry70, kv_camry80, kv_lc300, kv_g63, kv_zeekr001, kv_gazel. вернуть сюда после перепаковки.
+-- 11.11: тяжёлые текстуры перепакованы (setup/cars/repack_ytd.py, каждая машина ≤ 24 МБ видеопамяти) — все снова в потоке.
+-- суперкары (jesko, chiron, roadster, cybertruck) в поток не ставим: на улицах Нагорья их почти нет.
 Config.Models = {
     kv_priora  = 14,
     kv_vaz2114 = 12,
+    kv_vaz2107 = 10,
+    kv_granta  = 12,
     kv_vaz2110 = 9,
     kv_vaz2109 = 7,
     kv_vesta   = 9,
     kv_logan   = 8,
+    kv_camry70 = 6,
+    kv_camry80 = 4,
+    kv_camry40 = 8,
+    kv_v70     = 3,
     kv_largus  = 5,
     kv_focus3  = 5,
     kv_octavia = 5,
+    kv_lc300   = 3,
+    kv_gazel   = 4,
     kv_mondeo  = 3,
-    kv_m5f90   = 1,
+}
+
+-- классы, которые меняем на свои модели: 10 промышленные, 11 служебные, 12 фургоны, 17 автобусы/такси, 20 грузовики
+-- (американские фургоны, пикапы и автобусы — палево; у нас Газели и ЛиАЗы)
+Config.ClassModels = {
+    [10] = { kv_gazel = 1 },
+    [11] = { kv_gazel = 1 },
+    [12] = { kv_gazel = 3, kv_largus = 2 },
+    [17] = { kv_liaz = 1 },
+    [20] = { kv_gazel = 1 },
 }
 
 -- какие классы GTA заменяем: 0 компакт, 1 седан, 2 внедорожник, 3 купе, 4 маслкар, 5 классика, 6 спорт, 7 супер, 9 бездорожье, 12 фургон
-Config.SwapClasses = { [0] = true, [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true, [9] = true, [12] = true }
+Config.SwapClasses = { [0] = true, [1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true, [9] = true }
 
 Config.Interval = 1200     -- мс между проверками
 Config.PerTick = 2         -- сколько машин менять за одну проверку (чтобы не было подтормаживаний)
@@ -49,6 +66,18 @@ Config.SuppressPeds = {
     'a_m_m_rurmeth_01', 'a_m_y_methhead_01', 'a_f_y_rurmeth_01',
 }
 
+-- группы NPC, которые в GTA сами нападают на игрока (Лост, деревенщины, сектанты Альтруистов и т. п.) — делаем нейтральными
+Config.CalmGroups = {
+    'AMBIENT_GANG_LOST', 'AMBIENT_GANG_HILLBILLY', 'AMBIENT_GANG_MEXICAN', 'AMBIENT_GANG_FAMILY', 'AMBIENT_GANG_BALLAS',
+    'AMBIENT_GANG_MARABUNTE', 'AMBIENT_GANG_CULT', 'AMBIENT_GANG_SALVA', 'AMBIENT_GANG_WEICHENG', 'GANG_1', 'GANG_2', 'GANG_9', 'GANG_10',
+}
+
 -- русские номера NPC: буквы, которые есть и в кириллице, и в латинице; регион — по весу
 Config.PlateLetters = 'ABEKMHOPCTYX'
 Config.Regions = { ['95'] = 10, ['05'] = 3, ['06'] = 2, ['07'] = 2, ['09'] = 1, ['15'] = 2, ['20'] = 3, ['26'] = 2, ['77'] = 1 }
+
+-- новые модели трафик качает по одной и не раньше, чем скачаются свои машины игрока (kavkaz_cars) или пройдёт столько мс после входа
+Config.DownloadDelay = 240000
+
+-- одной нашей модели рядом (в Config.MaxDistance) не больше стольких машин: остальные места — другие модели
+Config.MaxSame = 3

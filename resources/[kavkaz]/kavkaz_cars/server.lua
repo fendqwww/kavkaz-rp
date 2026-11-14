@@ -100,6 +100,40 @@ exports('GetCar', function(name)
     copy.current, copy.label = Cars.current(car), label(car)
     return copy
 end)
+-- поиск по неточному имени для админов: «camry» → все Камри, «killinan» → kv_cullinan (опечатка до 2 букв)
+local function dist(a, b)
+    local la, lb = #a, #b
+    if math.abs(la - lb) > 2 then return 99 end
+    local prev = {}
+    for j = 0, lb do prev[j] = j end
+    for i = 1, la do
+        local cur = { [0] = i }
+        for j = 1, lb do
+            cur[j] = math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a:sub(i, i) == b:sub(j, j) and 0 or 1))
+        end
+        prev = cur
+    end
+    return prev[lb]
+end
+exports('Search', function(name)
+    if type(name) ~= 'string' or name == '' then return {} end
+    name = name:lower():gsub('^kv_', '')
+    local exact = find('kv_' .. name)
+    if exact then return { exact.spawn } end
+    local hits, best, bestD = {}, nil, 3
+    for _, car in ipairs(Cars.List) do
+        local short = car.spawn:gsub('^kv_', '')
+        if short:find(name, 1, true) or label(car):lower():find(name, 1, true) then
+            hits[#hits + 1] = car.spawn
+        else
+            local d = dist(short, name)
+            if d < bestD then best, bestD = car.spawn, d end
+        end
+    end
+    if #hits == 0 and best then hits[1] = best end
+    return hits
+end)
+
 exports('Label', function(name)
     local car = find(name)
     return car and label(car) or nil
@@ -168,4 +202,16 @@ CreateThread(function()
         end
         if wait > 0 then print(('^3[kavkaz_cars] %d машин игроков ещё на заглушках — в консоли: kavkaz_cars_migrate^7'):format(wait)) end
     end)
+end)
+
+-- модели машин игрока для предзагрузки (client.lua): только личные машины
+RegisterNetEvent('kavkaz_cars:server:prefetch', function()
+    local src = source
+    local player = GetResourceState('qbx_core') == 'started' and exports.qbx_core:GetPlayer(src)
+    if not player then return end
+    -- только 4 последние машины: у основателей в гараже весь автопарк (~450 МБ), остальные качаются при вызове из гаража
+    local rows = MySQL.query.await('SELECT vehicle FROM player_vehicles WHERE citizenid = ? ORDER BY id DESC LIMIT 4', { player.PlayerData.citizenid }) or {}
+    local models = {}
+    for _, r in ipairs(rows) do models[#models + 1] = r.vehicle end
+    TriggerClientEvent('kavkaz_cars:client:prefetch', src, models)
 end)

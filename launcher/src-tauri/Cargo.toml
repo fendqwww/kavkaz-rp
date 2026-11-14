@@ -1,6 +1,6 @@
 [package]
 name = "kavkaz-launcher"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 
 [build-dependencies]
@@ -11,6 +11,10 @@ tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+[target.'cfg(windows)'.dependencies]
+# сворачивание окон Rockstar / Epic / Steam / заставки FiveM после «Играть»
+windows-sys = { version = "0.52", features = ["Win32_Foundation", "Win32_System_Threading", "Win32_UI_WindowsAndMessaging"] }
 
 [profile.release]
 strip = true

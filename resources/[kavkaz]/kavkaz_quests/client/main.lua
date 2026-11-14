@@ -1,6 +1,6 @@
 -- NPC, окно диалога, цели на карте. решения принимает сервер.
 
-local peds, open = {}, false
+local peds, cars, open = {}, {}, false
 
 ---------------------------------------------------------------------------
 -- диалог
@@ -56,6 +56,28 @@ local function spawn(id, npc)
         { name = 'kavkaz_q_' .. id, icon = 'fa-solid fa-comment', label = 'Поговорить: ' .. npc.name, distance = 2.5, onSelect = function() talk(id) end },
     })
     peds[id] = ped
+    -- машина рядом с NPC (маршрутка дяди Хамзата): на ближайшей дороге, только у этого игрока
+    if npc.vehicle then
+        for _, m in ipairs(npc.vehicle.models) do
+            local h = joaat(m)
+            if IsModelInCdimage(h) then
+                lib.requestModel(h)
+                local ok, pos, heading = GetClosestVehicleNodeWithHeading(c.x, c.y, c.z, 1, 3.0, 0)
+                if not ok then pos, heading = vec3(c.x + 3.0, c.y, c.z), c.w end
+                local veh = CreateVehicle(h, pos.x, pos.y, pos.z, heading, false, false)
+                SetVehicleOnGroundProperly(veh)
+                if npc.vehicle.color then SetVehicleColours(veh, npc.vehicle.color, npc.vehicle.color) end
+                if npc.vehicle.plate then SetVehicleNumberPlateText(veh, npc.vehicle.plate) end
+                SetVehicleDoorsLocked(veh, 2)
+                SetVehicleIndicatorLights(veh, 0, true) -- аварийка: встал
+                SetVehicleIndicatorLights(veh, 1, true)
+                FreezeEntityPosition(veh, true)
+                SetModelAsNoLongerNeeded(h)
+                cars[id] = veh
+                break
+            end
+        end
+    end
 end
 
 CreateThread(function()
@@ -79,6 +101,7 @@ CreateThread(function()
                     DeleteEntity(peds[id])
                     peds[id] = nil
                 end
+                if cars[id] then DeleteEntity(cars[id]) cars[id] = nil end
                 if open and currentNpc == id then show(nil) end
             end,
         })
@@ -102,6 +125,8 @@ local ANIMS = {
     wash = { scenario = 'PROP_HUMAN_BUM_BIN', label = 'Моешь руки…' },
     search = { scenario = 'PROP_HUMAN_BUM_BIN', label = 'Ищешь…' },
     sample = { scenario = 'WORLD_HUMAN_GARDENER_PLANT', label = 'Берёшь пробу…' },
+    canister = { scenario = 'PROP_HUMAN_PARKING_METER', label = 'Покупаешь канистру и наливаешь бензин…' },
+    pour = { scenario = 'PROP_HUMAN_BUM_BIN', label = 'Заливаешь бензин в бак маршрутки…' },
 }
 local function playAnim(name)
     local a = ANIMS[name]
@@ -183,6 +208,7 @@ end)
 AddEventHandler('onResourceStop', function(res)
     if res ~= GetCurrentResourceName() then return end
     for _, p in pairs(peds) do DeleteEntity(p) end
+    for _, v in pairs(cars) do DeleteEntity(v) end
     clearObjective()
     if open then SetNuiFocus(false, false) end
 end)
