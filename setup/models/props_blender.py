@@ -123,7 +123,8 @@ for name in sorted(os.listdir(SRC)):
                         m.node_tree.links.remove(l)
         try:
             conv = MaterialConverter(ob, m)
-            new = conv.convert('cutout.sps') if alpha else conv.auto_convert()
+            # 15.11: материалы kv_emis* (буквы стелы, полоса бренда) светятся ночью
+            new = conv.convert('emissive.sps') if m.name.startswith('kv_emis') else conv.convert('cutout.sps') if alpha else conv.auto_convert()
         except Exception as e:  # noqa
             print('KAVKAZ материал не сконвертирован', pid, m.name, e)
             new = None

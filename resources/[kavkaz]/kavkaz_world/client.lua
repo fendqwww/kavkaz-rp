@@ -165,16 +165,22 @@ local function spawnPost(post)
         end
         post = setmetatable({ coords = coords }, { __index = post })
         out = o
-        -- машины у поста сбавляют до ~35 км/ч
-        list.zone = AddRoadNodeSpeedZone(node.x, node.y, node.z, 45.0, 10.0, false)
+        -- машины у поста сбавляют до ~35 км/ч (у стелы въезда — нет: noSlow)
+        if not post.noSlow then
+            list.zone = AddRoadNodeSpeedZone(node.x, node.y, node.z, 45.0, 10.0, false)
+        end
     end
     for _, p in ipairs(post.props or {}) do
         local m = load(p.model)
         if m then
             local pos = ground(offRoad(at(post, p.offset), out))
-            local o = CreateObject(m, pos.x, pos.y, pos.z, false, false, false)
-            SetEntityHeading(o, post.coords.w + (p.heading or 0.0))
-            PlaceObjectOnGroundProperly(o)
+            local o = CreateObject(m, pos.x, pos.y, pos.z - (p.sink or 0.0), false, false, false)
+            local h = post.coords.w + (p.heading or 0.0)
+            if p.faceAway then -- лицо (+Y модели) — от центра города: въезжающие видят «въезд», выезжающие — перечёркнутый
+                h = math.deg(math.atan(-(pos.x - p.faceAway.x), pos.y - p.faceAway.y))
+            end
+            SetEntityHeading(o, h)
+            if not p.upright then PlaceObjectOnGroundProperly(o) end -- длинная стела не наклоняется по склону
             FreezeEntityPosition(o, true)
             SetModelAsNoLongerNeeded(m)
             list[#list + 1] = o
@@ -242,6 +248,7 @@ CreateThread(function()
     local all = {}
     for _, p in ipairs(Config.Posts or {}) do all[#all + 1] = p end
     for _, p in ipairs(Config.Scenes or {}) do all[#all + 1] = p end
+    for _, p in ipairs(Config.Gates or {}) do all[#all + 1] = p end -- 15.11: стелы «НАГОРСК» на въездах
     for _, post in ipairs(all) do
         if post.blip then
             local b = AddBlipForCoord(post.coords.x, post.coords.y, post.coords.z)
@@ -255,7 +262,7 @@ CreateThread(function()
             blips[#blips + 1] = b
         end
         lib.points.new({
-            coords = post.coords.xyz, distance = 150.0,
+            coords = post.coords.xyz, distance = post.distance or 150.0,
             onEnter = function()
                 if spawned[post.id] then return end
                 spawned[post.id] = {}
@@ -265,6 +272,14 @@ CreateThread(function()
         })
     end
 end)
+
+-- 15.11: задание «Четыре въезда» — проехал мимо стелы «НАГОРСК», сервер проверит и отметит (server.lua)
+for _, g in ipairs(Config.Gates or {}) do
+    lib.points.new({
+        coords = g.coords.xyz, distance = 40.0,
+        onEnter = function() TriggerServerEvent('kavkaz_world:gateVisit', g.id) end,
+    })
+end
 
 AddEventHandler('onResourceStop', function(res)
     if res ~= RES then return end
