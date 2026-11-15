@@ -162,6 +162,15 @@ end)
 -- транспорт
 ---------------------------------------------------------------------------
 
+-- ключи на заспавненную машину. раньше ошибка GiveKeys глушилась pcall'ом, и игрок видел «нет ключей».
+-- теперь машина ещё и записывается на персонажа (state.owner): qbx_vehiclekeys сам выдаёт ключи владельцу.
+local function giveKeys(src, vehicle)
+    local p = exports.qbx_core:GetPlayer(src)
+    if p then Entity(vehicle).state:set('owner', p.PlayerData.citizenid, true) end
+    local ok, err = pcall(function() return exports.qbx_vehiclekeys:GiveKeys(src, vehicle, true) end)
+    if not ok then print(('[kavkaz_admin] ключи не выданы (%s): %s'):format(src, tostring(err))) end
+end
+
 local function aveh(src, args)
     if noConsole(src) then return end
     local ped = GetPlayerPed(src)
@@ -202,7 +211,7 @@ local function aveh(src, args)
     local function ch() local i = math.random(#L) return L:sub(i, i) end
     SetVehicleNumberPlateText(vehicle, ('%s%03d%s%s95'):format(ch(), math.random(11, 989), ch(), ch()))
     SetVehicleNumberPlateTextIndex(vehicle, 0)
-    pcall(function() exports.qbx_vehiclekeys:GiveKeys(src, vehicle) end)
+    giveKeys(src, vehicle)
     Admin.log(src, 'aveh', nil, car and car.spawn or args.model)
 end
 local P_MODEL = { { name = 'model', type = 'string', help = 'модель: kv_camry70, camry, g63 или модель GTA' } }

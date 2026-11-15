@@ -96,7 +96,11 @@ end)
 function Q.giveCar(src, model, at, warp)
     local ok, netId, veh = pcall(qbx.spawnVehicle, { model = model, spawnSource = at, warp = warp and GetPlayerPed(src) or nil })
     if not ok or not veh or veh == 0 then return nil end
-    pcall(function() exports.qbx_vehiclekeys:GiveKeys(src, veh) end)
+    -- ключи: машина записывается на персонажа (qbx_vehiclekeys выдаёт ключи владельцу), ошибку — в консоль
+    local pl = exports.qbx_core:GetPlayer(src)
+    if pl and veh and veh ~= 0 then Entity(veh).state:set('owner', pl.PlayerData.citizenid, true) end
+    local kok, kerr = pcall(function() return exports.qbx_vehiclekeys:GiveKeys(src, veh, true) end)
+    if not kok then print(('[kavkaz_quests] ключи не выданы (%s): %s'):format(src, tostring(kerr))) end
     Q.cars[src] = Q.cars[src] or {}
     Q.cars[src][#Q.cars[src] + 1] = netId
     return netId, veh
