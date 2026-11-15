@@ -9,7 +9,8 @@ job.json — список файлов:
   {"kind": "ydd", "name": "sm_22_slod1b_children", "drawables": {"hash_6BF530F0": {"mode": "all"},
        "hash_98EF9DE5": {"mode": "box", "origin": [x, y, z]}}, "boxes": [[[x0, y0, z0], [x1, y1, z1]], ...]}
   all — убрать модель целиком; box — только треугольники, у которых ВСЕ три вершины внутри одной из коробок
-  (мировые координаты; origin — позиция объекта на карте, у lod/slod поворота нет). модели набора, которых нет в
+  (мировые координаты; origin — позиция объекта на карте, у lod/slod поворота нет); "vertical": 0.5 — из них только
+  крутые (|nz| < 0.5: буквы и щиты, а не склон под ними). модели набора, которых нет в
   "drawables", не трогаются. --dry — только посчитать. --base: брать наш файл с тем же именем, если он там есть.
 """
 import addon_utils
@@ -53,6 +54,10 @@ def strip(d, label, spec, boxes):
                     kill = np.zeros(len(ib), dtype=bool)
                     for b in local:
                         kill |= np.all((tri >= b[0]) & (tri <= b[1]), axis=(1, 2))
+                    if spec.get('vertical'):  # только стенки (буквы, щиты), а не склон/землю под ними
+                        n = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+                        nz = np.abs(n[:, 2]) / np.maximum(np.linalg.norm(n, axis=1), 1e-9)
+                        kill &= nz < float(spec['vertical'])
                 total += len(ib)
                 n = int(kill.sum())
                 removed += n
