@@ -51,9 +51,23 @@ def collapse(o, ratio):
     with bpy.context.temp_override(object=o, active_object=o):
         bpy.ops.object.modifier_move_to_index(modifier='dec', index=0)
         bpy.ops.object.modifier_apply(modifier='dec')
-    with bpy.context.temp_override(object=o, active_object=o, selected_editable_objects=[o], selected_objects=[o]):
-        bpy.ops.object.shade_smooth_by_angle(angle=0.70)
+    smooth(o)
     for m in arm: m.show_viewport = True
+
+
+WN = cfg.get('wn', '1') == '1'
+def smooth(o):
+    """гладко по углу 40°, затем нормали по площади граней (Weighted Normal): после слияния плоских граней на панели
+    остаются длинные треугольники, и наклон нормалей с изогнутой кромки растягивался на всю дверь — тёмные «вмятины»
+    (2109, 2114, Камри, 15.11). большая плоская грань теперь сама задаёт затенение."""
+    with bpy.context.temp_override(object=o, active_object=o, selected_editable_objects=[o], selected_objects=[o]):
+        if o.data.has_custom_normals: bpy.ops.mesh.customdata_custom_splitnormals_clear()
+        bpy.ops.object.shade_smooth_by_angle(angle=0.70)
+    if not WN: return
+    m = o.modifiers.new('wn', 'WEIGHTED_NORMAL'); m.mode = 'FACE_AREA'; m.weight = 100; m.keep_sharp = True; m.thresh = 0.01
+    with bpy.context.temp_override(object=o, active_object=o):
+        bpy.ops.object.modifier_move_to_index(modifier='wn', index=0)
+        bpy.ops.object.modifier_apply(modifier='wn')
 
 
 def planar(o):
@@ -71,9 +85,7 @@ def planar(o):
         with bpy.context.temp_override(object=o, active_object=o):
             bpy.ops.object.modifier_move_to_index(modifier=m.name, index=0)
             bpy.ops.object.modifier_apply(modifier=m.name)
-    with bpy.context.temp_override(object=o, active_object=o, selected_editable_objects=[o], selected_objects=[o]):
-        if o.data.has_custom_normals: bpy.ops.mesh.customdata_custom_splitnormals_clear()
-        bpy.ops.object.shade_smooth_by_angle(angle=0.70)
+    smooth(o)
     for m in arm: m.show_viewport = True
 
 
