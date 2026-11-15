@@ -41,7 +41,7 @@ def solid_dds(rgb):
     return path
 
 # хрущёвка скачана в масштабе ~1:2.3 (5 этажей должны быть ~15 м); пачки сигарет и фасад — не для улиц
-SCALE = {'khrushchevka': 2.3}
+SCALE = {'khrushchevka': 2.3, 'soviet_panel_9floor': 0.0889}  # 15.11: OBJ OpenGameArt — высота 315 ед. = 28 м
 SKIP = {'ussr_props', 'soviet_panel_building_facade_psx_style'}
 
 for name in sorted(os.listdir(SRC)):
@@ -51,6 +51,11 @@ for name in sorted(os.listdir(SRC)):
     before = set(bpy.data.objects)
     bpy.ops.import_scene.gltf(filepath=g)
     meshes = [o for o in bpy.data.objects if o not in before and o.type == 'MESH']
+    # 15.11: студийная подложка Sketchfab (panelka: 12 вершин на 80 x 110 x 51 м) — не часть дома, выкидываем
+    # (большая в двух направлениях; длинная стена или крыша дома 55 x 1 x 12 — нет)
+    for o in [o for o in meshes if len(o.data.vertices) <= 16 and sorted(o.dimensions)[1] > 50]:
+        print('KAVKAZ подложка выкинута', name, o.name, tuple(round(x) for x in o.dimensions))
+        meshes.remove(o); bpy.data.objects.remove(o)
     if not meshes:
         continue
     # всё в одну сетку, трансформации в геометрию

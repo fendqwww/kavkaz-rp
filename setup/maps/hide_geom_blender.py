@@ -9,7 +9,8 @@ job.json — список файлов:
   {"kind": "ydd", "name": "sm_22_slod1b_children", "drawables": {"hash_6BF530F0": {"mode": "all"},
        "hash_98EF9DE5": {"mode": "box", "origin": [x, y, z]}}, "boxes": [[[x0, y0, z0], [x1, y1, z1]], ...]}
   all — убрать модель целиком; box — только треугольники, у которых ВСЕ три вершины внутри одной из коробок
-  (мировые координаты; origin — позиция объекта на карте, у lod/slod поворота нет); "vertical": 0.5 — из них только
+  (мировые координаты; origin — позиция объекта на карте, у lod/slod поворота нет); третий элемент коробки — высота земли:
+  тогда убираются стены и всё, что выше земли + 0,8 м (дом в общей дальней модели без дыры в земле); "vertical": 0.5 — из них только
   крутые (|nz| < 0.5: буквы и щиты, а не склон под ними). модели набора, которых нет в
   "drawables", не трогаются. --dry — только посчитать. --base: брать наш файл с тем же именем, если он там есть.
 """
@@ -41,7 +42,7 @@ def strip(d, label, spec, boxes):
     """вырождает треугольники одной модели, возвращает (всего, убрано)"""
     mode = spec.get('mode', 'all')
     origin = np.array(spec.get('origin', [0, 0, 0])[:3], dtype=np.float32)
-    local = [np.array(b, dtype=np.float32) - origin for b in boxes]
+    local = [np.array(b[:2], dtype=np.float32) - origin for b in boxes]  # b[2] (если есть) — высота земли под домом
     total = removed = 0
     for lod, models in d.models.items():
         for m in models:
@@ -52,8 +53,15 @@ def strip(d, label, spec, boxes):
                     kill = np.ones(len(ib), dtype=bool)
                 else:
                     kill = np.zeros(len(ib), dtype=bool)
-                    for b in local:
-                        kill |= np.all((tri >= b[0]) & (tri <= b[1]), axis=(1, 2))
+                    n0 = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+                    steep = np.abs(n0[:, 2]) / np.maximum(np.linalg.norm(n0, axis=1), 1e-9) < 0.5
+                    zmin = tri[:, :, 2].min(axis=1)
+                    for bi, b in enumerate(local):
+                        inside = np.all((tri >= b[0]) & (tri <= b[1]), axis=(1, 2))
+                        g0 = boxes[bi][2] if len(boxes[bi]) > 2 else None
+                        if g0 is not None:  # 15.11: дом в общей дальней модели — стены целиком, остальное только выше земли
+                            inside &= steep | (zmin > float(g0) + 0.8 - origin[2])
+                        kill |= inside
                     if spec.get('vertical'):  # только стенки (буквы, щиты), а не склон/землю под ними
                         n = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
                         nz = np.abs(n[:, 2]) / np.maximum(np.linalg.norm(n, axis=1), 1e-9)
