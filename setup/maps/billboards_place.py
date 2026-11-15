@@ -1,6 +1,7 @@
 """KAVKAZ RP: наши щиты (make_billboards.py) на места убранных американских придорожных щитов prop_billboard_* у главных маршрутов.
 blender -b --factory-startup -P setup/maps/billboards_place.py -- <out_dir> <scan1.json> [scan2.json …]
-поворот и место — как у американского щита (кватернион из скана копируется как есть), по ~4 щита у каждой опорной точки,
+поворот и место — как у американского щита (кватернион из скана копируется как есть; 15.11 в сканах не было q — щиты встали
+без поворота, 16.11 исправлено: нужен скан scan_entities_blender.py), по ~4 щита у каждой опорной точки,
 не ближе 200 м друг к другу, макеты по очереди. постоянный ymap kv_billboards_ru (виден с 500 м).
 """
 import addon_utils, json, math, sys, dataclasses
@@ -24,7 +25,8 @@ TEMPLATE = try_load_asset('C:/kavkaz/fix-cr/data/cruss.ymap').entities[0]
 seen, spots = set(), []
 for s in SCANS:
     for e in json.load(open(s)):
-        if e['m'] in BIG and 'HD' in e.get('lod', ''):
+        e['m'] = e.get('m') or e.get('model')        # 16.11: скан scan_entities_blender.py (с поворотом q) — поле model
+        if e['m'] in BIG and 'HD' in e.get('lod', 'HD') and 'q' in e:
             k = (round(e['x']), round(e['y']))
             if k not in seen:
                 seen.add(k); spots.append(e)

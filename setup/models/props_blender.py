@@ -11,6 +11,7 @@ from mathutils import Vector
 
 argv = sys.argv[sys.argv.index('--') + 1:]
 SRC, OUT, PREVIEW = [os.path.abspath(a) for a in argv[:3]]
+YTYP = argv[argv.index('--ytyp') + 1] if '--ytyp' in argv else 'kavkaz_props'  # 16.11: свой ytyp для отдельного набора (знаки)
 TMP = os.path.join(OUT, '_sz')
 os.makedirs(TMP, exist_ok=True)
 addon_utils.enable('Sollumz', default_set=True, persistent=True)  # даёт путь к szio; после сброса включаем ещё раз
@@ -156,7 +157,7 @@ for pid, _, _ in built:
 bpy.ops.sollumz.export_assets(directory=TMP)
 
 ytyp = scene.ytyps.add()
-ytyp.name = 'kavkaz_props'
+ytyp.name = YTYP
 for i, (pid, size, _) in enumerate(built):
     a = ytyp.archetypes.add()
     a.id = i + 1
