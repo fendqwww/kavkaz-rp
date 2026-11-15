@@ -25,6 +25,12 @@ MySQL.ready(function()
         ADD COLUMN IF NOT EXISTS `frame_text` VARCHAR(48) NULL DEFAULT NULL]])
 end)
 
+-- 15.11: SetVehicleNumberPlateTextIndex есть только у клиента (на сервере nil — скрипт падал на смене номера).
+-- фон номера передаём состоянием машины, ставит клиент (client/main.lua, kvPlateIndex)
+local function setPlateIndex(entity, index)
+    Entity(entity).state:set('kvPlateIndex', index or 0, true)
+end
+
 local STYLE, FRAME = {}, {}
 for _, st in ipairs(Config.Styles) do STYLE[st.id] = st end
 for _, fr in ipairs(Config.Frames) do FRAME[fr.id] = fr end
@@ -150,7 +156,7 @@ local function setVehiclePlate(row, newPlate, style)
     local entity = findEntityByPlate(oldPlate)
     if entity then
         SetVehicleNumberPlateText(entity, newPlate)
-        SetVehicleNumberPlateTextIndex(entity, index)
+        setPlateIndex(entity, index)
     end
     pcall(function() exports.ox_inventory:UpdateVehicle(oldPlate, newPlate) end)
     row.plate = newPlate
@@ -709,7 +715,7 @@ AddEventHandler('entityCreated', function(entity)
                 local new = freeRandom(Config.DefaultRegion, svc.style)
                 if new then
                     SetVehicleNumberPlateText(entity, new)
-                    SetVehicleNumberPlateTextIndex(entity, (STYLE[svc.style] or STYLE.ru).index or 0)
+                    setPlateIndex(entity, (STYLE[svc.style] or STYLE.ru).index or 0)
                 end
                 return
             end

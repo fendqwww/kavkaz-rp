@@ -71,19 +71,25 @@ local function kickOutPeds(vehicle)
     end
 end
 
-local spawnLock = false
+local spawnLock = 0 -- KAVKAZ: время, до которого идёт выезд (раньше флаг навсегда залипал, если сервер не ответил)
 
 -- KAVKAZ: сначала скачать модель машины, потом просить сервер её поставить.
 -- 11.11: у игроков медленный интернет (~5 Мбит/с), модель 10–20 МБ качается до минуты, а сервер (qbx.spawnVehicle)
--- ждёт игру несколько секунд — машина «грузилась вечно» или не появлялась. ждём до 3 минут и показываем, что идёт загрузка.
+-- ждёт игру несколько секунд — машина «грузилась вечно» или не появлялась.
+-- 15.11: модель больше 16 МБ FiveM не грузит никогда — ждём не 3 минуты, а 60 с, с обратным отсчётом.
 local function preloadModel(modelName)
     if not modelName then return true end
     local hash = joaat(modelName)
     if not IsModelInCdimage(hash) or HasModelLoaded(hash) then return true end
     RequestModel(hash)
-    lib.showTextUI('Машина подгружается… (первый раз дольше)', { position = 'top-center', icon = 'car' })
-    local deadline = GetGameTimer() + 180000
+    local deadline = GetGameTimer() + 60000
+    local shown = -1
     while not HasModelLoaded(hash) and GetGameTimer() < deadline do
+        local left = math.ceil((deadline - GetGameTimer()) / 1000)
+        if left ~= shown then
+            shown = left
+            lib.showTextUI(('Машина подгружается… %d с'):format(left), { position = 'top-center', icon = 'car' })
+        end
         Wait(250)
         RequestModel(hash)
     end
@@ -91,16 +97,32 @@ local function preloadModel(modelName)
     return HasModelLoaded(hash)
 end
 
+-- KAVKAZ: ответ сервера ждём не больше 20 с (если на сервере ошибка, lib.callback.await ждал бы вечно)
+local function serverSpawn(vehicleId, garageName, accessPoint)
+    local p, done = promise.new(), false
+    lib.callback('qbx_garages:server:spawnVehicle', false, function(netId)
+        if done then return end
+        done = true
+        p:resolve(netId or false)
+    end, vehicleId, garageName, accessPoint)
+    SetTimeout(20000, function()
+        if done then return end
+        done = true
+        p:resolve(false)
+    end)
+    return Citizen.Await(p)
+end
+
 ---@param vehicleId number
 ---@param garageName string
 ---@param accessPoint integer
 ---@param modelName? string KAVKAZ: для предзагрузки модели
 local function takeOutOfGarage(vehicleId, garageName, accessPoint, modelName)
-    if spawnLock then
-        exports.qbx_core:Notify(locale('error.spawn_in_progress'), 'error')
+    if GetGameTimer() < spawnLock then -- KAVKAZ: блокировка сама снимается через 90 с
+        exports.qbx_core:Notify(('Машина уже выезжает, подожди %d с'):format(math.ceil((spawnLock - GetGameTimer()) / 1000)), 'error')
         return
     end
-    spawnLock = true
+    spawnLock = GetGameTimer() + 90000
 
     local success, result = pcall(function()
         if cache.vehicle then
@@ -109,18 +131,21 @@ local function takeOutOfGarage(vehicleId, garageName, accessPoint, modelName)
         end
 
         if not preloadModel(modelName) then -- KAVKAZ
-            exports.qbx_core:Notify('Машина не успела загрузиться. Попробуй ещё раз через минуту.', 'error')
+            exports.qbx_core:Notify('Эта машина не загрузилась у тебя в игре (файл модели слишком большой или не докачался). Выбери другую — её чинят.', 'error')
             return
         end
 
-        local netId = lib.callback.await('qbx_garages:server:spawnVehicle', false, vehicleId, garageName, accessPoint)
-        if not netId then return end
+        local netId = serverSpawn(vehicleId, garageName, accessPoint) -- KAVKAZ: с ограничением ожидания
+        if not netId then
+            exports.qbx_core:Notify('Сервер не смог поставить машину. Попробуй ещё раз или выбери другую.', 'error')
+            return
+        end
 
         local veh = lib.waitFor(function()
             if NetworkDoesEntityExistWithNetworkId(netId) then
                 return NetToVeh(netId)
             end
-        end)
+        end, nil, 15000)
 
         if veh == 0 then
             exports.qbx_core:Notify(locale('error.spawn_failed'), 'error')
@@ -131,8 +156,9 @@ local function takeOutOfGarage(vehicleId, garageName, accessPoint, modelName)
             SetVehicleEngineOn(veh, true, true, false)
         end
     end)
-    spawnLock = false
-    assert(success, result)
+    spawnLock = 0
+    lib.hideTextUI()
+    if not success then print('[qbx_garages] KAVKAZ: выезд не удался: ' .. tostring(result)) end
 end
 
 ---@param vehicle PlayerVehicle

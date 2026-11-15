@@ -162,20 +162,32 @@ end)
 -- транспорт
 ---------------------------------------------------------------------------
 
+-- ключи на заспавненную машину. раньше ошибка GiveKeys глушилась pcall'ом, и игрок видел «нет ключей».
+-- теперь машина ещё и записывается на персонажа (state.owner): qbx_vehiclekeys сам выдаёт ключи владельцу.
+local function giveKeys(src, vehicle)
+    local p = exports.qbx_core:GetPlayer(src)
+    if p then Entity(vehicle).state:set('owner', p.PlayerData.citizenid, true) end
+    local ok, err = pcall(function() return exports.qbx_vehiclekeys:GiveKeys(src, vehicle, true) end)
+    if not ok then print(('[kavkaz_admin] ключи не выданы (%s): %s'):format(src, tostring(err))) end
+end
+
 local function aveh(src, args)
     if noConsole(src) then return end
     local ped = GetPlayerPed(src)
     -- имя из автопарка (kv_camry80) -> модель, которая сейчас ездит (заглушка GTA или настоящая)
-    local model = args.model:lower()
+    -- tostring: ox_lib отдаёт «2114» строкой только без type у параметра (с type='string' цифры отклоняются)
+    local model = tostring(args.model):lower()
     local cars = GetResourceState('kavkaz_cars') == 'started'
     local car = cars and exports.kavkaz_cars:GetCar(model) or nil
     if not car and cars then
-        -- неточное имя: «camry», «g63», опечатка «killinan»
+        -- неточное имя: «camry», «g63», «2114», опечатка «killinan» — 15.11: при нескольких совпадениях
+        -- ставим первую, остальные пишем подсказкой (раньше был отказ «уточни модель», основатель решил, что не спавнится)
         local hits = exports.kavkaz_cars:Search(model)
-        if #hits == 1 then
+        if #hits > 0 then
             car = exports.kavkaz_cars:GetCar(hits[1])
-        elseif #hits > 1 then
-            return Admin.notify(src, 'уточни модель: ' .. table.concat(hits, ', '), 'inform')
+            if #hits > 1 then
+                Admin.notify(src, ('ставлю %s, ещё есть: %s'):format(hits[1], table.concat(hits, ', ', 2)), 'inform')
+            end
         end
     end
     if car then model = car.current end
@@ -200,12 +212,14 @@ local function aveh(src, args)
     -- русский номер, а не случайный GTA «46EEK572»
     local L = 'ABEKMHOPCTYX'
     local function ch() local i = math.random(#L) return L:sub(i, i) end
+    -- 15.11: ключи — ДО номера. раньше здесь стоял SetVehicleNumberPlateTextIndex: на сервере такой функции нет,
+    -- команда падала после создания машины, и ключ не выдавался («нет ключа» у каждой заспавненной машины)
+    giveKeys(src, vehicle)
     SetVehicleNumberPlateText(vehicle, ('%s%03d%s%s95'):format(ch(), math.random(11, 989), ch(), ch()))
-    SetVehicleNumberPlateTextIndex(vehicle, 0)
-    pcall(function() exports.qbx_vehiclekeys:GiveKeys(src, vehicle) end)
-    Admin.log(src, 'aveh', nil, car and car.spawn or args.model)
+    Admin.log(src, 'aveh', nil, car and car.spawn or model)
 end
-local P_MODEL = { { name = 'model', type = 'string', help = 'модель: kv_camry70, camry, g63 или модель GTA' } }
+-- без type: ox_lib с type='string' отклоняет чисто цифровые имена («/ahev 2114» — invalid string)
+local P_MODEL = { { name = 'model', help = 'модель: kv_camry70, camry, 2114, g63 или модель GTA' } }
 cmd('aveh', 'aveh', 'Заспавнить машину', P_MODEL, aveh)
 -- частые опечатки и привычные названия из других серверов — то же самое
 for _, alias in ipairs({ 'aheav', 'ahev', 'ahv', 'spawncar' }) do
@@ -327,16 +341,31 @@ cmd('agiveitem', 'giveitem', 'Выдать предмет', {
     Admin.log(src, 'giveitem', args.target, ('%s x%d: %s'):format(args.item, count, args.reason))
 end)
 
-cmd('agivecar', 'givecar', 'Выдать машину в гараж', {
-    P_TARGET,
-    { name = 'model', type = 'string', help = 'модель' },
-    P_REASON,
-}, function(src, args)
+-- 15.11: основатель пишет «/agivecar urus» без ID — ox_lib отклонял («invalid playerId»). теперь ID и причина необязательны:
+-- /agivecar [ID] модель [причина]; без ID — себе. первое число считается ID, только если такой игрок есть и после него есть модель
+cmd('agivecar', 'givecar', 'Выдать машину в гараж: /agivecar [ID] модель [причина]', {
+    { name = 'text', type = 'longString', help = '[ID игрока — по умолчанию ты] модель [причина]' },
+}, function(src, rawArgs)
+    local words = {}
+    for w in tostring(rawArgs.text):gmatch('%S+') do words[#words + 1] = w end
+    local target = src
+    local first = words[1] and words[1]:lower()
+    if #words >= 2 and (first == 'me' or (tonumber(first) and GetPlayerName(tonumber(first)))) then
+        table.remove(words, 1)
+        target = first == 'me' and src or tonumber(first)
+    end
+    if target == 0 then return print('[kavkaz_admin] из консоли: agivecar <ID> <модель> [причина]') end
+    local args = { target = target, model = table.remove(words, 1) or '', reason = #words > 0 and table.concat(words, ' ') or 'выдача админом' }
     local player = exports.qbx_core:GetPlayer(args.target)
     if not player then return Admin.notify(src, 'игрок ещё не выбрал персонажа', 'error') end
     local model = args.model:lower()
-    -- машина из автопарка (kavkaz_cars/cars.lua): можно писать имя спавна kv_camry80 — выдастся текущая модель (заглушка или настоящая)
-    local car = GetResourceState('kavkaz_cars') == 'started' and exports.kavkaz_cars:GetCar(model) or nil
+    -- машина из автопарка (kavkaz_cars/cars.lua): можно писать имя спавна kv_camry80, «urus», «2114» — выдастся текущая модель
+    local cars = GetResourceState('kavkaz_cars') == 'started'
+    local car = cars and exports.kavkaz_cars:GetCar(model) or nil
+    if not car and cars then
+        local hits = exports.kavkaz_cars:Search(model)
+        if hits[1] then car = exports.kavkaz_cars:GetCar(hits[1]) end
+    end
     if car then model = car.current end
     local known = exports.qbx_core:GetVehiclesByName()
     if known and not known[model] then return Admin.notify(src, 'модели нет в списке машин сервера (kavkaz_cars/cars.lua или qbx_core)', 'error') end

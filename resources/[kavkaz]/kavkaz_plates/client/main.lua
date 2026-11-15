@@ -199,3 +199,10 @@ AddEventHandler('onResourceStop', function(res)
     if ped then DeleteEntity(ped) end
     if isOpen then SetNuiFocus(false, false) end
 end)
+
+-- 15.11: фон номера, который выставил сервер (на сервере функции нет) — применяет тот, у кого машина
+AddStateBagChangeHandler('kvPlateIndex', nil, function(bagName, _, value)
+    local entity = GetEntityFromStateBagName(bagName)
+    if entity == 0 or type(value) ~= 'number' then return end
+    SetVehicleNumberPlateTextIndex(entity, value)
+end)

@@ -131,6 +131,15 @@ exports('Search', function(name)
         end
     end
     if #hits == 0 and best then hits[1] = best end
+    -- 15.11: «2114» → kv_vaz2114 первой (не kv_2114_dps): точное имя без префикса vaz — вперёд списка
+    for i, spawn in ipairs(hits) do
+        local short = spawn:gsub('^kv_', '')
+        if i > 1 and (short == name or short == 'vaz' .. name) then
+            table.remove(hits, i)
+            table.insert(hits, 1, spawn)
+            break
+        end
+    end
     return hits
 end)
 

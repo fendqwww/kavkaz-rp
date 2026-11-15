@@ -9,6 +9,14 @@ local function hasLicense(src)
     return ok and (count or 0) > 0
 end
 
+-- лишён прав (kavkaz_license) — пересдавать нельзя, пока не выйдет срок
+local function banUntil(src)
+    local p = exports.qbx_core:GetPlayer(src)
+    local ban = p and p.PlayerData.metadata.driver_ban
+    if ban and ban.untilTs and ban.untilTs > os.time() then return os.date('%d.%m.%Y', ban.untilTs) end
+    return nil
+end
+
 local function giveLicense(src)
     local meta
     pcall(function() meta = exports.qbx_idcard:GetMetaLicense(src, { 'driver_license' }) end)
@@ -23,6 +31,7 @@ local function giveLicense(src)
         local lic = p.PlayerData.metadata.licences or {}
         lic.driver = true
         p.Functions.SetMetaData('licences', lic)
+        p.Functions.SetMetaData('driver_ban', nil) -- пересдал после лишения — запрета больше нет
     end
 end
 
@@ -65,6 +74,10 @@ local function practice(src, st)
 end
 
 Q.handlers.zarema = function(src, st, choice)
+    local banned = banUntil(src)
+    if banned then
+        return Q.node('zarema', ('Тебя лишили прав до %s. Раньше срока не приму — права вернутся сами.'):format(banned))
+    end
     -- теория
     local t = theory[src]
     if choice == 'theory' then
