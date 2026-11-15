@@ -72,6 +72,8 @@ C{ tab = 'chats', cmd = 'gov', p = { { 'текст', '' } }, ex = '/gov Откр
 
 -- работа и штрафы
 C{ tab = 'work', cmd = 'fines', side = 'client', ex = '/fines', desc = 'мои неоплаченные штрафы, оплата с карты' }
+C{ tab = 'work', cmd = 'prava', p = { { 'ID', 'водитель рядом (только ДПС на смене); без ID — свои права' } }, ex = '/prava 12', desc = 'водительские права: есть, нет или лишён до какого числа' }
+C{ tab = 'work', cmd = 'lishit', p = { { 'ID', 'водитель рядом' }, { 'дни', '1–30' }, { 'причина', 'за что' } }, ex = '/lishit 12 7 пьяный за рулём', desc = 'ДПС: лишить прав на срок; права изымаются и возвращаются сами после срока' }
 C{ tab = 'work', cmd = 'fine', side = 'client', p = { { '[ID]', 'нарушитель, пусто — ближайший' }, { '[статья]', 'tint4, fake… — подставляет пробивка номера' } }, ex = '/fine 12', desc = 'полиция и ДПС на смене: выписать штраф (до 6 м)' }
 C{ tab = 'work', cmd = 'checkplate', side = 'client', ex = '/checkplate', desc = 'полиция и ДПС: пробить номер ближайшей машины' }
 
@@ -128,6 +130,8 @@ C{ tab = 'admin', cmd = 'disarm', perm = 'disarm', p = { { 'ID', '' }, { 'при
 C{ tab = 'admin', cmd = 'unban', perm = 'unban', p = { { 'номер или ник', '' } }, ex = '/unban 17', desc = 'разбанить по номеру бана или нику' }
 C{ tab = 'admin', cmd = 'agiveitem', perm = 'giveitem', p = { { 'ID', '' }, { 'предмет', 'например water' }, { 'число', '' }, { 'причина', '' } }, ex = '/agiveitem 12 water 2 компенсация', desc = 'выдать предмет' }
 C{ tab = 'admin', cmd = 'agivecar', perm = 'givecar', p = { { 'ID', '' }, { 'модель', '' }, { 'причина', '' } }, ex = '/agivecar 12 kv_priora компенсация', desc = 'выдать машину в гараж (номер — транзит от kavkaz_plates)' }
+C{ tab = 'admin', cmd = 'agivelicense', level = 4, p = { { 'ID', 'игрок' } }, ex = '/agivelicense 12', desc = 'выдать водительские права (снимает лишение)' }
+C{ tab = 'admin', cmd = 'atakelicense', level = 4, p = { { 'ID', 'игрок' } }, ex = '/atakelicense 12', desc = 'забрать водительские права' }
 C{ tab = 'admin', cmd = 'kavkaz_cars', ace = 'command.kavkaz_cars', ex = 'kavkaz_cars', desc = 'консоль сервера: автопарк — какие машины настоящие, какие на заглушках, вес' }
 C{ tab = 'admin', cmd = 'kavkaz_cars_migrate', ace = 'command.kavkaz_cars_migrate', p = { { '[apply]', 'без apply — только показать' } }, ex = 'kavkaz_cars_migrate apply', desc = 'консоль: перевести купленные машины с заглушки на настоящую модель' }
 C{ tab = 'admin', cmd = 'kavkaz_founders', ace = 'command.kavkaz_founders', ex = 'kavkaz_founders', desc = 'консоль: выдать основателям в гараж усадьбы машины, добавленные в автопарк позже (с СГУ «Хазард Про»)' }
