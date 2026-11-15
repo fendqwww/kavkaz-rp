@@ -1,0 +1,30 @@
+{
+ "W": 1040,
+ "H": 560,
+ "kv_hazard_knob_vol": [
+  27.005,
+  31.932
+ ],
+ "kv_hazard_knob_sel": [
+  64.505,
+  33.739
+ ],
+ "kv_hazard_btn_pa": [
+  61.675,
+  82.07
+ ],
+ "kv_hazard_btn_horn": [
+  75.118,
+  82.07
+ ],
+ "kv_hazard_led_l1": [
+  61.675,
+  62.196
+ ],
+ "kv_hazard_led_l2": [
+  75.118,
+  62.196
+ ],
+ "kv_hazard_knob_sel_size": 20.755,
+ "kv_hazard_knob_vol_size": 15.094
+}
