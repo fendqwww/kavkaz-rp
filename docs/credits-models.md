@@ -4,6 +4,12 @@
 
 | модель | название | автор | лицензия и источник |
 |---|---|---|---|
+| bb_dps | Щит «ДПС НАПОМИНАЕТ» | KAVKAZ RP | своя; шрифт Montserrat — SIL OFL 1.1 KAVKAZ |
+| bb_job | Щит «ИЩЕШЬ РАБОТУ?» | KAVKAZ RP | своя; шрифт Montserrat — SIL OFL 1.1 KAVKAZ |
+| bb_nagorsk | Щит «НАГОРСК» | KAVKAZ RP | своя; шрифт Montserrat — SIL OFL 1.1 KAVKAZ |
+| bb_pelmeni | Щит «ПЕЛЬМЕНИ «ДЕДОВСКИЕ»» | KAVKAZ RP | своя; шрифт Montserrat — SIL OFL 1.1 KAVKAZ |
+| bb_school | Щит «АВТОШКОЛА» | KAVKAZ RP | своя; шрифт Montserrat — SIL OFL 1.1 KAVKAZ |
+| bb_taxi | Щит «ТАКСИ «ШАШКИ»» | KAVKAZ RP | своя; шрифт Montserrat — SIL OFL 1.1 KAVKAZ |
 | khrushchevka | Khrushchevka | quizzes (https://sketchfab.com/quizzes) | CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/) https://sketchfab.com/3d-models/khrushchevka-4c759da8b8914ec4924f68ee9cc3cbd5 |
 | old_russian_bus_stop | Old Russian bus stop | halkiridze (https://sketchfab.com/halkiridze) | CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/) https://sketchfab.com/3d-models/old-russian-bus-stop-074e11d7adb9420a83bc862e81579a9f |
 | panelka | panelka | cedo (https://sketchfab.com/cedo_model) | CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/) https://sketchfab.com/3d-models/panelka-8878634b8c1a4691b2513437b1afc049 |
