@@ -13,6 +13,9 @@ Config.Replace = {
     prop_traffic_03b = { with = { 'prop_traffic_01a' }, yaw = 0.0 },
 }
 Config.TrafficLights = true -- data_lights.lua (297 мест из скана карты)
+-- 15.11 основатель: «пальмы полностью убираем, деревья и т. д. расставим позже в отдельной сессии» — false: только прячем.
+-- вдали пальмы тоже убраны: kv_map_palms теперь с прозрачными «карточками» пальм вместо крон
+Config.PalmsToTrees = false
 -- пальмы: в предгорьях Кавказа их нет — на их месте обычные деревья (модели GTA, есть у всех)
 -- большие пальмы -> деревья, маленькие веерные пальмы в клумбах -> кусты (чтобы деревья не выросли посреди тротуара)
 Config.PalmTrees = { 'prop_tree_birch_01', 'prop_tree_birch_02', 'prop_tree_birch_03', 'prop_tree_maple_02', 'prop_tree_oak_01' }

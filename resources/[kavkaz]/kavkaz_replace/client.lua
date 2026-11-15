@@ -10,6 +10,7 @@ local function pick(model, i)
         if not r.with then return nil end
         return r.with[(i % #r.with) + 1], r.yaw or 0.0
     end
+    if not Config.PalmsToTrees then return nil end -- 15.11: пальмы просто убираем, деревья расставим отдельно
     for _, pat in ipairs(Config.SmallPalm) do
         if model:find(pat) then return Config.PalmBushes[(i % #Config.PalmBushes) + 1], 0.0 end
     end

@@ -126,6 +126,7 @@ Config.CityCenter = vec2(-50.0, -800.0)
 local function gate(id, label, coords)
     return {
         id = id, label = label, coords = coords, auto = true, noSlow = true, distance = 450.0, gate = true,
+        blip = { sprite = 38, color = 2 }, -- клетчатый флажок: точка задания «Четыре въезда»
         props = {
             { model = 'kv_p_stela_nagorsk', offset = vec3(0.0, -4.0, 0.0), heading = 0.0, upright = true, sink = 1.0 },
             { model = 'kv_p_sign_city_nagorsk', offset = vec3(-22.0, 6.5, 0.0), faceAway = Config.CityCenter, upright = true },
