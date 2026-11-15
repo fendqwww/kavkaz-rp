@@ -55,7 +55,8 @@ Config.HideEverywhere = {
     'prop_fire_hydrant_1', 'prop_fire_hydrant_2', 'prop_fire_hydrant_4',
     'prop_flag_sapd', 'prop_flag_us', 'prop_flag_us_s', -- 13.11: флаг США у дома в Песчаном (видео основателя)
     -- 15.11: американские парковочные счётчики (~1200 по скану) и оставшиеся чужие флаги
-    'prop_parknmeter_01', 'prop_parknmeter_02', 'prop_flag_uk', 'prop_flag_scotland', 'prop_flag_ireland',
+    'prop_parknmeter_01', 'prop_parknmeter_02', 'prop_flag_uk', 'prop_flag_ireland',
+    'prop_flag_scotland', -- шотландские флаги GTA прячем; наши флаги Нагорска на этой модели ставит скрипт — скрытие их не трогает (ExcludingScriptObjects)
     -- 12.11: колесо обозрения и вагончики американских горок на пирсе — второй по узнаваемости ориентир GTA
     'prop_ld_ferris_wheel', 'prop_ferris_car_01', 'prop_roller_car_01', 'prop_roller_car_02',
     -- 12.11: надпись VINEWOOD на холме — самое узнаваемое в GTA: буквы, каркас, лестницы, подсветка, дальние версии
@@ -86,6 +87,7 @@ local function post(id, label, coords)
         props = {
             { model = 'prop_portacabin01', offset = vec3(-6.0, -1.0, 0.0), heading = 90.0 },
             { model = 'prop_flag_russia', offset = vec3(-9.5, 2.0, 0.0), heading = 0.0 },
+            { model = 'prop_flag_scotland', offset = vec3(-12.0, 2.0, 0.0), heading = 0.0 }, -- флаг Нагорска (модель шотландского флага с нашей тканью)
             { model = 'prop_sec_barrier_ld_01a', offset = vec3(1.5, 4.0, 0.0), heading = 90.0 },
             { model = 'prop_roadcone02a', offset = vec3(3.0, 7.0, 0.0) },
             { model = 'prop_roadcone02a', offset = vec3(5.0, 7.5, 0.0) },
@@ -132,6 +134,8 @@ local function gate(id, label, coords)
         props = {
             { model = 'kv_p_stela_nagorsk', offset = vec3(0.0, -4.0, 0.0), heading = 0.0, upright = true, sink = 1.0 },
             { model = 'kv_p_sign_city_nagorsk', offset = vec3(-22.0, 6.5, 0.0), faceAway = Config.CityCenter, upright = true },
+            { model = 'prop_flag_russia', offset = vec3(-17.5, -3.0, 0.0) },
+            { model = 'prop_flag_scotland', offset = vec3(17.5, -3.0, 0.0) }, -- флаг Нагорска
         },
     }
 end
@@ -148,7 +152,17 @@ Config.Gates = {
 -- тот же формат, что у постов ДПС. offset от точки места: x вправо, y вперёд по heading.
 -- всё помечено «сверить»: координаты по карте, без проверки в игре. встань на место, /mypos, пришли — поправим.
 ---------------------------------------------------------------------------
+-- 15.11: флаг Нагорска — setup/models/make_flag.py: белое небо, две зелёные вершины (#3dcc5c), графитовая земля.
+-- это модель prop_flag_scotland с нашей тканью (шотландский у нас нигде не нужен) — развевается, как настоящий.
+local function flags(id, label, coords)
+    return { id = id, label = label, snap = true, coords = coords, props = {
+        { model = 'prop_flag_russia', offset = vec3(-3.0, 0.0, 0.0) },
+        { model = 'prop_flag_scotland', offset = vec3(3.0, 0.0, 0.0) },
+    } }
+end
 Config.Scenes = {
+    flags('flags_airport', 'Флаги у аэропорта', vec4(-1032.0, -2727.0, 20.2, 330.0)),   -- площадь перед выходом из терминала (сверить)
+    flags('flags_busstation', 'Флаги у автовокзала', vec4(452.0, -652.0, 28.5, 90.0)), -- у автовокзала, рядом с Исламом и Зауром (сверить)
     -- 12.11: места на горах — чтобы знакомые по GTA вершины стали своими. snap — высота с земли на месте
     {
         id = 'chiliad_top', label = 'Вершина Шат-горы', snap = true,
@@ -156,6 +170,7 @@ Config.Scenes = {
         blip = { sprite = 141, color = 25 },
         props = {
             { model = 'prop_flag_russia', offset = vec3(0.0, 4.0, 0.0) },
+            { model = 'prop_flag_scotland', offset = vec3(2.5, 4.0, 0.0) }, -- флаг Нагорска
             { model = 'prop_skid_tent_01', offset = vec3(-7.0, -2.0, 0.0), heading = 70.0 },
             { model = 'prop_skid_tent_01', offset = vec3(-9.0, 4.0, 0.0), heading = 110.0 },
             { model = 'prop_beach_fire', offset = vec3(-4.0, 1.0, 0.0) },
