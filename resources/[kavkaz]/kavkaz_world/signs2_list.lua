@@ -1,0 +1,23 @@
+-- собрано setup/retex/shop_signs.py — не править руками
+Config.Sign2Images = {
+    'sign2_produkty',
+    'sign2_market',
+    'sign2_gastronom',
+    'sign2_apteka',
+    'sign2_napitki',
+    'sign2_ohota',
+    'sign2_police',
+    'sign2_dps',
+    'sign2_hospital',
+    'sign2_shaurma',
+    'sign2_chaikhana',
+    'sign2_coffee',
+    'sign2_bank',
+    'sign2_avtovokzal',
+    'sign2_motors',
+    'sign2_shinomontazh',
+    'sign2_tuning',
+    'sign2_shashlyk',
+    'sign2_sto',
+    'sign2_azs',
+}

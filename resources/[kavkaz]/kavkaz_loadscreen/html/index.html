@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>KAVKAZ RP</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  /* стиль по antr5-skill (C:\kavkaz\SKILL.md):
+     графит #0d0e0f / #161719 + изумруд #3dcc5c, без неона, стекла и нарисованных пейзажей.
+     фон — только настоящие кадры из игры (html/bg/1.jpg … 5.jpg), тонированные в наш синий. */
+  :root {
+    --bg: #0d0e0f; --bg2: #161719; --acc: #3dcc5c; --text: #ffffff; --muted: rgba(242,243,245,.6);
+    --f-logo: "Unbounded", "Arial Black", sans-serif;
+    --f-ui: "Golos Text", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
+  body { font: 400 18px/1.5 var(--f-ui); color: var(--text); user-select: none; }
+
+  /* слои фона: кадр → тонировка цветом → градиенты сверху/снизу → виньетка */
+  .shot { position: absolute; inset: 0; background: center / cover no-repeat; opacity: 0; transition: opacity 1.6s ease; }
+  .shot.on { opacity: 1; }
+  .tint { position: absolute; inset: 0; background: #000; opacity: .15; }
+  .grad { position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(10,11,12,.92) 0%, rgba(10,11,12,.25) 30%, rgba(10,11,12,.25) 55%, rgba(10,11,12,.96) 100%); }
+  .vign { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.85) 100%); }
+  /* пока кадров нет — плоский тёмно-синий фон без рисунков */
+  body.noshots .grad { background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%); }
+
+  .wrap { position: relative; height: 100%; display: flex; flex-direction: column; padding: 8vh 6vw 7vh; }
+
+  .brand { display: flex; align-items: baseline; }
+  .logo { position: relative; display: inline-block; font: 800 120px/1 var(--f-logo); letter-spacing: .02em; }
+  .logo::after { content: ""; position: absolute; right: -24px; top: -6px; width: 38px; height: 38px; border-radius: 50%;
+    background: var(--acc); }
+  .rp { font: 700 46px var(--f-logo); color: var(--acc); margin-left: 22px; }
+  .tag { margin-top: 18px; font: 500 18px var(--f-ui); color: var(--muted); }
+
+  .bottom { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 48px; }
+
+  .tip { max-width: 780px; padding-left: 22px; border-left: 4px solid var(--acc); transition: opacity .5s; }
+  .tip.hide { opacity: 0; }
+  .tip-head { font: 600 15px var(--f-ui); color: var(--acc); margin-bottom: 8px; }
+  .tip-text { font: 500 22px/1.45 var(--f-ui); }
+  kbd { display: inline-block; min-width: 36px; padding: 1px 10px; margin: 0 3px; border-radius: 6px; text-align: center;
+    font: 800 18px var(--f-ui); color: var(--bg); background: #fff; }
+
+  .load { width: 520px; }
+  .load-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .status { font: 500 16px var(--f-ui); color: var(--muted); }
+  .pct { font: italic 700 56px/1 var(--kv-fn); font-variant-numeric: tabular-nums; }
+  .bar { height: 6px; background: rgba(185,203,194,.18); }
+  .fill { height: 100%; width: 0%; background: var(--acc); transition: width .6s ease; }
+  .log { margin-top: 12px; font: 600 13px var(--f-ui); color: rgba(242,243,245,.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style>
+</head>
+<body class="noshots">
+<div class="shot" id="shotA"></div>
+<div class="shot" id="shotB"></div>
+<div class="tint" id="tint" style="display:none"></div>
+<div class="grad"></div>
+<div class="vign"></div>
+
+<div class="wrap">
+  <div>
+    <div class="brand"><img src="logo.svg" alt="KAVKAZ RP" style="height:110px;display:block"></div>
+    <div class="tag">свои люди · свои дороги</div>
+  </div>
+
+  <div class="bottom">
+    <div class="tip" id="tip">
+      <div class="tip-head" id="tipHead"></div>
+      <div class="tip-text" id="tipText"></div>
+    </div>
+
+    <div class="load">
+      <div class="load-row">
+        <span class="status" id="status">Загрузка</span>
+        <span class="pct" id="pct">0%</span>
+      </div>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // подсказки: кнопки сверены с настройками сервера (ox_inventory, ox_target, ox_lib, npwd, qbx_*)
+  const tips = [
+    { head: 'С чего начать', text: 'Первым делом — мэрия: работа и документы. Метка появится на карте сама.' },
+    { head: 'Управление', text: '<kbd>TAB</kbd> инвентарь&nbsp;&nbsp;<kbd>M</kbd> телефон&nbsp;&nbsp;<kbd>T</kbd> чат' },
+    { head: 'Управление', text: 'Зажми <kbd>ALT</kbd> и наведи на человека, машину или дверь — появятся действия.' },
+    { head: 'Управление', text: '<kbd>Z</kbd> быстрое меню&nbsp;&nbsp;<kbd>F1</kbd> быстрые слоты&nbsp;&nbsp;<kbd>B</kbd> ремень' },
+    { head: 'Машина', text: '<kbd>L</kbd> закрыть / открыть&nbsp;&nbsp;<kbd>K</kbd> багажник. Ставь машину в гараж — иначе эвакуируют.' },
+    { head: 'Румиса Халвовна', text: '«Сказал — сделай. Не сделал — не говори».' },
+    { head: 'Памятка', text: 'Забыл, что где? Напиши в чат <b>/gaid</b> — откроется памятка новичка.' },
+    { head: 'KAVKAZ RP', text: 'Тихо. Точно. По делу.' },
+  ];
+  let tipIndex = Math.floor(Math.random() * tips.length);
+  const tipEl = document.getElementById('tip');
+  function showTip() {
+    const t = tips[tipIndex++ % tips.length];
+    document.getElementById('tipHead').textContent = t.head;
+    document.getElementById('tipText').innerHTML = t.text;
+  }
+  showTip();
+  setInterval(() => {
+    tipEl.classList.add('hide');
+    setTimeout(() => { showTip(); tipEl.classList.remove('hide'); }, 500);
+  }, 8000);
+
+  // фоновые кадры из игры: кладутся в html/bg/1.jpg … 5.jpg (и в files в fxmanifest). нет кадров — плоский фон.
+  const found = [];
+  let checked = 0;
+  for (let i = 1; i <= 5; i++) {
+    const img = new Image();
+    img.onload = () => { found.push(img.src); done(); };
+    img.onerror = done;
+    img.src = `bg/${i}.jpg`;
+  }
+  function done() {
+    if (++checked < 5 || !found.length) return;
+    document.body.classList.remove('noshots');
+    document.getElementById('tint').style.display = '';
+    const layers = [document.getElementById('shotA'), document.getElementById('shotB')];
+    let n = 0, front = 0;
+    const next = () => {
+      const el = layers[front];
+      el.style.backgroundImage = `url("${found[n++ % found.length]}")`;
+      el.classList.add('on');
+      layers[1 - front].classList.remove('on');
+      front = 1 - front;
+    };
+    next();
+    if (found.length > 1) setInterval(next, 9000);
+  }
+
+  // прогресс загрузки: FiveM присылает события в окно экрана загрузки
+  const fill = document.getElementById('fill'), pct = document.getElementById('pct');
+  const statusEl = document.getElementById('status'), logEl = document.getElementById('log');
+  let shown = 0;
+  function setProgress(fraction) {
+    shown = Math.max(shown, Math.min(100, Math.round(fraction * 100)));
+    fill.style.width = shown + '%';
+    pct.textContent = shown + '%';
+    statusEl.textContent = shown >= 100 ? 'Почти готово' : 'Загрузка';
+  }
+  const handlers = {
+    loadProgress: d => setProgress(d.loadFraction || 0),
+    onLogLine: d => { if (d.message) logEl.textContent = d.message; },
+  };
+  window.addEventListener('message', e => {
+    const h = handlers[e.data && e.data.eventName];
+    if (h) h(e.data);
+  });
+
+  // предпросмотр в обычном браузере (?preview=64) — для скриншотов
+  const preview = new URLSearchParams(location.search).get('preview');
+  if (preview !== null) {
+    setProgress((Number(preview) || 60) / 100);
+    logEl.textContent = 'Загрузка ресурсов: qbx_core';
+  }
+</script>
+</body>
+</html>

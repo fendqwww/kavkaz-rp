@@ -1,0 +1,53 @@
+{
+    "error": {
+        "bled_out": "Ты истёк кровью…"
+    },
+    "success": {
+        "wounds_healed": "Раны вылечены!"
+    },
+    "info": {
+        "self_death": "сам или NPC",
+        "wep_unknown": "неизвестно",
+        "status": "Осмотр",
+        "healthy": "Ты полностью здоров!",
+        "pain_message": "%s: %s",
+        "many_places": "Болит во многих местах…",
+        "bleed_alert": "Ты %s",
+        "revive_player_a": "Поднять игрока или себя (админ)",
+        "player_id": "ID игрока (можно пусто)",
+        "pain_level": "Уровень боли себе или игроку (админ)",
+        "kill": "Убить игрока или себя (админ)",
+        "heal_player_a": "Вылечить игрока или себя (админ)"
+    },
+    "states": {
+        "irritated": "ноет",
+        "quite_painful": "болит",
+        "painful": "сильно болит",
+        "really_painful": "очень сильно болит",
+        "little_bleed": "немного кровоточишь…",
+        "bleed": "кровоточишь…",
+        "lot_bleed": "сильно кровоточишь…",
+        "big_bleed": "истекаешь кровью…"
+    },
+    "body": {
+        "head": "Голова",
+        "neck": "Шея",
+        "spine": "Позвоночник",
+        "upper_body": "Грудь",
+        "lower_body": "Живот",
+        "left_arm": "Левая рука",
+        "left_hand": "Левая кисть",
+        "left_fingers": "Пальцы левой руки",
+        "left_leg": "Левая нога",
+        "left_foot": "Левая стопа",
+        "right_arm": "Правая рука",
+        "right_hand": "Правая кисть",
+        "right_fingers": "Пальцы правой руки",
+        "right_leg": "Правая нога",
+        "right_foot": "Правая стопа"
+    },
+    "logs": {
+        "death_log_title": "%s (%s) погиб",
+        "death_log_message": "%s убил %s: **%s** (%s)"
+    }
+}

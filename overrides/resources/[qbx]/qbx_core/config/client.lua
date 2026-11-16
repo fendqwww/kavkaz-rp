@@ -1,0 +1,96 @@
+return {
+    statusIntervalSeconds = 5, -- how often to check hunger/thirst status to remove health if 0.
+    loadingModelsTimeout = 30000, -- Waiting time for ox_lib to load the models before throws an error, for low specs pc
+
+    pauseMapText = 'KAVKAZ RP', -- KAVKAZ: было 'Powered by Qbox'. Text shown above the map when ESC is pressed. If left empty 'FiveM' will appear
+
+    characters = {
+        useExternalCharacters = false, -- Whether you have an external character management resource. (If true, disables the character management inside the core)
+        enableDeleteButton = false, -- KAVKAZ: персонажа не удалить самому (только через администрацию). Whether players should be able to delete characters themselves.
+        startingApartment = false, -- KAVKAZ: без выбора квартиры — новичок сразу у автовокзала (shared.lua defaultSpawn). If set to false, skips apartment choice in the beginning (requires qbx_spawn if true)
+
+        dateFormat = 'YYYY-MM-DD',
+        dateMin = '1900-01-01', -- Has to be in the same format as the dateFormat config
+        dateMax = '2008-12-31', -- KAVKAZ: персонажу 18+ (было 2006-12-31). Has to be in the same format as the dateFormat config
+
+        limitNationalities = true, -- Setting this to false will allow people to enter whatever they want in the nationality field (To edit the list of nationalities, head to data/nationalities.lua)
+
+        profanityWords = {
+            ['bad word'] = true
+        },
+
+        -- KAVKAZ: только места под открытым небом — в интерьерах (казино, клуб, лаборатория) играла их музыка
+        locations = { -- Spawn locations for multichar, these are chosen randomly
+            {
+                pedCoords = vec4(-1023.45, -418.42, 67.66, 205.69),
+                camCoords = vec4(-1021.8, -421.7, 68.14, 27.11),
+            },
+            {
+                pedCoords = vec4(-1004.5, -478.51, 50.03, 28.19),
+                camCoords = vec4(-1006.36, -476.19, 50.50, 210.38),
+            }
+        },
+    },
+
+    discord = {
+        enabled = false, -- KAVKAZ: выключено, пока нет своего Discord-приложения (иначе в Discord видно «Qbox Ducky»). This will enable or disable the built in discord rich presence.
+
+        richPresence = 'Players {currentPlayers}/{maxPlayers}', -- Rich presence text. Placeholders: {id}, {charName}, {playerName}, {currentPlayers}, {maxPlayers}, {streetName}
+
+        updateInterval = 15000, -- How often (ms) to refresh rich presence. Minimum 5000; Discord throttles faster updates.
+
+        appId = '1024981890798731345', -- This is the Application ID (Replace this with you own)
+
+        largeIcon = { -- To set this up, visit https://forum.cfx.re/t/how-to-updated-discord-rich-presence-custom-image/157686
+            icon = 'duck', -- Here you will have to put the image name for the 'large' icon.
+            text = 'Qbox Ducky', -- Here you can add hover text for the 'large' icon.
+        },
+
+        smallIcon = {
+            icon = 'logo_name', -- Here you will have to put the image name for the 'small' icon.
+            text = 'This is a small icon with text', -- Here you can add hover text for the 'small' icon.
+        },
+
+        firstButton = {
+            text = 'Qbox Discord',
+            link = 'https://discord.gg/Z6Whda5hHA',
+        },
+
+        secondButton = {
+            text = 'Main Website',
+            link = 'https://www.qbox.re/',
+        }
+    },
+
+    --- Only used by QB bridge
+    hasKeys = function(plate, vehicle)
+        return GetResourceState('qbx_vehiclekeys') ~= 'started' or exports.qbx_vehiclekeys:HasKeys(vehicle)
+    end,
+
+    teleport = {
+        fadeDuration = 650, -- Screen fade duration in milliseconds when teleporting
+        groundSearchMaxZ = 850.0, -- Maximum Z height to search for ground when teleporting
+        groundSearchStartZ = 950.0, -- Starting Z height for ground search loop
+        groundSearchStep = -25.0, -- Z increment step for ground search loop
+        loadSceneRadius = 50.0, -- Radius to load the scene around the teleport destination
+        timeout = 1000, -- Timeout in milliseconds for scene loading and collision checks
+    },
+
+    getVehiclesInRadius = {
+        defaultRadius = 5, -- Default search radius when retrieving nearby vehicles
+    },
+
+    meCommand = {
+        distance = 25, -- Maximum distance at which players can see each other's /me text
+        displayTime = 5000, -- Duration in milliseconds the /me text remains visible
+    },
+
+    setVehicleProperties = {
+        timeout = 1000, -- Timeout in milliseconds when attempting to set vehicle properties
+        waitInterval = 50, -- Wait time in milliseconds between property set attempts
+    },
+
+    initVehicle = {
+        seats = {-1, 0}, -- List of seat indices to clear when initializing a vehicle
+    },
+}
