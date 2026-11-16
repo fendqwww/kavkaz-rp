@@ -58,6 +58,21 @@ RegisterNetEvent('kavkaz_fines:server:issue', function(target, articleId, amount
     print(('[kavkaz_fines] %s -> %s: %s %d'):format(GetPlayerName(src), GetPlayerName(target), a.id, amount))
 end)
 
+-- KAVKAZ 16.11: штраф от NPC-инспектора (kavkaz_law: пост остановил игрока). без доли инспектору (officer_cid пустой)
+exports('IssueFine', function(target, articleId, amount, note, officerLabel)
+    local a = byId[articleId or '']
+    local victim = exports.qbx_core:GetPlayer(target)
+    if not a or not victim then return false end
+    amount = math.floor(tonumber(amount) or a.amount)
+    if amount < 1 then amount = a.amount end
+    if amount > a.max then amount = a.max end
+    note = type(note) == 'string' and note:gsub('[\r\n]', ' '):sub(1, 160) or nil
+    local id = MySQL.insert.await('INSERT INTO kavkaz_fines (citizenid, name, officer, officer_cid, article, note, amount) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        { victim.PlayerData.citizenid, charName(victim), officerLabel or 'инспектор ДПС', nil, a.id, note, amount })
+    notify(target, ('вам выписан штраф №%d: %s, %s. оплатить: /fines (через %d дн. сумма удвоится)'):format(id, a.label, money(amount), Config.DoubleAfterDays), 'error')
+    return id
+end)
+
 lib.callback.register('kavkaz_fines:list', function(src)
     local p = exports.qbx_core:GetPlayer(src)
     if not p then return {} end
