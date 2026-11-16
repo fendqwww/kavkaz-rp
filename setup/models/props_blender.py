@@ -11,6 +11,7 @@ from mathutils import Vector
 
 argv = sys.argv[sys.argv.index('--') + 1:]
 SRC, OUT, PREVIEW = [os.path.abspath(a) for a in argv[:3]]
+YTYP = argv[argv.index('--ytyp') + 1] if '--ytyp' in argv else 'kavkaz_props'  # 16.11: свой ytyp для отдельного набора (знаки)
 TMP = os.path.join(OUT, '_sz')
 os.makedirs(TMP, exist_ok=True)
 addon_utils.enable('Sollumz', default_set=True, persistent=True)  # даёт путь к szio; после сброса включаем ещё раз
@@ -41,7 +42,7 @@ def solid_dds(rgb):
     return path
 
 # хрущёвка скачана в масштабе ~1:2.3 (5 этажей должны быть ~15 м); пачки сигарет и фасад — не для улиц
-SCALE = {'khrushchevka': 2.3}
+SCALE = {'khrushchevka': 2.3, 'soviet_panel_9floor': 0.0889}  # 15.11: OBJ OpenGameArt — высота 315 ед. = 28 м
 SKIP = {'ussr_props', 'soviet_panel_building_facade_psx_style'}
 
 for name in sorted(os.listdir(SRC)):
@@ -51,6 +52,11 @@ for name in sorted(os.listdir(SRC)):
     before = set(bpy.data.objects)
     bpy.ops.import_scene.gltf(filepath=g)
     meshes = [o for o in bpy.data.objects if o not in before and o.type == 'MESH']
+    # 15.11: студийная подложка Sketchfab (panelka: 12 вершин на 80 x 110 x 51 м) — не часть дома, выкидываем
+    # (большая в двух направлениях; длинная стена или крыша дома 55 x 1 x 12 — нет)
+    for o in [o for o in meshes if len(o.data.vertices) <= 16 and sorted(o.dimensions)[1] > 50]:
+        print('KAVKAZ подложка выкинута', name, o.name, tuple(round(x) for x in o.dimensions))
+        meshes.remove(o); bpy.data.objects.remove(o)
     if not meshes:
         continue
     # всё в одну сетку, трансформации в геометрию
@@ -118,7 +124,8 @@ for name in sorted(os.listdir(SRC)):
                         m.node_tree.links.remove(l)
         try:
             conv = MaterialConverter(ob, m)
-            new = conv.convert('cutout.sps') if alpha else conv.auto_convert()
+            # 15.11: материалы kv_emis* (буквы стелы, полоса бренда) светятся ночью
+            new = conv.convert('emissive.sps') if m.name.startswith('kv_emis') else conv.convert('cutout.sps') if alpha else conv.auto_convert()
         except Exception as e:  # noqa
             print('KAVKAZ материал не сконвертирован', pid, m.name, e)
             new = None
@@ -150,7 +157,7 @@ for pid, _, _ in built:
 bpy.ops.sollumz.export_assets(directory=TMP)
 
 ytyp = scene.ytyps.add()
-ytyp.name = 'kavkaz_props'
+ytyp.name = YTYP
 for i, (pid, size, _) in enumerate(built):
     a = ytyp.archetypes.add()
     a.id = i + 1

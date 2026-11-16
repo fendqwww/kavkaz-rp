@@ -111,6 +111,12 @@ local function zoneName(coords)
     return label
 end
 
+-- улица по-русски — из kavkaz_map (там же подмена текстов GTA); если ресурса нет, улицу не показываем
+local function streetName(coords)
+    local ok, name = pcall(function() return exports.kavkaz_map:streetAt(coords) end)
+    return ok and name or ''
+end
+
 local function gearOf(veh, speed, rpm)
     if not GetIsVehicleEngineRunning(veh) then return 'N' end
     local gear = GetVehicleCurrentGear(veh)
@@ -232,8 +238,9 @@ CreateThread(function()
                 bank = money.bank or 0,
                 dir = direction(),
                 zone = zoneName(GetEntityCoords(ped)),
+                street = streetName(GetEntityCoords(ped)),
             }
-            sendIfChanged('info', info, table.concat({ info.id, info.online, info.time, info.cash, info.bank, info.dir, info.zone, info.date, info.weather }, '|'))
+            sendIfChanged('info', info, table.concat({ info.id, info.online, info.time, info.cash, info.bank, info.dir, info.zone, info.street, info.date, info.weather }, '|'))
             if IsRadarHidden() then DisplayRadar(true) end
             SetRadarBigmapEnabled(false, false)
         end

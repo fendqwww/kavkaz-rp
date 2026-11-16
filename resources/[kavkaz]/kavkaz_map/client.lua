@@ -5,7 +5,25 @@ CreateThread(function()
     for code, name in pairs(Config.Zones) do
         AddTextEntry(code, name)
     end
+    -- улицы: тексты GTA хранятся по хэшу улицы, подменяем их во всей игре (HUD, вызовы, сообщения других ресурсов)
+    for hash, name in pairs(Config.Streets or {}) do
+        AddTextEntryByHash(hash, name)
+    end
 end)
+
+-- русское название улицы в точке (для HUD и уведомлений); '' — если улицы рядом нет
+local function streetAt(coords)
+    local a, b = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
+    local function name(h)
+        if not h or h == 0 then return nil end
+        local u = h < 0 and h + 0x100000000 or h
+        return (Config.Streets or {})[u]
+    end
+    local main, cross = name(a), name(b)
+    if main and cross and cross ~= main then return main .. ' / ' .. cross end
+    return main or ''
+end
+exports('streetAt', streetAt)
 
 -- метки
 local blips = {}

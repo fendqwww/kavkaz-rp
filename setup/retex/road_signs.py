@@ -21,6 +21,7 @@ YEL = (245, 196, 0, 255)
 WHITE = (250, 250, 250, 255)
 BLACK = (20, 20, 20, 255)
 GREY = (120, 120, 120, 255)
+GREEN = (0, 122, 70, 255)
 S = 512
 K = 4  # рисуем в 4 раза крупнее и уменьшаем — ровные края
 names = []
@@ -265,6 +266,46 @@ def sign_city(name, title, end=False):  # 5.23.1 / 5.24.1 — населённы
     finish(img, name)
 
 
+def sign_1_34(right=True):  # 1.34.1 / 1.34.2 направление поворота: белые шевроны на красном, табличка 2:1
+    img = canvas(); d = ImageDraw.Draw(img)
+    d.rounded_rectangle([P(0.02, 0.26), P(0.98, 0.74)], radius=0.03 * S * K, fill=WHITE)
+    d.rounded_rectangle([P(0.035, 0.275), P(0.965, 0.725)], radius=0.025 * S * K, fill=RED)
+    sx = 1 if right else -1
+    for i in range(3):
+        cx = 0.5 + (i - 1) * 0.27
+        t, w = 0.10, 0.07  # полувысота шеврона по X, толщина
+        tip, back = cx + sx * t, cx - sx * t
+        d.polygon([P(back, 0.31), P(back + sx * w, 0.31), P(tip + sx * w, 0.5), P(back + sx * w, 0.69), P(back, 0.69), P(tip, 0.5)], fill=WHITE)
+    finish(img, '1_34_1' if right else '1_34_2')
+
+
+def sign_5_1():  # автомагистраль: зелёный квадрат, мост над расходящейся дорогой
+    img = canvas(); d = ImageDraw.Draw(img)
+    d.rounded_rectangle([P(0.03, 0.03), P(0.97, 0.97)], radius=0.06 * S * K, fill=WHITE)
+    d.rounded_rectangle([P(0.05, 0.05), P(0.95, 0.95)], radius=0.05 * S * K, fill=GREEN)
+    d.rectangle([P(0.16, 0.30), P(0.84, 0.38)], fill=WHITE)            # пролёт моста
+    d.rectangle([P(0.22, 0.38), P(0.29, 0.50)], fill=WHITE)            # опоры
+    d.rectangle([P(0.71, 0.38), P(0.78, 0.50)], fill=WHITE)
+    d.polygon([P(0.44, 0.43), P(0.47, 0.43), P(0.33, 0.86), P(0.24, 0.86)], fill=WHITE)   # две полосы дороги под мостом
+    d.polygon([P(0.53, 0.43), P(0.56, 0.43), P(0.76, 0.86), P(0.67, 0.86)], fill=WHITE)
+    finish(img, '5_1')
+
+
+def sign_5_5():  # дорога с односторонним движением: белая стрелка вверх на синем
+    img = canvas(); d = ImageDraw.Draw(img)
+    blue_square(d)
+    arrow(d, 0.5, 0.84, 0.5, 0.16, 0.16, 0.30, WHITE)
+    finish(img, '5_5')
+
+
+def sign_dps():  # «Пост ДПС» (7.12): синий квадрат, белое поле, чёрные буквы
+    img = canvas(); d = ImageDraw.Draw(img)
+    blue_square(d)
+    d.rectangle([P(0.16, 0.30), P(0.84, 0.70)], fill=WHITE)
+    text(img, 'ДПС', 0.5, 0.505, 0.24, BLACK)
+    finish(img, '7_12_dps')
+
+
 sign_2_1(); sign_2_2(); sign_2_4(); sign_2_5()
 sign_3_1(); sign_3_2(); sign_3_27(); sign_3_28()
 for v in (20, 40, 60, 90): sign_speed(v)
@@ -278,6 +319,7 @@ sign_5_19(); sign_6_4(); sign_5_16()
 sign_1_11(True); sign_1_11(False); sign_1_22()
 sign_city('5_23_nagorsk', 'НАГОРСК'); sign_city('5_24_nagorsk', 'НАГОРСК', end=True)
 sign_city('5_23_lamyurt', 'ЛАМ-ЮРТ'); sign_city('5_23_peschany', 'ПЕСЧАНЫЙ')
+sign_1_34(True); sign_1_34(False); sign_5_1(); sign_5_5(); sign_dps()
 
 (root / 'resources' / '[kavkaz]' / 'kavkaz_world' / 'signs_list.lua').write_text(
     '-- собрано setup/retex/road_signs.py — не править руками\nConfig.SignImages = {\n' + ''.join(f"    '{n}',\n" for n in names) + '}\n', encoding='utf-8')

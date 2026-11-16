@@ -10,6 +10,7 @@ local function pick(model, i)
         if not r.with then return nil end
         return r.with[(i % #r.with) + 1], r.yaw or 0.0
     end
+    if not Config.PalmsToTrees then return nil end -- 15.11: пальмы просто убираем, деревья расставим отдельно
     for _, pat in ipairs(Config.SmallPalm) do
         if model:find(pat) then return Config.PalmBushes[(i % #Config.PalmBushes) + 1], 0.0 end
     end
@@ -98,6 +99,86 @@ local function groundFor(hash, x, y, yaw)
     return lo - 0.15
 end
 
+-- 15.11: двор у жилого дома (Config.Yards). по одной длинной стороне — лавочки и стол, по другой — машины, у торца — баки.
+-- всё ставится только вместе с домом и только на землю рядом с ним: не на дорогу, не у самой полосы, не на крышу/в обрыв
+local function pickOf(list, seed) return list[(seed % #list) + 1] end
+
+local function nearLane(x, y, z, d)
+    local found, node = GetClosestVehicleNode(x, y, z, 1, 3.0, 0)
+    return found and #(vec2(node.x, node.y) - vec2(x, y)) < d
+end
+
+local function yardGround(x, y, baseZ, laneGap)
+    local ok, gz = GetGroundZFor_3dCoord(x, y, baseZ + 4.0, false)
+    if not ok or math.abs(gz - baseZ) > 2.5 then return nil end
+    if IsPointOnRoad(x, y, gz + 0.5, 0) or nearLane(x, y, gz, laneGap) then return nil end
+    return gz
+end
+
+local function loadModel(hash)
+    if not IsModelInCdimage(hash) then return false end
+    local ok = pcall(lib.requestModel, hash, 5000)
+    return ok and HasModelLoaded(hash)
+end
+
+local function spawnYard(name, x, y, z, yaw)
+    local Y = Config.Yards
+    if not Y or not Y.houses[name] then return nil end
+    local out = {}
+    local mn, mx = GetModelDimensions(joaat(name))
+    local r = math.rad(yaw)
+    local cs, sn = math.cos(r), math.sin(r)
+    local alongX = (mx.x - mn.x) >= (mx.y - mn.y) -- длинная ось модели
+    local hl = (alongX and (mx.x - mn.x) or (mx.y - mn.y)) / 2
+    local hs = (alongX and (mx.y - mn.y) or (mx.x - mn.x)) / 2
+    local cx, cy = (mx.x + mn.x) / 2, (mx.y + mn.y) / 2 -- центр модели бывает не в нуле
+    local function world(l, s) -- (вдоль, поперёк) дома -> мир
+        local lx, ly
+        if alongX then lx, ly = cx + l, cy + s else lx, ly = cx + s, cy + l end
+        return x + lx * cs - ly * sn, y + lx * sn + ly * cs
+    end
+    local head = alongX and yaw or yaw + 90.0
+    local seed = math.floor(math.abs(x) * 7 + math.abs(y) * 13)
+    local function put(model, l, s, h)
+        local hash = joaat(model)
+        local px, py = world(l, s)
+        local gz = yardGround(px, py, z, 4.0)
+        if not gz or not loadModel(hash) then return end
+        local e = CreateObjectNoOffset(hash, px, py, gz, false, false, false)
+        SetEntityHeading(e, h)
+        PlaceObjectOnGroundProperly(e)
+        FreezeEntityPosition(e, true)
+        SetModelAsNoLongerNeeded(hash)
+        out[#out + 1] = e
+    end
+    put(pickOf(Y.benches, seed), -hl * 0.35, hs + 3.0, head + 180.0)
+    put(pickOf(Y.benches, seed + 1), hl * 0.35, hs + 3.0, head + 180.0)
+    put(pickOf(Y.extra, seed), 0.0, hs + 5.0, head)
+    put(pickOf(Y.bins, seed), hl + 3.0, hs * 0.5, head + 90.0)
+    put(pickOf(Y.bins, seed + 1), hl + 3.0, hs * 0.5 - 2.2, head + 90.0)
+    local nCars = hl > 12.0 and 3 or 2
+    for i = 1, nCars do
+        local hash = joaat(pickOf(Y.cars, seed + i))
+        local px, py = world((i - (nCars + 1) / 2) * 6.0, -(hs + 4.5))
+        local gz = yardGround(px, py, z, 6.0)
+        if gz and loadModel(hash) then
+            local v = CreateVehicle(hash, px, py, gz + 0.3, head + ((seed + i) % 2 == 0 and 0.0 or 180.0), false, false)
+            if v ~= 0 then
+                SetVehicleOnGroundProperly(v)
+                SetVehicleDoorsLocked(v, 2)
+                local c = pickOf(Y.carColors, seed + i * 3)
+                SetVehicleColours(v, c, c)
+                SetVehicleDirtLevel(v, ((seed + i) % 10) * 1.0)
+                SetEntityInvincible(v, true)
+                FreezeEntityPosition(v, true)
+                out[#out + 1] = v
+            end
+            SetModelAsNoLongerNeeded(hash)
+        end
+    end
+    return out
+end
+
 local skip = {} -- места русских кварталов, где земля оказалась неровной
 local function spawnOne(o)
     local hash = type(o[1]) == 'number' and o[1] or joaat(o[1])
@@ -119,14 +200,17 @@ local function spawnOne(o)
     if o[6] then SetEntityRotation(ob, o[6], o[7], o[5], 2, true) else SetEntityHeading(ob, o[5]) end
     FreezeEntityPosition(ob, true)
     SetModelAsNoLongerNeeded(hash)
-    return true, ob
+    -- дом русского квартала (высота считалась по земле) — сразу двор вокруг него
+    local yard = o[4] == false and type(o[1]) == 'string' and spawnYard(o[1], o[2], o[3], z, o[5]) or nil
+    return true, ob, yard
 end
 
 local function spawnCell(k)
     local objs, wait = {}, {}
     for _, o in ipairs(cells[k] or {}) do
-        local done, ob = spawnOne(o)
+        local done, ob, yard = spawnOne(o)
         if ob then objs[#objs + 1] = ob elseif not done then wait[#wait + 1] = o end
+        for _, e in ipairs(yard or {}) do objs[#objs + 1] = e end
     end
     spawned[k] = objs
     spawned[k].wait = wait
@@ -138,8 +222,9 @@ local function retryCell(k)
     if not objs.wait or #objs.wait == 0 then return end
     local still = {}
     for _, o in ipairs(objs.wait) do
-        local done, ob = spawnOne(o)
+        local done, ob, yard = spawnOne(o)
         if ob then objs[#objs + 1] = ob elseif not done then still[#still + 1] = o end
+        for _, e in ipairs(yard or {}) do objs[#objs + 1] = e end
     end
     objs.wait = still
 end

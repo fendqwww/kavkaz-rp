@@ -146,6 +146,7 @@ function onInfo(d) {
   $('bank').textContent = money(d.bank);
   $('dir').textContent = d.dir;
   $('zone').textContent = d.zone || '';
+  $('street').textContent = d.street || '';
 }
 
 function onPop(d) {

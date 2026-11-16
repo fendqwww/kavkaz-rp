@@ -28,4 +28,9 @@ Config.SignImages = {
     'gost_5_24_nagorsk',
     'gost_5_23_lamyurt',
     'gost_5_23_peschany',
+    'gost_1_34_1',
+    'gost_1_34_2',
+    'gost_5_1',
+    'gost_5_5',
+    'gost_7_12_dps',
 }

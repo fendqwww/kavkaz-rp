@@ -17,6 +17,7 @@ shared_scripts {
 }
 
 client_script 'client.lua'
+server_script 'server.lua' -- 15.11: задание «Четыре въезда» (отметки у стел — на сервере)
 
 files {
     'images/*.png',

@@ -98,6 +98,8 @@ svg { fill: currentColor; }
 .place { margin-top: 0.35rem; display: flex; align-items: baseline; gap: 0.55rem; }
 .place b { font-size: 1.2rem; font-weight: 700; }
 .place span { font: 700 0.8rem 'Unbounded', sans-serif; color: var(--muted); }
+.street { margin-top: 0.1rem; font-size: 1rem; font-weight: 500; color: var(--muted); }
+.street:empty { display: none; }
 .money { margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.05rem; }
 .money div { display: flex; align-items: baseline; gap: 0.4rem; }
 .money svg { width: 1.05rem; height: 1.05rem; align-self: center; }

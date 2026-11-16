@@ -13,6 +13,9 @@ Config.Replace = {
     prop_traffic_03b = { with = { 'prop_traffic_01a' }, yaw = 0.0 },
 }
 Config.TrafficLights = true -- data_lights.lua (297 мест из скана карты)
+-- 15.11 основатель: «пальмы полностью убираем, деревья и т. д. расставим позже в отдельной сессии» — false: только прячем.
+-- вдали пальмы тоже убраны: kv_map_palms теперь с прозрачными «карточками» пальм вместо крон
+Config.PalmsToTrees = false
 -- пальмы: в предгорьях Кавказа их нет — на их месте обычные деревья (модели GTA, есть у всех)
 -- большие пальмы -> деревья, маленькие веерные пальмы в клумбах -> кусты (чтобы деревья не выросли посреди тротуара)
 Config.PalmTrees = { 'prop_tree_birch_01', 'prop_tree_birch_02', 'prop_tree_birch_03', 'prop_tree_maple_02', 'prop_tree_oak_01' }
@@ -29,3 +32,15 @@ Config.Placements = true
 -- русские кварталы: хрущёвки, панельки, гаражи, киоски на пустых местах (data_rublocks.lua, setup/maps/make_rublocks.py)
 Config.RuBlocks = true
 Config.MaxSlope = 2.0 -- м: если земля под домом неровнее — место пропускаем
+
+-- 15.11: дворы у жилых домов русских кварталов — лавочки, мусорные контейнеры, беседка, припаркованные машины.
+-- ставятся только вместе с домом, каждый предмет — на землю у дома (не на дорогу, не на крышу, не в обрыв).
+-- машины — наш автопарк (запертые, неподвижные, у каждого игрока свои); модели, которой нет, просто пропускается
+Config.Yards = {
+    houses = { kv_p_khrushchevka = true, kv_p_soviet_residential_building = true, kv_p_russian_panel_house = true },
+    benches = { 'prop_bench_01a', 'prop_bench_06', 'prop_bench_09' },
+    bins = { 'prop_dumpster_01a', 'prop_dumpster_02a' },
+    extra = { 'prop_picnictable_01', 'prop_bbq_1' }, -- беседка не влезает в свободные 7 м вокруг дома
+    cars = { 'kv_vaz2107', 'kv_vaz2109', 'kv_vaz2114', 'kv_priora' }, -- 4 модели: каждая машина — до 30 МБ памяти
+    carColors = { 111, 4, 1, 27, 62, 53, 99, 0 },
+}

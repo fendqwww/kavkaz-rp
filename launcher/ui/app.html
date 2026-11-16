@@ -246,14 +246,22 @@
     $('links').appendChild(b);
   }
 
+  let statusFails = 0;
   async function refreshStatus() {
     if (!cfg || !cfg.address) {
       $('dot').className = 'dot'; $('statusText').textContent = 'Сервер ещё не подключён'; $('play').disabled = true; return;
     }
     const s = await invoke('get_status', { address: cfg.address });
-    $('dot').className = s.online ? 'dot ok' : 'dot bad';
-    $('statusText').textContent = s.online ? 'Сервер работает' : 'Сервер недоступен';
-    $('play').disabled = !s.online;
+    // 15.11: один пропущенный ответ (канал занят загрузкой FiveM) гасил «Играть» при живом сервере.
+    // «недоступен» — только после 3 промахов подряд (~45 с); до этого показываем прошлое состояние
+    statusFails = s.online ? 0 : statusFails + 1;
+    if (s.online) {
+      $('dot').className = 'dot ok'; $('statusText').textContent = 'Сервер работает'; $('play').disabled = false;
+    } else if (statusFails >= 3) {
+      $('dot').className = 'dot bad'; $('statusText').textContent = 'Сервер недоступен'; $('play').disabled = true;
+    } else if (!$('dot').classList.contains('ok')) {
+      $('dot').className = 'dot'; $('statusText').textContent = 'Проверяю сервер…'; $('play').disabled = false;
+    }
   }
 
   function showAddrInfo() {
@@ -286,7 +294,11 @@
 
   /* ---------- кнопки ---------- */
   $('play').onclick = async () => {
-    try { await invoke('play', { address: cfg.address }); $('hint').textContent = 'Запускаю FiveM… Первый вход может занять несколько минут.'; }
+    try {
+      // лаунчер 0.3.1+ возвращает текст (например, «закрыл зависший запуск»), 0.3 — ничего
+      const msg = await invoke('play', { address: cfg.address });
+      $('hint').textContent = msg || 'Запускаю FiveM… Первый вход может занять несколько минут.';
+    }
     catch (e) { $('hint').textContent = String(e); }
   };
     // прямая ссылка на официальный установщик FiveM: браузер сразу качает FiveM.exe, без сайта

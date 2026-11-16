@@ -178,7 +178,8 @@ async fn get_status(address: String) -> Status {
         return offline;
     }
     let url = format!("http://{}/dynamic.json", with_port(&address));
-    let Ok(resp) = http().get(url).send().await else { return offline };
+    // 15.11: 5 с не хватало, пока FiveM качает файлы сервера по медленному каналу — лаунчер писал «недоступен» при живом сервере
+    let Ok(resp) = http().get(url).timeout(Duration::from_secs(10)).send().await else { return offline };
     if !resp.status().is_success() {
         return offline;
     }
@@ -314,7 +315,8 @@ mod quiet {
         "epicgameslauncher.exe", "steam.exe", "steamwebhelper.exe", "fivem.exe",
     ];
 
-    fn exe_name(pid: u32) -> Option<String> {
+    /// полный путь к exe процесса, в нижнем регистре
+    pub fn exe_path(pid: u32) -> Option<String> {
         unsafe {
             let h = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid);
             if h == 0 {
@@ -327,9 +329,12 @@ mod quiet {
             if ok == 0 {
                 return None;
             }
-            let path = String::from_utf16_lossy(&buf[..len as usize]).to_lowercase();
-            path.rsplit('\\').next().map(|n| n.to_string())
+            Some(String::from_utf16_lossy(&buf[..len as usize]).to_lowercase())
         }
+    }
+
+    fn exe_name(pid: u32) -> Option<String> {
+        exe_path(pid)?.rsplit('\\').next().map(|n| n.to_string())
     }
 
     unsafe extern "system" fn collect(hwnd: HWND, lparam: LPARAM) -> BOOL {
@@ -366,13 +371,99 @@ mod quiet {
     }
 }
 
+/// когда лаунчер последний раз открыл fivem:// (секунды unix) — чтобы повторный клик не убил идущий запуск
+static LAST_PLAY: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+fn now_secs() -> u64 {
+    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0)
+}
+
+/// что сделать перед открытием fivem://
+enum Prepared {
+    /// можно запускать; true — пришлось убрать остатки прошлого запуска
+    Go(bool),
+    /// FiveM уже запускается этим лаунчером (повторный клик) — ничего не трогаем
+    AlreadyStarting,
+}
+
+/// перед «Играть» убираем то, что осталось от упавшего запуска (15.11 у основателя):
+/// - FiveM 90 с ждал зависший лаунчер Rockstar и падал с ошибкой 506 «Failure connecting to the Rockstar Games Launcher»;
+/// - окно ошибки и процессы FiveM оставались висеть, и следующий запуск падал с «Failed to send LinkProtocolIPC message, no master process».
+/// игру FiveM (…GTAProcess) не трогаем: если она идёт, ссылку на сервер она примет сама.
+#[cfg(windows)]
+fn prepare_launch() -> Result<Prepared, String> {
+    use std::os::windows::process::CommandExt;
+    const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+    let procs: Vec<(String, u32)> = std::process::Command::new("tasklist")
+        .args(["/FO", "CSV", "/NH"])
+        .creation_flags(CREATE_NO_WINDOW)
+        .output()
+        .map(|o| {
+            String::from_utf8_lossy(&o.stdout)
+                .lines()
+                .filter_map(|l| {
+                    let mut f = l.split("\",\"");
+                    let name = f.next()?.trim_start_matches('"').to_lowercase();
+                    let pid = f.next()?.trim_matches('"').parse().ok()?;
+                    Some((name, pid))
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    if procs.iter().any(|(n, _)| n.starts_with("fivem") && n.contains("gtaprocess")) {
+        return Ok(Prepared::Go(false));
+    }
+    if procs.iter().any(|(n, _)| n == "gta5.exe" || n == "gta5_enhanced.exe") {
+        return Err("Сейчас открыта GTA V (одиночная игра или другой проект). Закрой её и нажми «Играть» ещё раз.".into());
+    }
+    let fivem: Vec<u32> = procs.iter().filter(|(n, _)| n.starts_with("fivem")).map(|p| p.1).collect();
+    if !fivem.is_empty() && now_secs().saturating_sub(LAST_PLAY.load(std::sync::atomic::Ordering::Relaxed)) < 120 {
+        return Ok(Prepared::AlreadyStarting);
+    }
+    // лаунчер Rockstar узнаём по соседнему RockstarService.exe: имя Launcher.exe бывает у чего угодно
+    let rockstar: Vec<u32> = procs
+        .iter()
+        .filter(|(n, pid)| match n.as_str() {
+            "socialclubhelper.exe" | "launcherpatcher.exe" => true,
+            "launcher.exe" => quiet::exe_path(*pid)
+                .map(|p| std::path::Path::new(&p).with_file_name("RockstarService.exe").exists())
+                .unwrap_or(false),
+            _ => false,
+        })
+        .map(|p| p.1)
+        .collect();
+    let stale: Vec<u32> = fivem.into_iter().chain(rockstar).collect();
+    for pid in &stale {
+        let _ = std::process::Command::new("taskkill")
+            .args(["/F", "/T", "/PID", &pid.to_string()])
+            .creation_flags(CREATE_NO_WINDOW)
+            .output();
+    }
+    if !stale.is_empty() {
+        std::thread::sleep(Duration::from_millis(1500));
+    }
+    Ok(Prepared::Go(!stale.is_empty()))
+}
+
+#[cfg(not(windows))]
+fn prepare_launch() -> Result<Prepared, String> {
+    Ok(Prepared::Go(false))
+}
+
 #[tauri::command]
-fn play(app: tauri::AppHandle, address: String) -> Result<(), String> {
+fn play(app: tauri::AppHandle, address: String) -> Result<String, String> {
     let a = with_port(&address);
     if !valid_address(&a) {
         return Err("адрес сервера ещё не задан".into());
     }
+    let cleaned = match prepare_launch()? {
+        Prepared::AlreadyStarting => {
+            return Ok("FiveM уже запускается — подожди окно игры. Если за 2 минуты ничего не появится, нажми «Играть» ещё раз.".into())
+        }
+        Prepared::Go(c) => c,
+    };
     open_fivem(&format!("fivem://connect/{a}"))?;
+    LAST_PLAY.store(now_secs(), std::sync::atomic::Ordering::Relaxed);
     // окна Rockstar / Epic / Steam / заставки FiveM сворачиваем первые 3 минуты, своё окно — сразу
     #[cfg(windows)]
     quiet::run(180);
@@ -388,7 +479,11 @@ fn play(app: tauri::AppHandle, address: String) -> Result<(), String> {
             app.exit(0);
         });
     }
-    Ok(())
+    Ok(if cleaned {
+        "Закрыл зависший прошлый запуск FiveM и лаунчер Rockstar, запускаю заново… Первый вход может занять несколько минут.".into()
+    } else {
+        "Запускаю FiveM… Первый вход может занять несколько минут.".into()
+    })
 }
 
 #[tauri::command]
