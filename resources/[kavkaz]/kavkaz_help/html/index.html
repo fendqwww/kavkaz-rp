@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>KAVKAZ RP — команды</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  /* тот же стиль, что у памятки kavkaz_start: графит, изумрудный акцент, Golos Text; Unbounded — логотип и заголовки */
+  :root {
+    --bg: #121314; --panel: #1a1b1d; --line: #2a2b2e;
+    --acc: #3dcc5c; --text: #f2f3f5; --muted: rgba(242,243,245,.55);
+    --f-logo: "Unbounded", "Arial Black", sans-serif;
+    --f-ui: "Golos Text", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+  body { font: 400 16px/1.5 var(--f-ui); color: var(--text); user-select: none; }
+  body.preview { background: #2b2d30; }
+
+  .shade { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none; align-items: center; justify-content: center; }
+  .shade.open { display: flex; }
+
+  .card { width: 980px; max-width: calc(100vw - 48px); height: min(760px, calc(100vh - 48px)); display: flex; flex-direction: column;
+    background: var(--panel); border-radius: 8px; padding: 32px 40px 28px; }
+
+  .brand { display: flex; align-items: baseline; }
+  .logo { position: relative; font: 800 30px/1 var(--f-logo); letter-spacing: .02em; }
+  .logo::after { content: ""; position: absolute; right: -10px; top: -3px; width: 12px; height: 12px; border-radius: 50%;
+    background: var(--acc); }
+  .rp { font: 700 13px var(--f-logo); color: var(--acc); margin-left: 12px; }
+
+  h1 { margin-top: 18px; font: 700 26px/1.25 var(--f-logo); }
+
+  .tabs { margin-top: 18px; display: flex; gap: 6px; border-bottom: 1px solid var(--line); }
+  .tab { padding: 9px 16px 10px; font: 600 15px var(--f-ui); color: var(--muted); background: none; border: 0;
+    border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; border-radius: 0; }
+  .tab:hover { color: var(--text); background: none; }
+  .tab.on { color: var(--text); border-bottom-color: var(--acc); }
+
+  .list { flex: 1; overflow-y: auto; margin-top: 6px; padding-right: 6px; }
+  .list::-webkit-scrollbar { width: 6px; }
+  .list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+  .grp { margin: 18px 0 2px; font: 700 13px var(--f-ui); letter-spacing: .08em; text-transform: uppercase; color: #3dcc5c; }
+  .grp:first-child { margin-top: 4px; }
+  .search { width: 100%; margin-top: 10px; padding: 9px 12px; border-radius: 6px; border: 1px solid #2a2b2e; background: #121314;
+    color: inherit; font: 500 15px var(--f-ui); outline: none; }
+  .search:focus { border-color: #3dcc5c; }
+  .empty { padding: 20px 0; opacity: .6; }
+  .row { display: grid; grid-template-columns: 300px 1fr; gap: 4px 24px; padding: 12px 0; border-bottom: 1px solid #232427; }
+  .cmd { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font: 600 15px var(--f-ui); }
+  .cmd code { font: 600 15px var(--f-ui); color: #f2f3f5; }
+  kbd { flex: none; min-width: 40px; padding: 1px 8px; border-radius: 6px; text-align: center;
+    font: 600 13px var(--f-ui); color: var(--text); background: #2a2b2e; border: 0; }
+  .lvl { font: 600 12px var(--f-ui); color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; }
+  .desc { font-size: 15px; }
+  .ex { grid-column: 2; font-size: 14px; color: var(--muted); }
+  .ex span { color: #c9cbcf; }
+
+  .foot { margin-top: 18px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .note { color: var(--muted); font-size: 14px; }
+  .note b { color: var(--text); font-weight: 600; }
+  .main { cursor: pointer; border: 0; border-radius: 6px; padding: 12px 34px; font: 600 16px var(--f-ui); color: #fff; background: var(--acc); }
+  .main:hover { background: #52d96f; }
+  button:focus-visible { outline: 2px solid #3dcc5c; outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="shade" id="shade">
+  <div class="card" role="dialog" aria-labelledby="title">
+    <div class="brand"><img src="logo.svg" alt="KAVKAZ RP" style="height:30px;display:block"></div>
+    <h1 id="title">Команды</h1>
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <input class="search" id="search" placeholder="поиск: машина, бан, телепорт, деньги…" autocomplete="off">
+    <div class="list" id="list"></div>
+    <div class="foot">
+      <div class="note">Пиши в чат (<b>T</b>), после «/» появятся подсказки. Открыть снова: <b>/help</b></div>
+      <button class="main" id="ok">Понятно</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const shade = document.getElementById('shade');
+  const tabsEl = document.getElementById('tabs');
+  const listEl = document.getElementById('list');
+  const isGame = typeof GetParentResourceName === 'function';
+  const resource = isGame ? GetParentResourceName() : 'kavkaz_help';
+  let tabs = [], current = null;
+
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function showTab(id) {
+    current = id;
+    for (const b of tabsEl.children) b.classList.toggle('on', b.dataset.id === id);
+    const tab = tabs.find(t => t.id === id);
+    listEl.replaceChildren();
+    const q = (document.getElementById('search').value || '').trim().toLowerCase();
+    let lastGroup = null, shown = 0;
+    for (const r of (tab ? tab.rows : [])) {
+      if (q && ![r.cmd, r.key, r.desc, r.ex, r.group].join(' ').toLowerCase().includes(q)) continue;
+      if (r.group && r.group !== lastGroup) { listEl.append(el('div', 'grp', r.group)); lastGroup = r.group; }
+      shown++;
+      const row = el('div', 'row');
+      const cmd = el('div', 'cmd');
+      if (r.key) cmd.append(el('kbd', null, r.key));
+      if (r.cmd && r.cmd !== r.key) cmd.append(el('code', null, r.cmd));
+      if (r.level) cmd.append(el('span', 'lvl', 'ур. ' + r.level));
+      row.append(cmd, el('div', 'desc', r.desc || ''));
+      if (r.ex) {
+        const ex = el('div', 'ex', 'пример: ');
+        ex.append(el('span', null, r.ex));
+        row.append(ex);
+      }
+      listEl.append(row);
+    }
+    if (!shown) listEl.append(el('div', 'empty', 'ничего не нашлось'));
+    listEl.scrollTop = 0;
+  }
+
+  function open(data) {
+    tabs = data.tabs || [];
+    tabsEl.replaceChildren();
+    for (const t of tabs) {
+      const b = el('button', 'tab', t.label);
+      b.dataset.id = t.id;
+      b.setAttribute('role', 'tab');
+      b.addEventListener('click', () => showTab(t.id));
+      tabsEl.append(b);
+    }
+    document.getElementById('search').value = '';
+    showTab(tabs.length ? tabs[0].id : null);
+    shade.classList.add('open');
+    document.getElementById('ok').focus();
+  }
+
+  function close() {
+    shade.classList.remove('open');
+    if (isGame) fetch(`https://${resource}/close`, { method: 'POST', body: '{}' }).catch(() => {});
+  }
+
+  document.getElementById('search').addEventListener('input', () => showTab(current));
+  window.addEventListener('message', e => { if (e.data && e.data.action === 'open') open(e.data); });
+  document.getElementById('ok').addEventListener('click', close);
+  window.addEventListener('keydown', e => {
+    if (e.key === 'Escape' || (e.key === 'Enter' && document.activeElement.id !== 'search')) close();
+    if ((e.key === 'ArrowRight' || e.key === 'ArrowLeft') && tabs.length && document.activeElement.id !== 'search') {
+      const i = tabs.findIndex(t => t.id === current);
+      const n = (i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length;
+      showTab(tabs[n].id);
+    }
+  });
+
+  // предпросмотр в обычном браузере: index.html?preview
+  if (new URLSearchParams(location.search).has('preview')) {
+    document.body.classList.add('preview');
+    open({ tabs: [
+      { id: 'general', label: 'Общие', rows: [
+        { cmd: '/help · /команды', ex: '/help', desc: 'это окно: все команды сервера' },
+        { cmd: '/report текст', ex: '/report застрял в стене у мэрии', desc: 'написать администрации, не чаще раза в минуту' },
+        { cmd: '/pay ID сумма', ex: '/pay 12 5000', desc: 'передать наличные игроку рядом (до 3 м)' } ] },
+      { id: 'chats', label: 'Чаты', rows: [
+        { key: 'T', cmd: 'обычный текст', ex: 'Салам, брат', desc: 'речь персонажа, слышно рядом (15 м)' },
+        { cmd: '/do текст', ex: '/do Паспорт в руке.', desc: 'описание обстановки или результата' } ] },
+      { id: 'admin', label: 'Админ', rows: [
+        { key: 'F2', cmd: '/noclip', level: 3, ex: '/noclip', desc: 'полёт: WASD, Q/E вверх-вниз, SHIFT быстрее' },
+        { cmd: '/ban ID дни причина', level: 3, ex: '/ban 12 3 читы', desc: 'бан: 3 ур. до 7 дней, 4 ур. до 30' } ] },
+    ] });
+  }
+</script>
+</body>
+</html>

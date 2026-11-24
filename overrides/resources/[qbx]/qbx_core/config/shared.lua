@@ -1,0 +1,17 @@
+return {
+    serverName = 'KAVKAZ RP', -- KAVKAZ: было 'Server'
+    defaultSpawn = vec4(462.22, -641.15, 28.45, 175.0), -- KAVKAZ: автовокзал Нагорска (Dashound), было мэрия -540.58, -212.02
+    notifyPosition = 'top-right', -- 'top' | 'top-right' | 'top-left' | 'bottom' | 'bottom-right' | 'bottom-left'
+    ---@type { name: string, amount: integer, metadata: fun(source: number): table }[]
+    starterItems = { -- Character starting items
+        { name = 'phone', amount = 1 },
+        { name = 'water', amount = 2 }, -- KAVKAZ: еда и вода на первый час
+        { name = 'sandwich', amount = 2 },
+        { name = 'id_card', amount = 1, metadata = function(source)
+                assert(GetResourceState('qbx_idcard') == 'started', 'qbx_idcard resource not found. Required to give an id_card as a starting item')
+                return exports.qbx_idcard:GetMetaLicense(source, {'id_card'})
+            end
+        },
+        -- KAVKAZ: прав на старте нет — их выдаёт автошкола Заремы Поворотовны (kavkaz_quests)
+    }
+}

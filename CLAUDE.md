@@ -12,7 +12,7 @@ RP-сервер для FiveM на фреймворке **Qbox** (qbx_core + ox_l
 | `C:\kavkaz\server` | артефакты FXServer (recommended-билд) |
 | `C:\kavkaz\txData` | данные txAdmin и задеплоенный сервер Qbox (`resources`, `server.cfg`) |
 | `C:\kavkaz\secrets.cfg` | пароли БД, строка подключения, ключ Cfx.re — **только локально** |
-| `C:\project\kavkaz` | этот репозиторий |
+| `C:\kavkaz\kavkaz-repo` | этот репозиторий |
 | ярлыки на рабочем столе | «Запустить сервер» / «Остановить сервер» |
 
 Установка с нуля: `setup/install.ps1` (идемпотентный, можно перезапускать).

@@ -1,0 +1,2 @@
+Иконки: Tabler Icons, MIT License, Copyright (c) 2020-2026 Paweł Kuna, github.com/tabler/tabler-icons
+Шрифт Golos Text: SIL Open Font License 1.1
