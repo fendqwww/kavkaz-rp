@@ -1,7 +1,7 @@
 -- KAVKAZ: копия ox_inventory/data/shops.lua — русские названия магазинов (они же метки на карте) и цены в рублях
 return {
 	General = {
-		name = 'Продукты', -- KAVKAZ: было Shop (вывеска sign2_produkty)
+		name = 'Продукты 24', -- KAVKAZ: было Shop (вывеска sign2_produkty); 16.11 — «Продукты 24», продавцы — kavkaz_places
 		blip = {
 			id = 59, colour = 69, scale = 0.8
 		}, inventory = {
@@ -21,6 +21,10 @@ return {
 			vec3(2679.25, 3280.12, 55.24),
 			vec3(2557.94, 382.05, 108.62),
 			vec3(373.55, 325.56, 103.56),
+			-- KAVKAZ 16.11: магазины LTD (11–13), без зон — открываются через продавца kavkaz_places
+			vec3(-47.42, -1758.67, 29.42),
+			vec3(1163.37, -323.80, 69.21),
+			vec3(-1820.52, 792.52, 138.11),
 		}, targets = {
 			{ loc = vec3(25.06, -1347.32, 29.5), length = 0.7, width = 0.5, heading = 0.0, minZ = 29.5, maxZ = 29.9, distance = 1.5 },
 			{ loc = vec3(-3039.18, 585.13, 7.91), length = 0.6, width = 0.5, heading = 15.0, minZ = 7.91, maxZ = 8.31, distance = 1.5 },
@@ -66,7 +70,9 @@ return {
 		blip = {
 			id = 402, colour = 69, scale = 0.8
 		}, inventory = {
-			{ name = 'lockpick', price = 1500 }
+			{ name = 'lockpick', price = 1500 },
+			{ name = 'repairkit', price = 2500 }, -- KAVKAZ 16.11: ремкомплект в дорогу
+			{ name = 'cleaningkit', price = 350 }, -- KAVKAZ 16.11
 		}, locations = {
 			vec3(2748.0, 3473.0, 55.67),
 			vec3(342.99, -1298.26, 32.51)
